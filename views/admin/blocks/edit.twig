@@ -107,6 +107,14 @@
                 <div id="editor" class="bg-white" style="min-height: 250px;">{{ block.content|raw }}</div>
                 <textarea name="content" id="content" class="hidden">{{ block.content }}</textarea>
             </div>
+
+            <div>
+                <label class="inline-flex items-center gap-2">
+                    <input type="checkbox" name="is_active" value="1" {{ block.is_active ? 'checked' : '' }}
+                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    <span class="text-sm font-medium text-gray-700">Actief</span>
+                </label>
+            </div>
         </div>
 
         <div class="mt-6 flex gap-3">
