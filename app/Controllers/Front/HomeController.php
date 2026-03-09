@@ -24,6 +24,14 @@ class HomeController extends Controller
             $blockModel = new Block();
             $blocks = $blockModel->getActiveBySite($site['id']);
 
+            // Decode JSON options for each block
+            foreach ($blocks as &$block) {
+                if (!empty($block['options']) && is_string($block['options'])) {
+                    $block['options'] = json_decode($block['options'], true) ?: [];
+                }
+            }
+            unset($block);
+
             $menuModel = new Menu();
             $headerMenu = $menuModel->getByLocationAndSite('header', $site['id']);
             $footerMenu = $menuModel->getByLocationAndSite('footer', $site['id']);

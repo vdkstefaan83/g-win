@@ -289,12 +289,13 @@ FROM sites s WHERE s.slug = 'gwin';
 -- ============================================================
 
 -- Hero block
-INSERT INTO blocks (site_id, title, subtitle, content, image, type, sort_order, is_active)
+INSERT INTO blocks (site_id, title, subtitle, content, image, options, type, sort_order, is_active)
 SELECT s.id,
 'Uw momenten in 3D vereeuwigd',
 '3D Scanning & Sculpting',
 'Moderne technologie gecombineerd met verfijnd handwerk voor uitzonderlijke 3D beelden en sculpturen.',
 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=80',
+'{"show_appointment_btn": true, "show_shop_btn": true}',
 'hero', 1, 1
 FROM sites s WHERE s.slug = 'gwin';
 

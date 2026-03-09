@@ -61,6 +61,14 @@ class BlockController extends Controller
         $data['sort_order'] = (int) $this->input('sort_order', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
 
+        // Block-type specific options (JSON)
+        if ($data['type'] === 'hero') {
+            $data['options'] = json_encode([
+                'show_appointment_btn' => (bool) $this->input('opt_appointment_btn'),
+                'show_shop_btn' => (bool) $this->input('opt_shop_btn'),
+            ]);
+        }
+
         // Support image URL or file upload
         $imageUrl = $this->input('image_url', '');
         if (!empty($imageUrl)) {
@@ -83,6 +91,11 @@ class BlockController extends Controller
         if (!$block) {
             Session::flash('error', 'Blok niet gevonden.');
             $this->redirect('/admin/blocks');
+        }
+
+        // Decode JSON options for the template
+        if (!empty($block['options']) && is_string($block['options'])) {
+            $block['options'] = json_decode($block['options'], true) ?: [];
         }
 
         $this->render('admin/blocks/edit.twig', [
@@ -109,6 +122,14 @@ class BlockController extends Controller
         $data['link_url'] = $this->input('link_url', '');
         $data['sort_order'] = (int) $this->input('sort_order', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
+
+        // Block-type specific options (JSON)
+        if ($data['type'] === 'hero') {
+            $data['options'] = json_encode([
+                'show_appointment_btn' => (bool) $this->input('opt_appointment_btn'),
+                'show_shop_btn' => (bool) $this->input('opt_shop_btn'),
+            ]);
+        }
 
         // Support image URL or file upload
         $imageUrl = $this->input('image_url', '');

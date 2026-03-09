@@ -52,15 +52,22 @@
             <p class="text-xl md:text-2xl text-krijgers-100/80 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
                 {{ heroBlock ? heroBlock.content|striptags : 'Moderne technologie gecombineerd met verfijnd handwerk.' }}
             </p>
+            {% set heroOpts = heroBlock.options ?? {} %}
+            {% if (heroOpts.show_appointment_btn ?? true) or (heroOpts.show_shop_btn ?? true) %}
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                {% if heroOpts.show_appointment_btn ?? true %}
                 <a href="/afspraken" class="group inline-flex items-center justify-center bg-krijgers-gold-500 text-krijgers-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-krijgers-gold-400 transition-all shadow-lg shadow-krijgers-gold-500/25 hover:shadow-krijgers-gold-500/40 hover:-translate-y-0.5">
                     Maak een afspraak
                     <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </a>
+                {% endif %}
+                {% if heroOpts.show_shop_btn ?? true %}
                 <a href="/shop" class="inline-flex items-center justify-center border-2 border-white/30 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 hover:border-white/50 transition-all backdrop-blur-sm">
                     Bekijk shop
                 </a>
+                {% endif %}
             </div>
+            {% endif %}
         </div>
     </div>
 

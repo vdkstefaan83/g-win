@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS blocks (
     content TEXT,
     image VARCHAR(255),
     link_url VARCHAR(255),
+    options JSON DEFAULT NULL,
     type ENUM('hero', 'feature', 'cta', 'text', 'gallery') DEFAULT 'text',
     sort_order INT DEFAULT 0,
     is_active TINYINT(1) DEFAULT 1,
