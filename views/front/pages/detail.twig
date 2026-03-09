@@ -49,9 +49,10 @@
     {% if page.images is defined and page.images|length > 0 %}
     <div class="mt-12">
         <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6">Foto's</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" x-data="{ lightbox: false, current: '' }">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+             x-data="{ lightbox: false, currentIndex: 0, images: [{% for img in page.images %}'{{ img.filename }}'{{ not loop.last ? ',' : '' }}{% endfor %}], get currentSrc() { return '/uploads/pages/' + this.images[this.currentIndex]; }, prev() { this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length; }, next() { this.currentIndex = (this.currentIndex + 1) % this.images.length; } }">
             {% for img in page.images %}
-            <div class="group cursor-pointer" @click="lightbox = true; current = '/uploads/pages/{{ img.filename }}'">
+            <div class="group cursor-pointer" @click="currentIndex = {{ loop.index0 }}; lightbox = true">
                 <div class="aspect-square overflow-hidden rounded-xl">
                     <img src="/uploads/pages/{{ img.filename }}" alt=""
                          class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
@@ -62,9 +63,27 @@
             <!-- Lightbox -->
             <div x-show="lightbox" x-transition.opacity
                  class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-                 @click.self="lightbox = false" @keydown.escape.window="lightbox = false">
-                <button @click="lightbox = false" class="absolute top-4 right-4 text-white text-3xl hover:text-krijgers-gold-400 transition-colors">&times;</button>
-                <img :src="current" alt="" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl">
+                 @click.self="lightbox = false"
+                 @keydown.escape.window="lightbox = false"
+                 @keydown.left.window="if(lightbox) prev()"
+                 @keydown.right.window="if(lightbox) next()">
+                <button @click="lightbox = false" class="absolute top-4 right-4 text-white text-3xl hover:text-krijgers-gold-400 transition-colors z-10">&times;</button>
+
+                <!-- Previous -->
+                <button @click.stop="prev()" class="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white text-5xl transition-colors z-10" x-show="images.length > 1">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+
+                <!-- Image (max 70% of screen) -->
+                <img :src="currentSrc" alt="" class="rounded-lg shadow-2xl" style="max-width: 70vw; max-height: 70vh; object-fit: contain;">
+
+                <!-- Next -->
+                <button @click.stop="next()" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white text-5xl transition-colors z-10" x-show="images.length > 1">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+
+                <!-- Counter -->
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm" x-text="(currentIndex + 1) + ' / ' + images.length" x-show="images.length > 1"></div>
             </div>
         </div>
     </div>
