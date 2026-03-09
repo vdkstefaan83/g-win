@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Force error display early so we never get a blank page during development
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Dotenv\Dotenv;
@@ -11,11 +15,8 @@ use Core\App;
 $dotenv = Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->safeLoad();
 
-// Error reporting based on environment
-if (($_ENV['APP_DEBUG'] ?? 'false') === 'true') {
-    error_reporting(E_ALL);
-    ini_set('display_errors', '1');
-} else {
+// Disable error display in production
+if (($_ENV['APP_DEBUG'] ?? 'true') !== 'true') {
     error_reporting(0);
     ini_set('display_errors', '0');
 }
