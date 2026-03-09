@@ -25,7 +25,7 @@ class BlockController extends Controller
         $siteId = $this->input('site_id');
         $blocks = $siteId
             ? $this->blockModel->getBySite((int)$siteId)
-            : $this->blockModel->findAll('sort_order', 'ASC');
+            : $this->blockModel->getAllWithSite();
 
         $this->render('admin/blocks/index.twig', [
             'blocks' => $blocks,
