@@ -56,10 +56,16 @@ class BlockController extends Controller
 
         $data = $validation['data'];
         $data['content'] = $this->input('content', '');
+        $data['subtitle'] = $this->input('subtitle', '');
+        $data['link_url'] = $this->input('link_url', '');
         $data['sort_order'] = (int) $this->input('sort_order', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
 
-        if (!empty($_FILES['image']['name'])) {
+        // Support image URL or file upload
+        $imageUrl = $this->input('image_url', '');
+        if (!empty($imageUrl)) {
+            $data['image'] = $imageUrl;
+        } elseif (!empty($_FILES['image']['name'])) {
             $filename = FileUpload::uploadImage($_FILES['image'], 'pages');
             if ($filename) {
                 $data['image'] = 'pages/' . $filename;
@@ -99,12 +105,18 @@ class BlockController extends Controller
 
         $data = $validation['data'];
         $data['content'] = $this->input('content', '');
+        $data['subtitle'] = $this->input('subtitle', '');
+        $data['link_url'] = $this->input('link_url', '');
         $data['sort_order'] = (int) $this->input('sort_order', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
 
-        if (!empty($_FILES['image']['name'])) {
+        // Support image URL or file upload
+        $imageUrl = $this->input('image_url', '');
+        if (!empty($imageUrl)) {
+            $data['image'] = $imageUrl;
+        } elseif (!empty($_FILES['image']['name'])) {
             $block = $this->blockModel->findById($id);
-            if ($block && $block['image']) {
+            if ($block && $block['image'] && !str_starts_with($block['image'], 'http')) {
                 FileUpload::delete($block['image']);
             }
             $filename = FileUpload::uploadImage($_FILES['image'], 'pages');

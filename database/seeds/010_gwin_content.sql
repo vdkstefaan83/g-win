@@ -285,72 +285,98 @@ FROM sites s WHERE s.slug = 'gwin';
 
 -- ============================================================
 -- BLOCKS (Homepage content blocks)
+-- All blocks are editable via Admin > Content > Blokken
 -- ============================================================
 
 -- Hero block
-INSERT INTO blocks (site_id, title, content, type, sort_order, is_active)
+INSERT INTO blocks (site_id, title, subtitle, content, image, type, sort_order, is_active)
 SELECT s.id,
+'Uw momenten in 3D vereeuwigd',
 '3D Scanning & Sculpting',
-'<p class="text-xl">Unieke 3D beelden van uw dierbaarste momenten. Moderne technologie gecombineerd met verfijnd handwerk voor uitzonderlijke resultaten.</p>',
+'Moderne technologie gecombineerd met verfijnd handwerk voor uitzonderlijke 3D beelden en sculpturen.',
+'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=80',
 'hero', 1, 1
 FROM sites s WHERE s.slug = 'gwin';
 
--- Service blocks
-INSERT INTO blocks (site_id, title, content, type, sort_order, is_active)
+-- Feature blocks (Services section - "Wat wij doen")
+INSERT INTO blocks (site_id, title, content, image, link_url, type, sort_order, is_active)
 SELECT s.id,
-'3D-Scanning & Sculpting',
-'<p>3D-scanning voor talrijke toepassingen: producten (prototyping/reverse engineering), trofeeën, artwork, personen.</p>
-<a href="/3d-scannen" class="text-krijgers-gold-600 font-semibold hover:underline">Meer info →</a>',
+'3D Scanning & Sculpting',
+'3D-scanning voor talrijke toepassingen: producten, prototyping, reverse engineering, trofeeën, artwork en personen.',
+'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80',
+'/3d-scannen',
 'feature', 2, 1
 FROM sites s WHERE s.slug = 'gwin';
 
-INSERT INTO blocks (site_id, title, content, type, sort_order, is_active)
+INSERT INTO blocks (site_id, title, content, image, link_url, type, sort_order, is_active)
 SELECT s.id,
 'Zwangerschapsbeeldjes',
-'<p>Stijlvolle zwangerschapsbeeldjes: een tastbare 3D-herinnering aan een unieke periode. Van 10 tot 25 cm.</p>
-<a href="/zwangerschapsbeeldjes" class="text-krijgers-gold-600 font-semibold hover:underline">Meer info →</a>',
+'Stijlvolle 3D-herinnering aan een unieke periode. Van 10 tot 25 cm in diverse materialen.',
+'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80',
+'/zwangerschapsbeeldjes',
 'feature', 3, 1
 FROM sites s WHERE s.slug = 'gwin';
 
-INSERT INTO blocks (site_id, title, content, type, sort_order, is_active)
+INSERT INTO blocks (site_id, title, content, image, link_url, type, sort_order, is_active)
 SELECT s.id,
 'Design Awards & 3D Art',
-'<p>Exclusieve Design Awards & Logo''s en Gepersonaliseerde 3D-Beeldjes voor bedrijven en evenementen.</p>
-<a href="/3d-beelden-design-awards" class="text-krijgers-gold-600 font-semibold hover:underline">Meer info →</a>',
+'Exclusieve Design Awards, Logo''s en Gepersonaliseerde 3D-Beeldjes voor elke gelegenheid.',
+'https://images.unsplash.com/photo-1569163139599-0f4517e36f51?w=600&q=80',
+'/3d-beelden-design-awards',
 'feature', 4, 1
 FROM sites s WHERE s.slug = 'gwin';
 
--- Realisaties block
-INSERT INTO blocks (site_id, title, content, type, sort_order, is_active)
+-- Gallery blocks (Portfolio section - individual items)
+INSERT INTO blocks (site_id, title, subtitle, image, type, sort_order, is_active)
 SELECT s.id,
-'Opmerkelijke Realisaties',
-'<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-  <div class="text-center">
-    <h4 class="font-bold text-krijgers-800 mb-2">Dochter-Moeder</h4>
-    <p class="text-sm text-gray-600">Een dochter houdt de hand van haar bejaarde mama. 15 cm hoog.</p>
-  </div>
-  <div class="text-center">
-    <h4 class="font-bold text-krijgers-800 mb-2">Gouden Schoen Tessa</h4>
-    <p class="text-sm text-gray-600">Eretrofee voor de 4e Gouden Schoen van Tessa Wullaert.</p>
-  </div>
-  <div class="text-center">
-    <h4 class="font-bold text-krijgers-800 mb-2">Babyhandje</h4>
-    <p class="text-sm text-gray-600">Levensecht 3D-sculptuur op ware grootte.</p>
-  </div>
-</div>',
-'gallery', 5, 1
+'Dochter-Moeder',
+'Generatieverbinding, 15 cm',
+'https://images.unsplash.com/photo-1561839561-b13bcfe95249?w=400&q=80',
+'gallery', 10, 1
+FROM sites s WHERE s.slug = 'gwin';
+
+INSERT INTO blocks (site_id, title, subtitle, image, type, sort_order, is_active)
+SELECT s.id,
+'Gouden Schoen Tessa',
+'Eretrofee sportprestatie',
+'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80',
+'gallery', 11, 1
+FROM sites s WHERE s.slug = 'gwin';
+
+INSERT INTO blocks (site_id, title, subtitle, image, type, sort_order, is_active)
+SELECT s.id,
+'Babyhandje',
+'Levensgroot sculptuur',
+'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&q=80',
+'gallery', 12, 1
+FROM sites s WHERE s.slug = 'gwin';
+
+INSERT INTO blocks (site_id, title, subtitle, image, type, sort_order, is_active)
+SELECT s.id,
+'Sterrenkindje',
+'Herdenkingssculptuur',
+'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&q=80',
+'gallery', 13, 1
+FROM sites s WHERE s.slug = 'gwin';
+
+-- Text block (About section - "Over G-WIN")
+INSERT INTO blocks (site_id, title, subtitle, content, image, link_url, type, sort_order, is_active)
+SELECT s.id,
+'Vakmanschap ontmoet technologie',
+'Over G-WIN',
+'Dankzij een combinatie van moderne 3D-technologie en verfijnd handwerk heeft G-Win zich ontwikkeld tot een veelzijdig en uniek productiehuis. Onder leiding van Gwin Steenhoudt bedienen we klanten in kunst, erfgoed, marketing en industrie.',
+'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&q=80',
+'/over-ons',
+'text', 20, 1
 FROM sites s WHERE s.slug = 'gwin';
 
 -- CTA block
-INSERT INTO blocks (site_id, title, content, type, sort_order, is_active)
+INSERT INTO blocks (site_id, title, content, image, type, sort_order, is_active)
 SELECT s.id,
-'Interesse?',
-'<p class="text-lg mb-4">Neem gerust contact met ons op voor meer informatie of maak een afspraak.</p>
-<div class="flex flex-wrap gap-4 justify-center">
-  <a href="/contact" class="bg-white text-krijgers-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">Contact</a>
-  <a href="/afspraken" class="bg-krijgers-gold-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-krijgers-gold-700 transition">Afspraak maken</a>
-</div>',
-'cta', 6, 1
+'Klaar om uw moment te vereeuwigen?',
+'Neem contact met ons op voor een persoonlijk gesprek of maak direct een afspraak voor een 3D-scan sessie.',
+'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920&q=80',
+'cta', 30, 1
 FROM sites s WHERE s.slug = 'gwin';
 
 -- ============================================================
