@@ -140,7 +140,7 @@
         <!-- Status update -->
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Status bijwerken</h3>
-            <form action="/admin/orders/{{ order.id }}/status" method="POST">
+            <form action="/admin/orders/{{ order.id }}/update-status" method="POST">
                 {{ csrf_field|raw }}
                 <div class="space-y-3">
                     <select name="status"
