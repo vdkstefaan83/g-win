@@ -51,14 +51,23 @@ $router->get('/logout', function () {
     (new FrontAuthController())->logout();
 });
 
-// Appointments
+// Appointments (NL + FR)
 $router->get('/afspraken', function () {
+    (new AppointmentController())->index();
+});
+$router->get('/rendez-vous', function () {
     (new AppointmentController())->index();
 });
 $router->post('/afspraken', function () {
     (new AppointmentController())->store();
 });
+$router->post('/rendez-vous', function () {
+    (new AppointmentController())->store();
+});
 $router->get('/afspraken/bevestiging/{id}', function ($id) {
+    (new AppointmentController())->confirm((int)$id);
+});
+$router->get('/rendez-vous/confirmation/{id}', function ($id) {
     (new AppointmentController())->confirm((int)$id);
 });
 
@@ -67,19 +76,31 @@ $router->get('/api/appointment-slots', function () {
     (new AppointmentController())->getAvailableSlots();
 });
 
-// Shop
+// Shop (NL + FR)
 $router->get('/shop', function () {
+    (new ShopController())->index();
+});
+$router->get('/boutique', function () {
     (new ShopController())->index();
 });
 $router->get('/shop/categorie/{slug}', function ($slug) {
     (new ShopController())->category($slug);
 });
+$router->get('/boutique/categorie/{slug}', function ($slug) {
+    (new ShopController())->category($slug);
+});
 $router->get('/shop/product/{slug}', function ($slug) {
     (new ShopController())->show($slug);
 });
+$router->get('/boutique/produit/{slug}', function ($slug) {
+    (new ShopController())->show($slug);
+});
 
-// Cart (AJAX)
+// Cart (NL + FR)
 $router->get('/winkelwagen', function () {
+    (new CartController())->index();
+});
+$router->get('/panier', function () {
     (new CartController())->index();
 });
 $router->post('/api/cart/add', function () {
@@ -92,11 +113,17 @@ $router->post('/api/cart/remove', function () {
     (new CartController())->remove();
 });
 
-// Checkout
+// Checkout (NL + FR)
 $router->get('/afrekenen', function () {
     (new CheckoutController())->index();
 });
+$router->get('/paiement', function () {
+    (new CheckoutController())->index();
+});
 $router->post('/afrekenen', function () {
+    (new CheckoutController())->process();
+});
+$router->post('/paiement', function () {
     (new CheckoutController())->process();
 });
 $router->get('/betaling/succes', function () {

@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS customers (
 CREATE TABLE IF NOT EXISTS page_categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     site_id INT NOT NULL,
+    lang CHAR(2) NOT NULL DEFAULT 'nl',
+    translation_of INT,
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL,
     description TEXT,
@@ -57,6 +59,8 @@ CREATE TABLE IF NOT EXISTS page_categories (
 CREATE TABLE IF NOT EXISTS pages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     site_id INT NOT NULL,
+    lang CHAR(2) NOT NULL DEFAULT 'nl',
+    translation_of INT,
     page_category_id INT,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL,
@@ -86,6 +90,7 @@ CREATE TABLE IF NOT EXISTS page_images (
 CREATE TABLE IF NOT EXISTS menus (
     id INT AUTO_INCREMENT PRIMARY KEY,
     site_id INT NOT NULL,
+    lang CHAR(2) NOT NULL DEFAULT 'nl',
     name VARCHAR(100) NOT NULL,
     location ENUM('header', 'footer') DEFAULT 'header',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -108,6 +113,8 @@ CREATE TABLE IF NOT EXISTS menu_items (
 CREATE TABLE IF NOT EXISTS blocks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     site_id INT NOT NULL,
+    lang CHAR(2) NOT NULL DEFAULT 'nl',
+    translation_of INT,
     title VARCHAR(255),
     subtitle VARCHAR(255),
     content TEXT,

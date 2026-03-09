@@ -29,7 +29,15 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label for="lang" class="block text-sm font-medium text-gray-700 mb-1">Taal</label>
+                    <select name="lang" id="lang"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="nl" {{ page.lang == 'nl' ? 'selected' : '' }}>Nederlands</option>
+                        <option value="fr" {{ page.lang == 'fr' ? 'selected' : '' }}>Frans</option>
+                    </select>
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Sites</label>
                     <div class="space-y-1">
@@ -58,6 +66,20 @@
                     <input type="number" name="sort_order" id="sort_order" value="{{ page.sort_order }}"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
+            </div>
+
+            <div>
+                <label for="translation_of" class="block text-sm font-medium text-gray-700 mb-1">Vertaling van</label>
+                <select name="translation_of" id="translation_of"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Geen (origineel)</option>
+                    {% for tp in translatable_pages %}
+                        <option value="{{ tp.id }}" {{ page.translation_of == tp.id ? 'selected' : '' }}>
+                            {{ tp.title }} ({{ tp.lang|upper }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Koppel aan de {{ page.lang == 'nl' ? 'Franse' : 'Nederlandse' }} versie van deze pagina.</p>
             </div>
 
             <div>

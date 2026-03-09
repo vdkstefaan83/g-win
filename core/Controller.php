@@ -35,26 +35,28 @@ abstract class Controller
 
     protected function render(string $template, array $data = []): void
     {
+        $lang = App::getLang();
+
         // Auto-inject menus for front-end templates only (skip for admin)
         if (!str_starts_with($template, 'admin/') && (!isset($data['header_menu']) || !isset($data['footer_menu']))) {
             $dbSite = $this->getResolvedSite();
             if ($dbSite) {
                 $menuModel = new Menu();
                 if (!isset($data['header_menu'])) {
-                    $data['header_menu'] = $menuModel->getByLocationAndSite('header', $dbSite['id']);
+                    $data['header_menu'] = $menuModel->getByLocationAndSite('header', $dbSite['id'], $lang);
                 }
                 if (!isset($data['footer_menu'])) {
-                    $data['footer_menu'] = $menuModel->getByLocationAndSite('footer', $dbSite['id']);
+                    $data['footer_menu'] = $menuModel->getByLocationAndSite('footer', $dbSite['id'], $lang);
                 }
             }
         }
 
-        // Check if shop is enabled (any menu item links to /shop or /winkelwagen)
+        // Check if shop is enabled (any menu item links to /shop or /winkelwagen or /boutique)
         $data['shop_enabled'] = false;
         if (!empty($data['header_menu']['items'])) {
             foreach ($data['header_menu']['items'] as $item) {
                 $url = $item['url'] ?? '';
-                if (str_starts_with($url, '/shop') || str_starts_with($url, '/winkelwagen')) {
+                if (str_starts_with($url, '/shop') || str_starts_with($url, '/winkelwagen') || str_starts_with($url, '/boutique') || str_starts_with($url, '/panier')) {
                     $data['shop_enabled'] = true;
                     break;
                 }
@@ -63,6 +65,7 @@ abstract class Controller
 
         $data = array_merge($data, [
             'site' => $this->site,
+            'lang' => $lang,
             'csrf_token' => Csrf::token(),
             'csrf_field' => Csrf::field(),
             'flash' => Session::getFlash(),

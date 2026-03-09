@@ -8,13 +8,13 @@ class Block extends Model
 {
     protected string $table = 'blocks';
 
-    public function getActiveBySite(int $siteId): array
+    public function getActiveBySite(int $siteId, string $lang = 'nl'): array
     {
         return $this->query(
             "SELECT b.* FROM blocks b
              INNER JOIN block_sites bs ON bs.block_id = b.id
-             WHERE bs.site_id = :site_id AND b.is_active = 1 ORDER BY b.sort_order ASC",
-            ['site_id' => $siteId]
+             WHERE bs.site_id = :site_id AND b.lang = :lang AND b.is_active = 1 ORDER BY b.sort_order ASC",
+            ['site_id' => $siteId, 'lang' => $lang]
         )->fetchAll();
     }
 
@@ -26,7 +26,7 @@ class Block extends Model
              LEFT JOIN block_sites bs ON bs.block_id = b.id
              LEFT JOIN sites s ON s.id = bs.site_id
              GROUP BY b.id
-             ORDER BY b.sort_order ASC"
+             ORDER BY b.lang ASC, b.sort_order ASC"
         )->fetchAll();
     }
 
@@ -40,7 +40,7 @@ class Block extends Model
              LEFT JOIN sites s2 ON s2.id = bs2.site_id
              WHERE bs.site_id = :site_id
              GROUP BY b.id
-             ORDER BY b.sort_order ASC",
+             ORDER BY b.lang ASC, b.sort_order ASC",
             ['site_id' => $siteId]
         )->fetchAll();
     }

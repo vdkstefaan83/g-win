@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Front;
 
+use Core\App;
 use Core\Controller;
 use App\Models\Block;
 use App\Models\Site;
@@ -22,6 +23,7 @@ class HomeController extends Controller
             $site = $siteModel->findFirst();
         }
 
+        $lang = App::getLang();
         $blocks = [];
         $headerMenu = false;
         $footerMenu = false;
@@ -29,7 +31,7 @@ class HomeController extends Controller
 
         if ($site) {
             $blockModel = new Block();
-            $blocks = $blockModel->getActiveBySite($site['id']);
+            $blocks = $blockModel->getActiveBySite($site['id'], $lang);
 
             // Decode JSON options for each block
             foreach ($blocks as &$block) {
@@ -40,8 +42,8 @@ class HomeController extends Controller
             unset($block);
 
             $menuModel = new Menu();
-            $headerMenu = $menuModel->getByLocationAndSite('header', $site['id']);
-            $footerMenu = $menuModel->getByLocationAndSite('footer', $site['id']);
+            $headerMenu = $menuModel->getByLocationAndSite('header', $site['id'], $lang);
+            $footerMenu = $menuModel->getByLocationAndSite('footer', $site['id'], $lang);
 
             $productModel = new Product();
             $featuredProducts = $productModel->getFeatured(4);

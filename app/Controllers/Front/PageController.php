@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Front;
 
+use Core\App;
 use Core\Controller;
 use App\Models\Page;
 use App\Models\PageCategory;
@@ -38,9 +39,11 @@ class PageController extends Controller
             return;
         }
 
+        $lang = App::getLang();
+
         // Check if it's a page category
         $catModel = new PageCategory();
-        $category = $catModel->findBySlugAndSite($slug, $site['id']);
+        $category = $catModel->findBySlugAndSite($slug, $site['id'], $lang);
 
         if ($category) {
             $pageModel = new Page();
@@ -51,10 +54,15 @@ class PageController extends Controller
                 $page = $pages[0];
                 $imageModel = new PageImage();
                 $page['images'] = $imageModel->getByPage($page['id']);
+
+                $alternateUrl = $this->getAlternateUrl($page, $pageModel, $lang);
+
                 $this->render('front/pages/detail.twig', [
                     'page' => $page,
                     'category' => $category,
                     'layout' => $this->site['layout'] ?? 'gwin',
+                    'alternate_url' => $alternateUrl,
+                    'alternate_lang' => $lang === 'nl' ? 'fr' : 'nl',
                 ]);
                 return;
             }
@@ -70,7 +78,7 @@ class PageController extends Controller
 
         // Fallback: standalone page
         $pageModel = new Page();
-        $page = $pageModel->findBySlugAndSite($slug, $site['id']);
+        $page = $pageModel->findBySlugAndSite($slug, $site['id'], $lang);
 
         if (!$page) {
             http_response_code(404);
@@ -81,9 +89,13 @@ class PageController extends Controller
         $imageModel = new PageImage();
         $page['images'] = $imageModel->getByPage($page['id']);
 
+        $alternateUrl = $this->getAlternateUrl($page, $pageModel, $lang);
+
         $this->render('front/pages/show.twig', [
             'page' => $page,
             'layout' => $this->site['layout'] ?? 'gwin',
+            'alternate_url' => $alternateUrl,
+            'alternate_lang' => $lang === 'nl' ? 'fr' : 'nl',
         ]);
     }
 
@@ -99,8 +111,10 @@ class PageController extends Controller
             return;
         }
 
+        $lang = App::getLang();
+
         $catModel = new PageCategory();
-        $category = $catModel->findBySlugAndSite($categorySlug, $site['id']);
+        $category = $catModel->findBySlugAndSite($categorySlug, $site['id'], $lang);
 
         if (!$category) {
             http_response_code(404);
@@ -120,10 +134,14 @@ class PageController extends Controller
         $imageModel = new PageImage();
         $page['images'] = $imageModel->getByPage($page['id']);
 
+        $alternateUrl = $this->getAlternateUrl($page, $pageModel, $lang);
+
         $this->render('front/pages/detail.twig', [
             'page' => $page,
             'category' => $category,
             'layout' => $this->site['layout'] ?? 'gwin',
+            'alternate_url' => $alternateUrl,
+            'alternate_lang' => $lang === 'nl' ? 'fr' : 'nl',
         ]);
     }
 
@@ -131,5 +149,16 @@ class PageController extends Controller
     public function show(string $slug): void
     {
         $this->showOrCategory($slug);
+    }
+
+    private function getAlternateUrl(array $page, Page $pageModel, string $currentLang): ?string
+    {
+        $targetLang = $currentLang === 'nl' ? 'fr' : 'nl';
+        $translation = $pageModel->findTranslation($page['id'], $targetLang);
+
+        if (!$translation) return null;
+
+        $prefix = $targetLang === 'nl' ? '' : '/fr';
+        return $prefix . '/' . $translation['slug'];
     }
 }

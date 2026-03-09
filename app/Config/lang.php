@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * Static UI translations for front-end templates.
+ * Usage in Twig: {{ t('key') }}
+ */
+return [
+    'nl' => [
+        'home' => 'Home',
+        'cart' => 'Winkelwagen',
+        'shop' => 'Shop',
+        'appointments' => 'Afspraken',
+        'checkout' => 'Afrekenen',
+        'payment_success' => 'Betaling geslaagd',
+        'payment_cancel' => 'Betaling geannuleerd',
+        'contact' => 'Contact',
+        'about' => 'Over ons',
+        'read_more' => 'Lees meer',
+        'back' => 'Terug',
+        'services' => 'Diensten',
+        'navigation' => 'Navigatie',
+        'all_rights' => 'Alle rechten voorbehouden.',
+        'make_appointment' => 'Maak een afspraak',
+        'discover_more' => 'Ontdek meer',
+        'published' => 'Gepubliceerd',
+        'draft' => 'Concept',
+        'no_pages_found' => 'Geen pagina\'s gevonden.',
+        'login' => 'Inloggen',
+        'register' => 'Registreren',
+        'logout' => 'Uitloggen',
+    ],
+    'fr' => [
+        'home' => 'Accueil',
+        'cart' => 'Panier',
+        'shop' => 'Boutique',
+        'appointments' => 'Rendez-vous',
+        'checkout' => 'Paiement',
+        'payment_success' => 'Paiement réussi',
+        'payment_cancel' => 'Paiement annulé',
+        'contact' => 'Contact',
+        'about' => 'À propos',
+        'read_more' => 'Lire la suite',
+        'back' => 'Retour',
+        'services' => 'Services',
+        'navigation' => 'Navigation',
+        'all_rights' => 'Tous droits réservés.',
+        'make_appointment' => 'Prendre rendez-vous',
+        'discover_more' => 'Découvrir plus',
+        'published' => 'Publié',
+        'draft' => 'Brouillon',
+        'no_pages_found' => 'Aucune page trouvée.',
+        'login' => 'Connexion',
+        'register' => 'S\'inscrire',
+        'logout' => 'Déconnexion',
+    ],
+];

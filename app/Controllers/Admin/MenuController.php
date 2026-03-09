@@ -64,6 +64,7 @@ class MenuController extends Controller
 
         $data = $validation['data'];
         $data['site_id'] = (int) $siteIds[0];
+        $data['lang'] = $this->input('lang', 'nl');
         $menuId = $this->menuModel->create($data);
         if ($menuId) {
             $this->menuModel->syncSites($menuId, $siteIds);
@@ -106,6 +107,7 @@ class MenuController extends Controller
 
         $siteIds = $_POST['site_ids'] ?? [];
         $data = $validation['data'];
+        $data['lang'] = $this->input('lang', 'nl');
         if (!empty($siteIds)) {
             $data['site_id'] = (int) $siteIds[0];
         }

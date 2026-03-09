@@ -20,11 +20,11 @@
 
             <!-- Navigation -->
             <div>
-                <h4 class="text-sm font-semibold uppercase tracking-wider text-krijgers-gold-400 mb-6">Navigatie</h4>
+                <h4 class="text-sm font-semibold uppercase tracking-wider text-krijgers-gold-400 mb-6">{{ t('navigation') }}</h4>
                 <nav class="space-y-3">
                     {% if footer_menu and footer_menu.items %}
                         {% for item in footer_menu.items %}
-                            <a href="{{ item.url ?: '/' ~ item.page_slug }}" class="block text-krijgers-200 hover:text-white hover:translate-x-1 transition-all text-sm">{{ item.label }}</a>
+                            <a href="{{ lang_url(item.url ?: '/' ~ item.page_slug) }}" class="block text-krijgers-200 hover:text-white hover:translate-x-1 transition-all text-sm">{{ item.label }}</a>
                         {% endfor %}
                     {% else %}
                         <a href="/" class="block text-krijgers-200 hover:text-white hover:translate-x-1 transition-all text-sm">Home</a>
@@ -34,7 +34,7 @@
 
             <!-- Diensten -->
             <div>
-                <h4 class="text-sm font-semibold uppercase tracking-wider text-krijgers-gold-400 mb-6">Diensten</h4>
+                <h4 class="text-sm font-semibold uppercase tracking-wider text-krijgers-gold-400 mb-6">{{ t('services') }}</h4>
                 <nav class="space-y-3">
                     <span class="block text-krijgers-200 text-sm">3D Scanning</span>
                     <span class="block text-krijgers-200 text-sm">Design Awards</span>
@@ -67,7 +67,7 @@
 
     <div class="border-t border-white/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p class="text-krijgers-300 text-sm">&copy; {{ "now"|date("Y") }} {{ site.name }}. Alle rechten voorbehouden.</p>
+            <p class="text-krijgers-300 text-sm">&copy; {{ "now"|date("Y") }} {{ site.name }}. {{ t('all_rights') }}</p>
             <p class="text-krijgers-400 text-xs">BTW: BE0837.145.236</p>
         </div>
     </div>

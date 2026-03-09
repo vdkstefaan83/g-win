@@ -8,13 +8,13 @@ class Page extends Model
 {
     protected string $table = 'pages';
 
-    public function findBySlugAndSite(string $slug, int $siteId): array|false
+    public function findBySlugAndSite(string $slug, int $siteId, string $lang = 'nl'): array|false
     {
         return $this->query(
             "SELECT p.* FROM pages p
              INNER JOIN page_sites ps ON ps.page_id = p.id
-             WHERE p.slug = :slug AND ps.site_id = :site_id AND p.is_published = 1 LIMIT 1",
-            ['slug' => $slug, 'site_id' => $siteId]
+             WHERE p.slug = :slug AND ps.site_id = :site_id AND p.lang = :lang AND p.is_published = 1 LIMIT 1",
+            ['slug' => $slug, 'site_id' => $siteId, 'lang' => $lang]
         )->fetch();
     }
 
@@ -30,7 +30,7 @@ class Page extends Model
              LEFT JOIN sites s2 ON s2.id = ps2.site_id
              WHERE ps.site_id = :site_id
              GROUP BY p.id
-             ORDER BY pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC",
+             ORDER BY p.lang ASC, pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC",
             ['site_id' => $siteId]
         )->fetchAll();
     }
@@ -45,17 +45,17 @@ class Page extends Model
              LEFT JOIN sites s ON s.id = ps.site_id
              LEFT JOIN page_categories pc ON p.page_category_id = pc.id
              GROUP BY p.id
-             ORDER BY pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC"
+             ORDER BY p.lang ASC, pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC"
         )->fetchAll();
     }
 
-    public function getPublishedBySite(int $siteId): array
+    public function getPublishedBySite(int $siteId, string $lang = 'nl'): array
     {
         return $this->query(
             "SELECT p.* FROM pages p
              INNER JOIN page_sites ps ON ps.page_id = p.id
-             WHERE ps.site_id = :site_id AND p.is_published = 1 ORDER BY p.sort_order ASC",
-            ['site_id' => $siteId]
+             WHERE ps.site_id = :site_id AND p.lang = :lang AND p.is_published = 1 ORDER BY p.sort_order ASC",
+            ['site_id' => $siteId, 'lang' => $lang]
         )->fetchAll();
     }
 
@@ -73,6 +73,36 @@ class Page extends Model
             "SELECT * FROM pages WHERE slug = :slug AND page_category_id = :cat_id AND is_published = 1 LIMIT 1",
             ['slug' => $slug, 'cat_id' => $categoryId]
         )->fetch();
+    }
+
+    public function findTranslation(int $pageId, string $lang): array|false
+    {
+        // Check if this page has a translation in the target language
+        $result = $this->query(
+            "SELECT * FROM pages WHERE translation_of = :id AND lang = :lang AND is_published = 1 LIMIT 1",
+            ['id' => $pageId, 'lang' => $lang]
+        )->fetch();
+
+        if ($result) return $result;
+
+        // Check reverse: if this page IS a translation, find the original
+        $page = $this->findById($pageId);
+        if ($page && $page['translation_of']) {
+            if ($lang === 'nl') {
+                // Original is the translation_of target
+                return $this->query(
+                    "SELECT * FROM pages WHERE id = :id AND lang = :lang AND is_published = 1 LIMIT 1",
+                    ['id' => $page['translation_of'], 'lang' => $lang]
+                )->fetch() ?: false;
+            }
+            // Find sibling translation
+            return $this->query(
+                "SELECT * FROM pages WHERE translation_of = :id AND lang = :lang AND is_published = 1 LIMIT 1",
+                ['id' => $page['translation_of'], 'lang' => $lang]
+            )->fetch() ?: false;
+        }
+
+        return false;
     }
 
     public function getSiteIds(int $pageId): array

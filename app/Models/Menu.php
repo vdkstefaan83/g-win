@@ -26,7 +26,7 @@ class Menu extends Model
              LEFT JOIN menu_sites ms ON ms.menu_id = m.id
              LEFT JOIN sites s ON s.id = ms.site_id
              GROUP BY m.id
-             ORDER BY m.name ASC"
+             ORDER BY m.lang ASC, m.name ASC"
         )->fetchAll();
     }
 
@@ -45,14 +45,24 @@ class Menu extends Model
         return $menu;
     }
 
-    public function getByLocationAndSite(string $location, int $siteId): array|false
+    public function getByLocationAndSite(string $location, int $siteId, string $lang = 'nl'): array|false
     {
         $menu = $this->query(
             "SELECT m.* FROM menus m
              INNER JOIN menu_sites ms ON ms.menu_id = m.id
-             WHERE ms.site_id = :site_id AND m.location = :location LIMIT 1",
-            ['site_id' => $siteId, 'location' => $location]
+             WHERE ms.site_id = :site_id AND m.location = :location AND m.lang = :lang LIMIT 1",
+            ['site_id' => $siteId, 'location' => $location, 'lang' => $lang]
         )->fetch();
+
+        // Fallback to Dutch if no menu found for this language
+        if (!$menu && $lang !== 'nl') {
+            $menu = $this->query(
+                "SELECT m.* FROM menus m
+                 INNER JOIN menu_sites ms ON ms.menu_id = m.id
+                 WHERE ms.site_id = :site_id AND m.location = :location AND m.lang = 'nl' LIMIT 1",
+                ['site_id' => $siteId, 'location' => $location]
+            )->fetch();
+        }
 
         if (!$menu) return false;
 

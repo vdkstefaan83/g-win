@@ -69,6 +69,8 @@ class PageController extends Controller
 
         $data = $validation['data'];
         $data['site_id'] = (int) $siteIds[0];
+        $data['lang'] = $this->input('lang', 'nl');
+        $data['translation_of'] = $this->input('translation_of') ?: null;
         $data['content'] = $this->input('content', '');
         $data['intro_text'] = $this->input('intro_text', '');
         $data['meta_title'] = $this->input('meta_title', '');
@@ -112,10 +114,18 @@ class PageController extends Controller
         $page['images'] = $this->imageModel->getByPage($id);
         $page['site_ids'] = $this->pageModel->getSiteIds($id);
 
+        // Get all pages in the other language for linking translations
+        $otherLang = ($page['lang'] ?? 'nl') === 'nl' ? 'fr' : 'nl';
+        $translatablePages = $this->pageModel->query(
+            "SELECT id, title, lang FROM pages WHERE lang = :lang ORDER BY title ASC",
+            ['lang' => $otherLang]
+        )->fetchAll();
+
         $this->render('admin/pages/edit.twig', [
             'page' => $page,
             'sites' => $this->siteModel->findAll('name', 'ASC'),
             'page_categories' => $this->catModel->findAll('name', 'ASC'),
+            'translatable_pages' => $translatablePages,
         ]);
     }
 
@@ -139,6 +149,8 @@ class PageController extends Controller
 
         $data = $validation['data'];
         $data['site_id'] = (int) $siteIds[0];
+        $data['lang'] = $this->input('lang', 'nl');
+        $data['translation_of'] = $this->input('translation_of') ?: null;
         $data['content'] = $this->input('content', '');
         $data['intro_text'] = $this->input('intro_text', '');
         $data['meta_title'] = $this->input('meta_title', '');
