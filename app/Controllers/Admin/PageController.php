@@ -130,7 +130,13 @@ class PageController extends Controller
         $data['page_category_id'] = $this->input('page_category_id') ?: null;
 
         // Intro image
-        if (!empty($_FILES['intro_image']['name'])) {
+        if ($this->input('remove_intro_image')) {
+            $page = $this->pageModel->findById($id);
+            if ($page && $page['intro_image']) {
+                FileUpload::delete($page['intro_image']);
+            }
+            $data['intro_image'] = null;
+        } elseif (!empty($_FILES['intro_image']['name'])) {
             $page = $this->pageModel->findById($id);
             if ($page && $page['intro_image']) {
                 FileUpload::delete($page['intro_image']);

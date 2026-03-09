@@ -76,8 +76,12 @@
                     <div>
                         <label for="intro_image" class="block text-sm text-gray-600 mb-1">Intro afbeelding</label>
                         {% if page.intro_image %}
-                            <div class="mb-2">
+                            <div class="mb-2 flex items-start gap-2">
                                 <img src="/uploads/{{ page.intro_image }}" alt="" class="h-20 rounded border">
+                                <label class="flex items-center gap-1 text-xs text-red-600 cursor-pointer mt-1">
+                                    <input type="checkbox" name="remove_intro_image" value="1" class="rounded border-gray-300 text-red-600">
+                                    Verwijderen
+                                </label>
                             </div>
                         {% endif %}
                         <input type="file" name="intro_image" id="intro_image" accept="image/*"
