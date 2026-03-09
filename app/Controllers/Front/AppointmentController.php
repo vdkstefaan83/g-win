@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Front;
 
+use Core\App;
 use Core\Controller;
 use Core\Session;
 use App\Models\Appointment;
@@ -18,9 +19,10 @@ class AppointmentController extends Controller
         $siteModel = new Site();
         $site = $siteModel->findBySlug($this->site['slug']);
 
+        $lang = App::getLang();
         $menuModel = new Menu();
-        $headerMenu = $site ? $menuModel->getByLocationAndSite('header', $site['id']) : false;
-        $footerMenu = $site ? $menuModel->getByLocationAndSite('footer', $site['id']) : false;
+        $headerMenu = $site ? $menuModel->getByLocationAndSite('header', $site['id'], $lang) : false;
+        $footerMenu = $site ? $menuModel->getByLocationAndSite('footer', $site['id'], $lang) : false;
 
         $settingModel = new Setting();
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
@@ -103,7 +105,7 @@ class AppointmentController extends Controller
 
         if (!empty($validation['errors'])) {
             Session::flash('error', implode(' ', $validation['errors']));
-            $this->redirect('/afspraken');
+            $this->redirect(App::langUrl('/afspraken'));
         }
 
         $type = $validation['data']['type'];
@@ -113,7 +115,7 @@ class AppointmentController extends Controller
         // Validate date
         if (!$date) {
             Session::flash('error', 'Selecteer een datum.');
-            $this->redirect('/afspraken');
+            $this->redirect(App::langUrl('/afspraken'));
         }
 
         // Check blocked dates
@@ -121,7 +123,7 @@ class AppointmentController extends Controller
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
         if (in_array($date, $blockedDates)) {
             Session::flash('error', 'Deze datum is niet beschikbaar.');
-            $this->redirect('/afspraken');
+            $this->redirect(App::langUrl('/afspraken'));
         }
 
         // Find or create customer
@@ -147,13 +149,13 @@ class AppointmentController extends Controller
             // Must have a slot selected
             if (!$slotId) {
                 Session::flash('error', 'Selecteer een tijdslot.');
-                $this->redirect('/afspraken');
+                $this->redirect(App::langUrl('/afspraken'));
             }
 
             $slotModel = new AppointmentSlot();
             if ($slotModel->isSlotBooked($date, (int)$slotId)) {
                 Session::flash('error', 'Dit tijdslot is niet meer beschikbaar.');
-                $this->redirect('/afspraken');
+                $this->redirect(App::langUrl('/afspraken'));
             }
 
             $slot = $slotModel->findById((int)$slotId);
@@ -182,7 +184,7 @@ class AppointmentController extends Controller
         }
 
         Session::flash('success', 'Uw afspraak is ingepland! U ontvangt een bevestiging zodra deze is goedgekeurd.');
-        $this->redirect("/afspraken/bevestiging/{$appointmentId}");
+        $this->redirect(App::langUrl("/afspraken/bevestiging/{$appointmentId}"));
     }
 
     public function confirm(int $id): void
@@ -193,8 +195,8 @@ class AppointmentController extends Controller
         $siteModel = new Site();
         $site = $siteModel->findBySlug($this->site['slug']);
         $menuModel = new Menu();
-        $headerMenu = $site ? $menuModel->getByLocationAndSite('header', $site['id']) : false;
-        $footerMenu = $site ? $menuModel->getByLocationAndSite('footer', $site['id']) : false;
+        $headerMenu = $site ? $menuModel->getByLocationAndSite('header', $site['id'], App::getLang()) : false;
+        $footerMenu = $site ? $menuModel->getByLocationAndSite('footer', $site['id'], App::getLang()) : false;
 
         $this->render('front/appointments/confirm.twig', [
             'appointment' => $appointment,

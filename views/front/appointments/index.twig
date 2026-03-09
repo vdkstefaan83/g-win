@@ -289,19 +289,30 @@ function appointmentForm() {
             this.availableSlots = data.slots || [];
         },
 
-        async submitAppointment() {
+        submitAppointment() {
             this.submitting = true; this.submitError = '';
-            try {
-                const res = await fetch('/afspraken', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token }}' },
-                    body: JSON.stringify(this.form)
-                });
-                const data = await res.json();
-                if (data.success) { window.location.href = data.redirect || '/afspraken/bevestiging/' + data.id; }
-                else { this.submitError = data.error || 'Er is iets misgegaan.'; }
-            } catch (e) { this.submitError = 'Verbindingsfout. Probeer opnieuw.'; }
-            this.submitting = false;
+            // Submit as a regular form POST
+            const f = document.createElement('form');
+            f.method = 'POST';
+            f.action = '{{ lang == "fr" ? "/fr/rendez-vous" : "/afspraken" }}';
+            const fields = {
+                '_csrf_token': '{{ csrf_token }}',
+                'type': this.form.type,
+                'date': this.form.date,
+                'slot_id': this.form.slot_id || '',
+                'first_name': this.form.first_name,
+                'last_name': this.form.last_name,
+                'email': this.form.email,
+                'phone': this.form.phone,
+                'notes': this.form.notes
+            };
+            for (const [k, v] of Object.entries(fields)) {
+                const input = document.createElement('input');
+                input.type = 'hidden'; input.name = k; input.value = v;
+                f.appendChild(input);
+            }
+            document.body.appendChild(f);
+            f.submit();
         }
     };
 }
