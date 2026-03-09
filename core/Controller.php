@@ -3,6 +3,8 @@
 namespace Core;
 
 use Twig\Environment;
+use App\Models\Menu;
+use App\Models\Site;
 
 abstract class Controller
 {
@@ -19,6 +21,33 @@ abstract class Controller
 
     protected function render(string $template, array $data = []): void
     {
+        // Auto-inject menus for front-end templates if not already provided
+        if (!isset($data['header_menu']) || !isset($data['footer_menu'])) {
+            $siteModel = new Site();
+            $dbSite = $siteModel->findBySlug($this->site['slug']);
+            if ($dbSite) {
+                $menuModel = new Menu();
+                if (!isset($data['header_menu'])) {
+                    $data['header_menu'] = $menuModel->getByLocationAndSite('header', $dbSite['id']);
+                }
+                if (!isset($data['footer_menu'])) {
+                    $data['footer_menu'] = $menuModel->getByLocationAndSite('footer', $dbSite['id']);
+                }
+            }
+        }
+
+        // Check if shop is enabled (any menu item links to /shop or /winkelwagen)
+        $data['shop_enabled'] = false;
+        if (!empty($data['header_menu']['items'])) {
+            foreach ($data['header_menu']['items'] as $item) {
+                $url = $item['url'] ?? '';
+                if (str_starts_with($url, '/shop') || str_starts_with($url, '/winkelwagen')) {
+                    $data['shop_enabled'] = true;
+                    break;
+                }
+            }
+        }
+
         $data = array_merge($data, [
             'site' => $this->site,
             'csrf_token' => Csrf::token(),

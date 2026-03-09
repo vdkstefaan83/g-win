@@ -29,15 +29,15 @@
                     {% endfor %}
                 {% else %}
                     <a href="/" class="text-white hover:text-krijgers-gold-400 transition">Home</a>
-                    <a href="/afspraken" class="text-white hover:text-krijgers-gold-400 transition">Afspraken</a>
-                    <a href="/shop" class="text-white hover:text-krijgers-gold-400 transition">Shop</a>
                 {% endif %}
 
+                {% if shop_enabled %}
                 <!-- Cart icon -->
                 <a href="/winkelwagen" class="text-white hover:text-krijgers-gold-400 transition relative">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m1.6 8L5 5M7 13l-1.35 2.7A1 1 0 006.55 17h11.9M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
                     <span id="cart-count" class="absolute -top-2 -right-2 bg-krijgers-gold-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                 </a>
+                {% endif %}
             </div>
 
             <!-- Mobile menu button -->
@@ -57,10 +57,10 @@
                 {% endfor %}
             {% else %}
                 <a href="/" class="block py-2 text-white hover:text-krijgers-gold-400">Home</a>
-                <a href="/afspraken" class="block py-2 text-white hover:text-krijgers-gold-400">Afspraken</a>
-                <a href="/shop" class="block py-2 text-white hover:text-krijgers-gold-400">Shop</a>
             {% endif %}
+            {% if shop_enabled %}
             <a href="/winkelwagen" class="block py-2 text-white hover:text-krijgers-gold-400">Winkelwagen</a>
+            {% endif %}
         </div>
     </nav>
 </header>

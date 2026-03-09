@@ -69,18 +69,37 @@
                         <button type="button" @click="moveDown(index)" :disabled="index === items.length - 1"
                                 class="text-gray-400 hover:text-gray-600 disabled:opacity-30 text-xs leading-none">&#9660;</button>
                     </div>
-                    <div class="flex-1 grid grid-cols-2 gap-2">
-                        <input type="text" x-model="item.label" placeholder="Label"
-                               class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <input type="text" x-model="item.url" placeholder="/url"
-                               class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="flex-1 space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" x-model="item.label" placeholder="Label"
+                                   class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <select @change="selectRoute($event, item)" class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Kies type --</option>
+                                <optgroup label="Interne routes">
+                                    <option value="/|Home">Home</option>
+                                    <option value="/shop|Shop">Shop</option>
+                                    <option value="/afspraken|Afspraken">Afspraken</option>
+                                    <option value="/winkelwagen|Winkelwagen">Winkelwagen</option>
+                                    <option value="/contact|Contact">Contact</option>
+                                    <option value="/over-ons|Over ons">Over ons</option>
+                                </optgroup>
+                                <optgroup label="Overig">
+                                    <option value="custom">Aangepaste URL</option>
+                                    <option value="page">CMS Pagina</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" x-model="item.url" placeholder="/url (optioneel)"
+                                   class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <select x-model="item.page_id" class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Geen pagina</option>
+                                {% for page in pages %}
+                                    <option value="{{ page.id }}">{{ page.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
-                    <select x-model="item.page_id" class="border border-gray-300 rounded px-2 py-1 text-sm w-32 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Geen pagina</option>
-                        {% for page in pages %}
-                            <option value="{{ page.id }}">{{ page.title }}</option>
-                        {% endfor %}
-                    </select>
                     <button type="button" @click="removeItem(index)" class="text-red-500 hover:text-red-700 text-sm font-medium px-2">
                         &times;
                     </button>
@@ -108,6 +127,20 @@
 
             addItem() {
                 this.items.push({ label: '', url: '', page_id: '', sort_order: this.items.length });
+            },
+
+            selectRoute(event, item) {
+                const val = event.target.value;
+                if (val === 'custom' || val === 'page' || val === '') {
+                    if (val === 'page') { item.url = ''; }
+                    if (val === 'custom') { item.page_id = ''; }
+                } else {
+                    const [url, label] = val.split('|');
+                    item.url = url;
+                    if (!item.label) { item.label = label; }
+                    item.page_id = '';
+                }
+                event.target.value = '';
             },
 
             removeItem(index) {
