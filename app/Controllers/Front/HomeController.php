@@ -14,6 +14,13 @@ class HomeController extends Controller
     {
         $siteModel = new Site();
         $site = $siteModel->findBySlug($this->site['slug']);
+        if (!$site) {
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+            $site = $siteModel->findByDomain($host);
+        }
+        if (!$site) {
+            $site = $siteModel->findFirst();
+        }
 
         $blocks = [];
         $headerMenu = false;

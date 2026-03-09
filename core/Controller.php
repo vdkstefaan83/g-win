@@ -25,6 +25,12 @@ abstract class Controller
         if (!isset($data['header_menu']) || !isset($data['footer_menu'])) {
             $siteModel = new Site();
             $dbSite = $siteModel->findBySlug($this->site['slug']);
+            if (!$dbSite) {
+                $dbSite = $siteModel->findByDomain($_SERVER['HTTP_HOST'] ?? '');
+            }
+            if (!$dbSite) {
+                $dbSite = $siteModel->findFirst();
+            }
             if ($dbSite) {
                 $menuModel = new Menu();
                 if (!isset($data['header_menu'])) {

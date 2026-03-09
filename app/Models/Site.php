@@ -33,4 +33,11 @@ class Site extends Model
     {
         return $this->findBy('domain', $domain);
     }
+
+    public function findFirst(): array|false
+    {
+        $stmt = $this->db->prepare("SELECT * FROM sites WHERE is_active = 1 LIMIT 1");
+        $stmt->execute();
+        return $stmt->fetch();
+    }
 }
