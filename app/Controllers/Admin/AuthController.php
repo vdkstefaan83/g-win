@@ -25,24 +25,14 @@ class AuthController extends Controller
         $userModel = new User();
         $user = $userModel->findByEmail($email);
 
-        // TEMP DEBUG
-        $debug = [
-            'email' => $email,
-            'user_found' => $user ? 'yes' : 'no',
-            'is_active' => $user['is_active'] ?? 'n/a',
-            'pw_ok' => $user ? password_verify($password, $user['password_hash']) : false,
-        ];
-        echo '<pre>' . print_r($debug, true) . '</pre>';
-
         if ($user && $user['is_active'] && password_verify($password, $user['password_hash'])) {
             Auth::login($user);
             Session::flash('success', 'Welkom terug, ' . $user['name'] . '!');
-            echo '<p style="color:green">LOGIN OK - <a href="/admin">Ga naar admin</a></p>';
-            return;
+            $this->redirect('/admin');
         }
 
-        echo '<p style="color:red">LOGIN MISLUKT</p>';
-        echo '<p><a href="/admin/login">Terug</a></p>';
+        Session::flash('error', 'Ongeldige inloggegevens.');
+        $this->redirect('/admin/login');
     }
 
     public function logout(): void

@@ -7,62 +7,67 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->safeLoad();
 
-echo '<h1>Login Debug</h1>';
+session_start();
 
-// 1. Check DB connection
-echo '<h2>1. Database connectie</h2>';
+echo '<h1>Login Debug v2</h1>';
+
+// Test the EXACT same code path as the login controller
+echo '<h2>1. Database via Core\Database</h2>';
 try {
-    $dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4',
-        $_ENV['DB_HOST'] ?? 'localhost',
-        $_ENV['DB_NAME'] ?? 'gwin'
-    );
-    $pdo = new PDO($dsn, $_ENV['DB_USER'] ?? 'root', $_ENV['DB_PASS'] ?? '', [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
-    echo '<p style="color:green">DB connectie OK</p>';
-    echo '<p>Host: ' . ($_ENV['DB_HOST'] ?? 'localhost') . ', DB: ' . ($_ENV['DB_NAME'] ?? 'gwin') . '</p>';
+    $db = Core\Database::getInstance();
+    echo '<p style="color:green">Core\Database OK</p>';
 } catch (Exception $e) {
-    echo '<p style="color:red">DB FOUT: ' . htmlspecialchars($e->getMessage()) . '</p>';
+    echo '<p style="color:red">Core\Database FOUT: ' . htmlspecialchars($e->getMessage()) . '</p>';
     die();
 }
 
-// 2. Check users table
-echo '<h2>2. Users tabel</h2>';
+// Test User model
+echo '<h2>2. User model query</h2>';
 try {
-    $stmt = $pdo->query('SELECT id, name, email, role, is_active, LEFT(password_hash, 20) as hash_start FROM users');
-    $users = $stmt->fetchAll();
-    if (empty($users)) {
-        echo '<p style="color:red">GEEN USERS GEVONDEN - seeds niet gedraaid!</p>';
-    } else {
-        echo '<table border="1" cellpadding="5"><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Active</th><th>Hash start</th></tr>';
-        foreach ($users as $u) {
-            echo "<tr><td>{$u['id']}</td><td>{$u['name']}</td><td>{$u['email']}</td><td>{$u['role']}</td><td>{$u['is_active']}</td><td>{$u['hash_start']}...</td></tr>";
-        }
-        echo '</table>';
-    }
+    $userModel = new App\Models\User();
+    $user = $userModel->findByEmail('admin@g-win.be');
+    echo '<pre>' . print_r($user, true) . '</pre>';
 } catch (Exception $e) {
-    echo '<p style="color:red">TABEL FOUT: ' . htmlspecialchars($e->getMessage()) . '</p>';
+    echo '<p style="color:red">User model FOUT: ' . htmlspecialchars($e->getMessage()) . '</p>';
 }
 
-// 3. Check password verification
-echo '<h2>3. Wachtwoord verificatie</h2>';
-if (!empty($users)) {
-    $user = $users[0];
-    $fullHash = $pdo->query("SELECT password_hash FROM users WHERE id = {$user['id']}")->fetch()['password_hash'];
-    echo '<p>Volledige hash: <code>' . htmlspecialchars($fullHash) . '</code></p>';
-    echo '<p>password_verify("admin123", hash): ' . (password_verify('admin123', $fullHash) ? '<span style="color:green">OK</span>' : '<span style="color:red">MISLUKT</span>') . '</p>';
-    echo '<p>password_verify("password", hash): ' . (password_verify('password', $fullHash) ? '<span style="color:green">OK</span>' : '<span style="color:red">MISLUKT</span>') . '</p>';
+// Test password
+echo '<h2>3. Password check</h2>';
+if ($user) {
+    echo '<p>password_verify("admin123"): ' . (password_verify('admin123', $user['password_hash']) ? '<b style="color:green">OK</b>' : '<b style="color:red">MISLUKT</b>') . '</p>';
+} else {
+    echo '<p style="color:red">Geen user gevonden!</p>';
 }
 
-// 4. Check CSRF
-echo '<h2>4. POST route check</h2>';
-echo '<p>De login POST gaat naar <code>/admin/login</code>. Check of CSRF token correct meegestuurd wordt.</p>';
+// Test session
+echo '<h2>4. Session</h2>';
+echo '<p>Session ID: ' . session_id() . '</p>';
+echo '<p>CSRF token in session: ' . ($_SESSION['csrf_token'] ?? 'NIET GEZET') . '</p>';
 
-// 5. Check .env values
-echo '<h2>5. ENV waardes</h2>';
-echo '<p>APP_DEBUG: ' . ($_ENV['APP_DEBUG'] ?? 'NIET GEZET') . '</p>';
-echo '<p>DB_HOST: ' . ($_ENV['DB_HOST'] ?? 'NIET GEZET') . '</p>';
-echo '<p>DB_NAME: ' . ($_ENV['DB_NAME'] ?? 'NIET GEZET') . '</p>';
-echo '<p>DB_USER: ' . ($_ENV['DB_USER'] ?? 'NIET GEZET') . '</p>';
-echo '<p>DB_PASS: ' . (empty($_ENV['DB_PASS']) ? 'LEEG' : '***SET***') . '</p>';
+// Test actual login flow simulation
+echo '<h2>5. Simuleer login</h2>';
+if ($user && $user['is_active'] && password_verify('admin123', $user['password_hash'])) {
+    echo '<p style="color:green">Login zou SLAGEN met admin@g-win.be / admin123</p>';
+} else {
+    echo '<p style="color:red">Login zou MISLUKKEN</p>';
+    echo '<p>user: ' . ($user ? 'gevonden' : 'NIET gevonden') . '</p>';
+    echo '<p>is_active: ' . ($user['is_active'] ?? 'n/a') . '</p>';
+}
+
+// Check what form actually posts
+echo '<h2>6. Test login form</h2>';
+echo '<p>Probeer hieronder in te loggen - dit POST naar dit zelfde script:</p>';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    echo '<pre>POST data: ' . print_r($_POST, true) . '</pre>';
+    $testUser = $userModel->findByEmail($_POST['email'] ?? '');
+    echo '<p>User gevonden: ' . ($testUser ? 'JA' : 'NEE') . '</p>';
+    if ($testUser) {
+        echo '<p>password_verify: ' . (password_verify($_POST['password'] ?? '', $testUser['password_hash']) ? '<b style="color:green">OK</b>' : '<b style="color:red">MISLUKT</b>') . '</p>';
+    }
+}
+?>
+<form method="POST">
+    <input type="text" name="email" value="admin@g-win.be" style="padding:8px;margin:4px;border:1px solid #ccc">
+    <input type="text" name="password" value="admin123" style="padding:8px;margin:4px;border:1px solid #ccc">
+    <button type="submit" style="padding:8px 16px;background:#333;color:#fff;border:none;cursor:pointer">Test Login</button>
+</form>
