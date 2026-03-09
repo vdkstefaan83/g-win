@@ -3,53 +3,70 @@
 {% block title %}Bevestiging - {{ site.name }}{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-    <div class="bg-white rounded-lg shadow-md p-8">
-        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+<div class="max-w-2xl mx-auto px-4 py-16">
+    <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
+        <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
         </div>
 
-        <h1 class="text-3xl font-bold text-krijgers-800 mb-4">Afspraak ingepland!</h1>
+        <h1 class="text-3xl font-display font-bold text-krijgers-800 mb-3">Afspraak ingepland!</h1>
+        <p class="text-krijgers-500 mb-10">U ontvangt een bevestigingsmail zodra uw afspraak is goedgekeurd.</p>
 
         {% if appointment %}
-        <div class="bg-gray-50 rounded-lg p-6 mt-6 text-left">
-            <dl class="space-y-3">
-                <div class="flex justify-between">
-                    <dt class="text-gray-500">Type:</dt>
-                    <dd class="font-medium">{{ appointment.type == 'pregnancy' ? 'Zwangerschapsbeeldje' : 'Beeldje met kind' }}</dd>
-                </div>
-                <div class="flex justify-between">
-                    <dt class="text-gray-500">Datum:</dt>
-                    <dd class="font-medium">{{ appointment.date|date('d/m/Y') }}</dd>
-                </div>
-                {% if appointment.start_time != '00:00:00' %}
-                <div class="flex justify-between">
-                    <dt class="text-gray-500">Tijdstip:</dt>
-                    <dd class="font-medium">{{ appointment.start_time[:5] }} - {{ appointment.end_time[:5] }}</dd>
-                </div>
-                {% endif %}
-                <div class="flex justify-between">
-                    <dt class="text-gray-500">Status:</dt>
-                    <dd><span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">In afwachting van bevestiging</span></dd>
-                </div>
-            </dl>
+        <div class="bg-krijgers-50 rounded-xl p-6 text-left space-y-4 mb-8">
+            <div class="flex justify-between">
+                <span class="text-sm text-krijgers-500">Type</span>
+                <span class="font-semibold text-krijgers-800">{{ appointment.type == 'pregnancy' ? 'Zwangerschapsscan' : 'Kinderscan' }}</span>
+            </div>
+            <div class="border-t border-krijgers-100"></div>
+            <div class="flex justify-between">
+                <span class="text-sm text-krijgers-500">Datum</span>
+                <span class="font-semibold text-krijgers-800">{{ appointment.date|date('d/m/Y') }}</span>
+            </div>
+            {% if appointment.start_time != '00:00:00' %}
+            <div class="border-t border-krijgers-100"></div>
+            <div class="flex justify-between">
+                <span class="text-sm text-krijgers-500">Tijdstip</span>
+                <span class="font-semibold text-krijgers-800">{{ appointment.start_time[:5] }} - {{ appointment.end_time[:5] }}</span>
+            </div>
+            {% endif %}
+            <div class="border-t border-krijgers-100"></div>
+            <div class="flex justify-between">
+                <span class="text-sm text-krijgers-500">Status</span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-krijgers-gold-500/20 text-krijgers-gold-800">In afwachting</span>
+            </div>
         </div>
-
-        <p class="text-gray-600 mt-6">U ontvangt een bevestigingsmail zodra uw afspraak is goedgekeurd.</p>
 
         {% if appointment.type == 'pregnancy' %}
-        <div class="bg-amber-50 border-l-4 border-krijgers-gold-600 p-4 rounded mt-6 text-left">
-            <p class="font-semibold text-krijgers-800">Vergeet niet:</p>
-            <ul class="mt-2 text-gray-700 space-y-1">
-                <li>&#8226; Elke afspraak duurt ongeveer 60-90 minuten</li>
-                <li>&#8226; Kom 10 minuten voor uw afspraak</li>
-                <li>&#8226; Bij te laat komen kan uw tijdslot worden ingekort</li>
-            </ul>
+        <div class="bg-krijgers-gold-500/5 border border-krijgers-gold-200 rounded-xl p-5 text-left mb-8">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-krijgers-gold-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div class="text-sm text-krijgers-700">
+                    <p class="font-semibold mb-1">Vergeet niet:</p>
+                    <ul class="space-y-1 text-krijgers-600">
+                        <li>• Elke afspraak duurt ongeveer 60-90 minuten</li>
+                        <li>• Kom 10 minuten voor uw afspraak</li>
+                        <li>• Bij te laat komen kan uw tijdslot worden ingekort</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if appointment.type == 'child' %}
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-5 text-left mb-8">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <p class="text-sm text-blue-800">Bij kinderscans wordt het exacte tijdstip later bevestigd door ons team. U ontvangt hierover een e-mail.</p>
+            </div>
         </div>
         {% endif %}
         {% endif %}
 
-        <a href="/" class="inline-block mt-8 text-krijgers-800 hover:text-krijgers-gold-600 font-semibold">&larr; Terug naar home</a>
+        <a href="/" class="inline-flex items-center text-krijgers-gold-700 font-semibold hover:text-krijgers-gold-600 transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Terug naar home
+        </a>
     </div>
 </div>
 {% endblock %}

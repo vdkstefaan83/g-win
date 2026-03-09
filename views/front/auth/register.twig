@@ -3,32 +3,37 @@
 {% block title %}Registreren - {{ site.name }}{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto px-4 py-12">
-    <div class="bg-white rounded-lg shadow-md p-8">
-        <h1 class="text-2xl font-bold text-krijgers-800 mb-6 text-center">Account aanmaken</h1>
-        <form method="POST" action="/register" class="space-y-4">
-            {{ csrf_field|raw }}
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Voornaam</label>
-                    <input type="text" name="first_name" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-krijgers-gold-600">
+<div class="min-h-[60vh] flex items-center justify-center px-4 py-16">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-display font-bold text-krijgers-800">Account aanmaken</h1>
+            <p class="text-krijgers-500 mt-2">Maak een account aan om te bestellen</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm p-8">
+            <form method="POST" action="/register" class="space-y-5">
+                {{ csrf_field|raw }}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Voornaam</label>
+                        <input type="text" name="first_name" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Achternaam</label>
+                        <input type="text" name="last_name" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Achternaam</label>
-                    <input type="text" name="last_name" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-krijgers-gold-600">
+                    <label class="block text-sm font-medium text-krijgers-700 mb-1.5">E-mailadres</label>
+                    <input type="email" name="email" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                 </div>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">E-mailadres</label>
-                <input type="email" name="email" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-krijgers-gold-600">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Wachtwoord (min. 8 tekens)</label>
-                <input type="password" name="password" required minlength="8" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-krijgers-gold-600">
-            </div>
-            <button type="submit" class="w-full bg-krijgers-gold-600 text-white py-3 rounded-lg font-semibold hover:bg-krijgers-gold-700 transition">Registreren</button>
-        </form>
-        <p class="mt-4 text-center text-sm text-gray-500">Al een account? <a href="/login" class="text-krijgers-800 hover:text-krijgers-gold-600">Inloggen</a></p>
+                <div>
+                    <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Wachtwoord (min. 8 tekens)</label>
+                    <input type="password" name="password" required minlength="8" class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
+                </div>
+                <button type="submit" class="w-full bg-krijgers-800 text-white py-3.5 rounded-xl font-semibold hover:bg-krijgers-700 transition-all shadow-lg hover:-translate-y-0.5">Registreren</button>
+            </form>
+            <p class="mt-6 text-center text-sm text-krijgers-400">Al een account? <a href="/login" class="text-krijgers-gold-700 font-medium hover:text-krijgers-gold-600">Inloggen</a></p>
+        </div>
     </div>
 </div>
 {% endblock %}

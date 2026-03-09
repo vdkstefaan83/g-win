@@ -5,35 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ site.name }}{% endblock %}</title>
     {% block meta %}{% endblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Playfair Display', 'Georgia', 'serif'],
+                    },
                     colors: {
                         'krijgers': {
-                            50: '#fdf8f0',
-                            100: '#f9edd9',
-                            200: '#f2d7b0',
-                            300: '#e9bc7e',
-                            400: '#df9a4d',
-                            500: '#d6802a',
-                            600: '#c46a20',
-                            700: '#a3521d',
-                            800: '#84421f',
-                            900: '#6c371c',
+                            50: '#faf7f4',
+                            100: '#f3ede5',
+                            200: '#e6d9c9',
+                            300: '#d5bfa5',
+                            400: '#c19f7e',
+                            500: '#b38862',
+                            600: '#a67656',
+                            700: '#8a6048',
+                            800: '#4a3728',
+                            900: '#2d2118',
                         },
                         'krijgers-gold': {
-                            50: '#fefdf3',
-                            100: '#fcf8d9',
-                            200: '#f8efb3',
-                            300: '#f2e07e',
-                            400: '#ebce4a',
-                            500: '#e3ba22',
-                            600: '#d4a843',
-                            700: '#a37318',
-                            800: '#865c1a',
-                            900: '#724c1b',
+                            50: '#fefdf6',
+                            100: '#fdf9e7',
+                            200: '#faf0c4',
+                            300: '#f5e28f',
+                            400: '#efd05a',
+                            500: '#e8be2e',
+                            600: '#d4a833',
+                            700: '#b08520',
+                            800: '#8f6a1e',
+                            900: '#76571e',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out',
+                        'slide-in': 'slideIn 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideIn: {
+                            '0%': { opacity: '0', transform: 'translateX(-20px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
                         }
                     }
                 }
@@ -43,7 +69,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
+<body class="bg-krijgers-50 min-h-screen flex flex-col font-sans antialiased text-krijgers-900">
     {% include 'layouts/gwin/header.twig' %}
 
     {% include 'components/flash-messages.twig' %}

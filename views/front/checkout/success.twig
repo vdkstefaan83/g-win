@@ -3,14 +3,16 @@
 {% block title %}Betaling geslaagd - {{ site.name }}{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-    <div class="bg-white rounded-lg shadow-md p-8">
-        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+<div class="max-w-2xl mx-auto px-4 py-16">
+    <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
+        <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
         </div>
-        <h1 class="text-3xl font-bold text-krijgers-800 mb-4">Bedankt voor uw bestelling!</h1>
-        <p class="text-gray-600 mb-8">Uw betaling is ontvangen. U ontvangt een bevestiging per e-mail.</p>
-        <a href="/shop" class="inline-block bg-krijgers-gold-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-krijgers-gold-700 transition">Verder winkelen</a>
+        <h1 class="text-3xl font-display font-bold text-krijgers-800 mb-3">Bedankt voor uw bestelling!</h1>
+        <p class="text-krijgers-500 mb-10">Uw betaling is ontvangen. U ontvangt een bevestiging per e-mail.</p>
+        <a href="/shop" class="inline-flex items-center bg-krijgers-800 text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-krijgers-700 transition-all shadow-lg hover:-translate-y-0.5">
+            Verder winkelen
+        </a>
     </div>
 </div>
 {% endblock %}

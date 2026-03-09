@@ -5,29 +5,83 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #faf7f4;
+}
+::-webkit-scrollbar-thumb {
+    background: #d5bfa5;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #c19f7e;
+}
+
+/* Selection color */
+::selection {
+    background: rgba(212, 168, 51, 0.2);
+    color: #2d2118;
+}
+
 /* Custom prose styles for CMS content */
 .prose img {
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    border-radius: 1rem;
+    box-shadow: 0 10px 40px -10px rgb(0 0 0 / 0.15);
 }
 
 .prose a {
-    color: #84421f;
-    text-decoration: underline;
+    color: #b08520;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
 }
 
 .prose a:hover {
-    color: #d4a843;
+    color: #d4a833;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+    font-family: 'Playfair Display', Georgia, serif;
 }
 
 /* Radio/checkbox card selection styling */
 input[type="radio"]:checked + div,
 input[type="checkbox"]:checked + div {
-    border-color: #d4a843;
-    background-color: rgba(212, 168, 67, 0.05);
+    border-color: #d4a833;
+    background-color: rgba(212, 168, 51, 0.05);
 }
 
-/* Transitions */
-.transition-all {
-    transition: all 0.3s ease;
+/* Subtle page transitions */
+main {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Focus visible */
+:focus-visible {
+    outline: 2px solid #d4a833;
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+}
+
+/* Image loading placeholder */
+img {
+    background-color: #f3ede5;
+}
+
+/* Number input arrows hidden */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
 }

@@ -1,47 +1,54 @@
-<header class="bg-krijgers-800 text-white shadow-lg" x-data="{ mobileMenu: false }">
+<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        x-data="{ mobileMenu: false, scrolled: false }"
+        x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 50 })"
+        :class="scrolled ? 'bg-krijgers-800/95 backdrop-blur-md shadow-xl' : 'bg-transparent'">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-            <a href="/" class="text-2xl font-bold text-krijgers-gold-400">
-                {{ site.name }}
+        <div class="flex justify-between items-center h-20">
+            <a href="/" class="group flex items-center space-x-3">
+                <span class="text-2xl font-display font-bold text-krijgers-gold-400 group-hover:text-krijgers-gold-300 transition-colors">
+                    {{ site.name }}
+                </span>
             </a>
 
             <!-- Desktop menu -->
-            <div class="hidden md:flex items-center space-x-6">
+            <div class="hidden md:flex items-center space-x-1">
                 {% if header_menu and header_menu.items %}
                     {% for item in header_menu.items %}
                         {% if item.children is defined and item.children|length > 0 %}
                             <div class="relative" x-data="{ open: false }">
-                                <button @click="open = !open" class="text-white hover:text-krijgers-gold-400 transition">
+                                <button @click="open = !open" @click.away="open = false"
+                                        class="px-4 py-2 text-sm font-medium text-white/90 hover:text-krijgers-gold-400 transition-colors rounded-lg hover:bg-white/10 flex items-center gap-1">
                                     {{ item.label }}
-                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                    <svg class="w-4 h-4 transition-transform" :class="open && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
-                                <div x-show="open" @click.away="open = false" class="absolute bg-white text-gray-800 mt-2 py-2 w-48 rounded-lg shadow-xl z-50">
+                                <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+                                     class="absolute top-full mt-2 bg-white/95 backdrop-blur-md text-krijgers-800 py-2 w-56 rounded-xl shadow-2xl border border-krijgers-100">
                                     {% for child in item.children %}
-                                        <a href="{{ child.url ?: '/' ~ child.page_slug }}" class="block px-4 py-2 hover:bg-krijgers-50">{{ child.label }}</a>
+                                        <a href="{{ child.url ?: '/' ~ child.page_slug }}" class="block px-4 py-2.5 text-sm hover:bg-krijgers-50 hover:text-krijgers-gold-700 transition-colors">{{ child.label }}</a>
                                     {% endfor %}
                                 </div>
                             </div>
                         {% else %}
-                            <a href="{{ item.url ?: '/' ~ item.page_slug }}" class="text-white hover:text-krijgers-gold-400 transition">
+                            <a href="{{ item.url ?: '/' ~ item.page_slug }}"
+                               class="px-4 py-2 text-sm font-medium text-white/90 hover:text-krijgers-gold-400 transition-colors rounded-lg hover:bg-white/10">
                                 {{ item.label }}
                             </a>
                         {% endif %}
                     {% endfor %}
                 {% else %}
-                    <a href="/" class="text-white hover:text-krijgers-gold-400 transition">Home</a>
+                    <a href="/" class="px-4 py-2 text-sm font-medium text-white/90 hover:text-krijgers-gold-400 transition-colors rounded-lg hover:bg-white/10">Home</a>
                 {% endif %}
 
                 {% if shop_enabled %}
-                <!-- Cart icon -->
-                <a href="/winkelwagen" class="text-white hover:text-krijgers-gold-400 transition relative">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m1.6 8L5 5M7 13l-1.35 2.7A1 1 0 006.55 17h11.9M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
-                    <span id="cart-count" class="absolute -top-2 -right-2 bg-krijgers-gold-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                <a href="/winkelwagen" class="ml-2 text-white/90 hover:text-krijgers-gold-400 transition-colors relative p-2 rounded-lg hover:bg-white/10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-krijgers-gold-500 text-krijgers-900 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                 </a>
                 {% endif %}
             </div>
 
             <!-- Mobile menu button -->
-            <button @click="mobileMenu = !mobileMenu" class="md:hidden text-white">
+            <button @click="mobileMenu = !mobileMenu" class="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -50,17 +57,23 @@
         </div>
 
         <!-- Mobile menu -->
-        <div x-show="mobileMenu" x-transition class="md:hidden pb-4">
+        <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+             class="md:hidden pb-6 border-t border-white/10 mt-2 pt-4">
             {% if header_menu and header_menu.items %}
                 {% for item in header_menu.items %}
-                    <a href="{{ item.url ?: '/' ~ item.page_slug }}" class="block py-2 text-white hover:text-krijgers-gold-400">{{ item.label }}</a>
+                    <a href="{{ item.url ?: '/' ~ item.page_slug }}" class="block py-3 px-4 text-white/90 hover:text-krijgers-gold-400 hover:bg-white/5 rounded-lg transition-colors">{{ item.label }}</a>
                 {% endfor %}
             {% else %}
-                <a href="/" class="block py-2 text-white hover:text-krijgers-gold-400">Home</a>
+                <a href="/" class="block py-3 px-4 text-white/90 hover:text-krijgers-gold-400 hover:bg-white/5 rounded-lg transition-colors">Home</a>
             {% endif %}
             {% if shop_enabled %}
-            <a href="/winkelwagen" class="block py-2 text-white hover:text-krijgers-gold-400">Winkelwagen</a>
+            <a href="/winkelwagen" class="block py-3 px-4 text-white/90 hover:text-krijgers-gold-400 hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                Winkelwagen
+            </a>
             {% endif %}
         </div>
     </nav>
 </header>
+<!-- Spacer for fixed header -->
+<div class="h-20"></div>
