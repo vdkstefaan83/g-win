@@ -59,14 +59,10 @@ class BlockController extends Controller
         $data['sort_order'] = (int) $this->input('sort_order', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
 
-        // Optional columns (require migrations)
-        if ($this->hasColumn('blocks', 'subtitle')) {
-            $data['subtitle'] = $this->input('subtitle', '');
-        }
-        if ($this->hasColumn('blocks', 'link_url')) {
-            $data['link_url'] = $this->input('link_url', '');
-        }
-        if ($data['type'] === 'hero' && $this->hasColumn('blocks', 'options')) {
+        $data['subtitle'] = $this->input('subtitle', '');
+        $data['link_url'] = $this->input('link_url', '');
+
+        if ($data['type'] === 'hero') {
             $data['options'] = json_encode([
                 'show_appointment_btn' => (bool) $this->input('opt_appointment_btn'),
                 'show_shop_btn' => (bool) $this->input('opt_shop_btn'),
@@ -125,14 +121,10 @@ class BlockController extends Controller
         $data['sort_order'] = (int) $this->input('sort_order', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
 
-        // Optional columns (require migrations)
-        if ($this->hasColumn('blocks', 'subtitle')) {
-            $data['subtitle'] = $this->input('subtitle', '');
-        }
-        if ($this->hasColumn('blocks', 'link_url')) {
-            $data['link_url'] = $this->input('link_url', '');
-        }
-        if ($data['type'] === 'hero' && $this->hasColumn('blocks', 'options')) {
+        $data['subtitle'] = $this->input('subtitle', '');
+        $data['link_url'] = $this->input('link_url', '');
+
+        if ($data['type'] === 'hero') {
             $data['options'] = json_encode([
                 'show_appointment_btn' => (bool) $this->input('opt_appointment_btn'),
                 'show_shop_btn' => (bool) $this->input('opt_shop_btn'),

@@ -19,18 +19,25 @@ abstract class Controller
         $this->site = App::getSite();
     }
 
+    private static array|false|null $resolvedSite = null;
+
+    private function getResolvedSite(): array|false
+    {
+        if (self::$resolvedSite === null) {
+            $siteModel = new Site();
+            self::$resolvedSite = $siteModel->findBySlug($this->site['slug'])
+                ?: $siteModel->findByDomain($_SERVER['HTTP_HOST'] ?? '')
+                ?: $siteModel->findFirst()
+                ?: false;
+        }
+        return self::$resolvedSite;
+    }
+
     protected function render(string $template, array $data = []): void
     {
         // Auto-inject menus for front-end templates if not already provided
         if (!isset($data['header_menu']) || !isset($data['footer_menu'])) {
-            $siteModel = new Site();
-            $dbSite = $siteModel->findBySlug($this->site['slug']);
-            if (!$dbSite) {
-                $dbSite = $siteModel->findByDomain($_SERVER['HTTP_HOST'] ?? '');
-            }
-            if (!$dbSite) {
-                $dbSite = $siteModel->findFirst();
-            }
+            $dbSite = $this->getResolvedSite();
             if ($dbSite) {
                 $menuModel = new Menu();
                 if (!isset($data['header_menu'])) {
@@ -140,21 +147,4 @@ abstract class Controller
         return ['data' => $data, 'errors' => $errors];
     }
 
-    private static array $columnCache = [];
-
-    protected function hasColumn(string $table, string $column): bool
-    {
-        if (!isset(self::$columnCache[$table])) {
-            try {
-                $stmt = $this->db->prepare(
-                    "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?"
-                );
-                $stmt->execute([$table]);
-                self::$columnCache[$table] = array_column($stmt->fetchAll(), 'COLUMN_NAME');
-            } catch (\Throwable) {
-                return false;
-            }
-        }
-        return in_array($column, self::$columnCache[$table], true);
-    }
 }
