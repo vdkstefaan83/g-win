@@ -254,4 +254,29 @@ CREATE TABLE IF NOT EXISTS settings (
     UNIQUE KEY unique_site_key (site_id, setting_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Pivot tables for multi-site support
+CREATE TABLE IF NOT EXISTS page_sites (
+    page_id INT NOT NULL,
+    site_id INT NOT NULL,
+    PRIMARY KEY (page_id, site_id),
+    FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE,
+    FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS block_sites (
+    block_id INT NOT NULL,
+    site_id INT NOT NULL,
+    PRIMARY KEY (block_id, site_id),
+    FOREIGN KEY (block_id) REFERENCES blocks(id) ON DELETE CASCADE,
+    FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS menu_sites (
+    menu_id INT NOT NULL,
+    site_id INT NOT NULL,
+    PRIMARY KEY (menu_id, site_id),
+    FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE,
+    FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;

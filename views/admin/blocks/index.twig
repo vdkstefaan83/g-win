@@ -29,7 +29,7 @@
             <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titel</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Site</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sites</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Afbeelding</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th>
             </tr>
@@ -41,7 +41,7 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{{ block.type }}</span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ block.site_name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-500 text-xs">{{ block.site_names ?? '-' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     {% if block.image %}
                         <img src="{{ block.image }}" alt="" class="h-10 w-16 object-cover rounded">

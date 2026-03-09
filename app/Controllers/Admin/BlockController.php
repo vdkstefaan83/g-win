@@ -43,8 +43,13 @@ class BlockController extends Controller
 
     public function store(): void
     {
+        $siteIds = $_POST['site_ids'] ?? [];
+        if (empty($siteIds)) {
+            Session::flash('error', 'Selecteer minstens één site.');
+            $this->redirect('/admin/blocks/create');
+        }
+
         $validation = $this->validate([
-            'site_id' => 'required|numeric',
             'title' => 'required|max:255',
             'type' => 'required',
         ]);
@@ -55,6 +60,7 @@ class BlockController extends Controller
         }
 
         $data = $validation['data'];
+        $data['site_id'] = (int) $siteIds[0];
         $data['content'] = $this->input('content', '');
         $data['sort_order'] = (int) $this->input('sort_order', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
@@ -80,7 +86,10 @@ class BlockController extends Controller
             }
         }
 
-        $this->blockModel->create($data);
+        $blockId = $this->blockModel->create($data);
+        if ($blockId) {
+            $this->blockModel->syncSites($blockId, $siteIds);
+        }
         Session::flash('success', 'Blok aangemaakt.');
         $this->redirect('/admin/blocks');
     }
@@ -98,6 +107,8 @@ class BlockController extends Controller
             $block['options'] = json_decode($block['options'], true) ?: [];
         }
 
+        $block['site_ids'] = $this->blockModel->getSiteIds($id);
+
         $this->render('admin/blocks/edit.twig', [
             'block' => $block,
             'sites' => $this->siteModel->findAll('name', 'ASC'),
@@ -106,6 +117,12 @@ class BlockController extends Controller
 
     public function update(int $id): void
     {
+        $siteIds = $_POST['site_ids'] ?? [];
+        if (empty($siteIds)) {
+            Session::flash('error', 'Selecteer minstens één site.');
+            $this->redirect("/admin/blocks/{$id}/edit");
+        }
+
         $validation = $this->validate([
             'title' => 'required|max:255',
             'type' => 'required',
@@ -117,6 +134,7 @@ class BlockController extends Controller
         }
 
         $data = $validation['data'];
+        $data['site_id'] = (int) $siteIds[0];
         $data['content'] = $this->input('content', '');
         $data['sort_order'] = (int) $this->input('sort_order', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
@@ -147,6 +165,7 @@ class BlockController extends Controller
         }
 
         $this->blockModel->update($id, $data);
+        $this->blockModel->syncSites($id, $siteIds);
         Session::flash('success', 'Blok bijgewerkt.');
         $this->redirect('/admin/blocks');
     }

@@ -19,6 +19,9 @@ DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS appointments;
 DROP TABLE IF EXISTS appointment_slots;
+DROP TABLE IF EXISTS page_sites;
+DROP TABLE IF EXISTS block_sites;
+DROP TABLE IF EXISTS menu_sites;
 DROP TABLE IF EXISTS blocks;
 DROP TABLE IF EXISTS menu_items;
 DROP TABLE IF EXISTS menus;
@@ -283,6 +286,31 @@ CREATE TABLE settings (
     setting_value TEXT,
     FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE,
     UNIQUE KEY unique_site_key (site_id, setting_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Pivot tables for multi-site support
+CREATE TABLE page_sites (
+    page_id INT NOT NULL,
+    site_id INT NOT NULL,
+    PRIMARY KEY (page_id, site_id),
+    FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE,
+    FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE block_sites (
+    block_id INT NOT NULL,
+    site_id INT NOT NULL,
+    PRIMARY KEY (block_id, site_id),
+    FOREIGN KEY (block_id) REFERENCES blocks(id) ON DELETE CASCADE,
+    FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE menu_sites (
+    menu_id INT NOT NULL,
+    site_id INT NOT NULL,
+    PRIMARY KEY (menu_id, site_id),
+    FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE,
+    FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -821,3 +849,10 @@ INSERT INTO menu_items (menu_id, label, url, page_id, sort_order) VALUES
 (@footer_menu_id, 'Zwangerschapsbeeldjes', NULL, (SELECT id FROM pages WHERE slug = 'zwangerschapsbeeldjes' LIMIT 1), 3),
 (@footer_menu_id, 'Contact', NULL, (SELECT id FROM pages WHERE slug = 'contact' LIMIT 1), 4),
 (@footer_menu_id, 'Over ons', NULL, (SELECT id FROM pages WHERE slug = 'over-ons' LIMIT 1), 5);
+
+-- ============================================================
+-- SEED: Multi-site pivot data (koppel alles aan de gwin site)
+-- ============================================================
+INSERT INTO page_sites (page_id, site_id) SELECT id, site_id FROM pages WHERE site_id IS NOT NULL;
+INSERT INTO block_sites (block_id, site_id) SELECT id, site_id FROM blocks WHERE site_id IS NOT NULL;
+INSERT INTO menu_sites (menu_id, site_id) SELECT id, site_id FROM menus WHERE site_id IS NOT NULL;

@@ -28,7 +28,7 @@ class MenuController extends Controller
         $siteId = $this->input('site_id');
         $menus = $siteId
             ? $this->menuModel->getBySite((int)$siteId)
-            : $this->menuModel->findAll('name', 'ASC');
+            : $this->menuModel->getAllWithSite();
 
         $this->render('admin/menus/index.twig', [
             'menus' => $menus,
@@ -46,8 +46,13 @@ class MenuController extends Controller
 
     public function store(): void
     {
+        $siteIds = $_POST['site_ids'] ?? [];
+        if (empty($siteIds)) {
+            Session::flash('error', 'Selecteer minstens één site.');
+            $this->redirect('/admin/menus/create');
+        }
+
         $validation = $this->validate([
-            'site_id' => 'required|numeric',
             'name' => 'required|max:100',
             'location' => 'required',
         ]);
@@ -57,7 +62,12 @@ class MenuController extends Controller
             $this->redirect('/admin/menus/create');
         }
 
-        $this->menuModel->create($validation['data']);
+        $data = $validation['data'];
+        $data['site_id'] = (int) $siteIds[0];
+        $menuId = $this->menuModel->create($data);
+        if ($menuId) {
+            $this->menuModel->syncSites($menuId, $siteIds);
+        }
         Session::flash('success', 'Menu aangemaakt.');
         $this->redirect('/admin/menus');
     }
@@ -70,8 +80,10 @@ class MenuController extends Controller
             $this->redirect('/admin/menus');
         }
 
+        $menu['site_ids'] = $this->menuModel->getSiteIds($id);
+
         $pageModel = new Page();
-        $pages = $pageModel->getBySite($menu['site_id']);
+        $pages = $pageModel->getAllWithSite();
 
         $this->render('admin/menus/edit.twig', [
             'menu' => $menu,
@@ -92,7 +104,15 @@ class MenuController extends Controller
             $this->redirect("/admin/menus/{$id}/edit");
         }
 
-        $this->menuModel->update($id, $validation['data']);
+        $siteIds = $_POST['site_ids'] ?? [];
+        $data = $validation['data'];
+        if (!empty($siteIds)) {
+            $data['site_id'] = (int) $siteIds[0];
+        }
+        $this->menuModel->update($id, $data);
+        if (!empty($siteIds)) {
+            $this->menuModel->syncSites($id, $siteIds);
+        }
 
         // Update menu items
         $items = json_decode($this->input('items', '[]'), true);

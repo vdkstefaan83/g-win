@@ -51,8 +51,13 @@ class PageController extends Controller
 
     public function store(): void
     {
+        $siteIds = $_POST['site_ids'] ?? [];
+        if (empty($siteIds)) {
+            Session::flash('error', 'Selecteer minstens één site.');
+            $this->redirect('/admin/pages/create');
+        }
+
         $validation = $this->validate([
-            'site_id' => 'required|numeric',
             'title' => 'required|max:255',
             'slug' => 'required|max:255',
         ]);
@@ -63,6 +68,7 @@ class PageController extends Controller
         }
 
         $data = $validation['data'];
+        $data['site_id'] = (int) $siteIds[0];
         $data['content'] = $this->input('content', '');
         $data['intro_text'] = $this->input('intro_text', '');
         $data['meta_title'] = $this->input('meta_title', '');
@@ -80,6 +86,11 @@ class PageController extends Controller
         }
 
         $pageId = $this->pageModel->create($data);
+
+        // Sync sites pivot
+        if ($pageId) {
+            $this->pageModel->syncSites($pageId, $siteIds);
+        }
 
         // Multi-image upload
         if ($pageId && !empty($_FILES['images']['name'][0])) {
@@ -99,6 +110,7 @@ class PageController extends Controller
         }
 
         $page['images'] = $this->imageModel->getByPage($id);
+        $page['site_ids'] = $this->pageModel->getSiteIds($id);
 
         $this->render('admin/pages/edit.twig', [
             'page' => $page,
@@ -109,8 +121,13 @@ class PageController extends Controller
 
     public function update(int $id): void
     {
+        $siteIds = $_POST['site_ids'] ?? [];
+        if (empty($siteIds)) {
+            Session::flash('error', 'Selecteer minstens één site.');
+            $this->redirect("/admin/pages/{$id}/edit");
+        }
+
         $validation = $this->validate([
-            'site_id' => 'required|numeric',
             'title' => 'required|max:255',
             'slug' => 'required|max:255',
         ]);
@@ -121,6 +138,7 @@ class PageController extends Controller
         }
 
         $data = $validation['data'];
+        $data['site_id'] = (int) $siteIds[0];
         $data['content'] = $this->input('content', '');
         $data['intro_text'] = $this->input('intro_text', '');
         $data['meta_title'] = $this->input('meta_title', '');
@@ -148,6 +166,7 @@ class PageController extends Controller
         }
 
         $this->pageModel->update($id, $data);
+        $this->pageModel->syncSites($id, $siteIds);
 
         // Multi-image upload
         if (!empty($_FILES['images']['name'][0])) {

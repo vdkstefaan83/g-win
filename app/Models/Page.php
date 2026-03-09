@@ -11,7 +11,9 @@ class Page extends Model
     public function findBySlugAndSite(string $slug, int $siteId): array|false
     {
         return $this->query(
-            "SELECT * FROM pages WHERE slug = :slug AND site_id = :site_id AND is_published = 1 LIMIT 1",
+            "SELECT p.* FROM pages p
+             INNER JOIN page_sites ps ON ps.page_id = p.id
+             WHERE p.slug = :slug AND ps.site_id = :site_id AND p.is_published = 1 LIMIT 1",
             ['slug' => $slug, 'site_id' => $siteId]
         )->fetch();
     }
@@ -19,11 +21,15 @@ class Page extends Model
     public function getBySite(int $siteId): array
     {
         return $this->query(
-            "SELECT p.*, s.name AS site_name, pc.name AS category_name
+            "SELECT p.*, pc.name AS category_name,
+                    GROUP_CONCAT(s2.name ORDER BY s2.name SEPARATOR ', ') AS site_names
              FROM pages p
-             LEFT JOIN sites s ON p.site_id = s.id
+             INNER JOIN page_sites ps ON ps.page_id = p.id
              LEFT JOIN page_categories pc ON p.page_category_id = pc.id
-             WHERE p.site_id = :site_id
+             LEFT JOIN page_sites ps2 ON ps2.page_id = p.id
+             LEFT JOIN sites s2 ON s2.id = ps2.site_id
+             WHERE ps.site_id = :site_id
+             GROUP BY p.id
              ORDER BY pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC",
             ['site_id' => $siteId]
         )->fetchAll();
@@ -32,10 +38,13 @@ class Page extends Model
     public function getAllWithSite(): array
     {
         return $this->query(
-            "SELECT p.*, s.name AS site_name, pc.name AS category_name
+            "SELECT p.*, pc.name AS category_name,
+                    GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS site_names
              FROM pages p
-             LEFT JOIN sites s ON p.site_id = s.id
+             LEFT JOIN page_sites ps ON ps.page_id = p.id
+             LEFT JOIN sites s ON s.id = ps.site_id
              LEFT JOIN page_categories pc ON p.page_category_id = pc.id
+             GROUP BY p.id
              ORDER BY pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC"
         )->fetchAll();
     }
@@ -43,7 +52,9 @@ class Page extends Model
     public function getPublishedBySite(int $siteId): array
     {
         return $this->query(
-            "SELECT * FROM pages WHERE site_id = :site_id AND is_published = 1 ORDER BY sort_order ASC",
+            "SELECT p.* FROM pages p
+             INNER JOIN page_sites ps ON ps.page_id = p.id
+             WHERE ps.site_id = :site_id AND p.is_published = 1 ORDER BY p.sort_order ASC",
             ['site_id' => $siteId]
         )->fetchAll();
     }
@@ -62,5 +73,27 @@ class Page extends Model
             "SELECT * FROM pages WHERE slug = :slug AND page_category_id = :cat_id AND is_published = 1 LIMIT 1",
             ['slug' => $slug, 'cat_id' => $categoryId]
         )->fetch();
+    }
+
+    public function getSiteIds(int $pageId): array
+    {
+        return array_column(
+            $this->query("SELECT site_id FROM page_sites WHERE page_id = :id", ['id' => $pageId])->fetchAll(),
+            'site_id'
+        );
+    }
+
+    public function syncSites(int $pageId, array $siteIds): void
+    {
+        $this->query("DELETE FROM page_sites WHERE page_id = :id", ['id' => $pageId]);
+        foreach ($siteIds as $siteId) {
+            $this->query("INSERT INTO page_sites (page_id, site_id) VALUES (:page_id, :site_id)", [
+                'page_id' => $pageId, 'site_id' => (int) $siteId,
+            ]);
+        }
+        // Keep site_id column in sync (first selected site)
+        if (!empty($siteIds)) {
+            $this->update($pageId, ['site_id' => (int) $siteIds[0]]);
+        }
     }
 }
