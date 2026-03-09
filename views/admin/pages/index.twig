@@ -35,9 +35,34 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
+            {% set currentCategory = null %}
             {% for page in pages %}
+            {% if page.category_name and page.category_name != currentCategory %}
+                {% set currentCategory = page.category_name %}
+                <tr class="bg-purple-50">
+                    <td colspan="5" class="px-6 py-2">
+                        <span class="text-sm font-semibold text-purple-800">{{ currentCategory }}</span>
+                    </td>
+                </tr>
+            {% endif %}
+            {% if not page.category_name and currentCategory is not null %}
+                {% set currentCategory = null %}
+                <tr class="bg-gray-50">
+                    <td colspan="5" class="px-6 py-2">
+                        <span class="text-sm font-semibold text-gray-500">Zonder categorie</span>
+                    </td>
+                </tr>
+            {% endif %}
             <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ page.title }}</td>
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                    {% if page.category_name %}
+                        <span class="pl-6 inline-flex items-center">
+                            <span class="text-gray-300 mr-2">└</span> {{ page.title }}
+                        </span>
+                    {% else %}
+                        {{ page.title }}
+                    {% endif %}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ page.slug }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-gray-500">
                     {% if page.category_name %}

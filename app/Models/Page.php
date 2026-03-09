@@ -23,7 +23,8 @@ class Page extends Model
              FROM pages p
              LEFT JOIN sites s ON p.site_id = s.id
              LEFT JOIN page_categories pc ON p.page_category_id = pc.id
-             WHERE p.site_id = :site_id ORDER BY p.sort_order ASC",
+             WHERE p.site_id = :site_id
+             ORDER BY pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC",
             ['site_id' => $siteId]
         )->fetchAll();
     }
@@ -35,7 +36,7 @@ class Page extends Model
              FROM pages p
              LEFT JOIN sites s ON p.site_id = s.id
              LEFT JOIN page_categories pc ON p.page_category_id = pc.id
-             ORDER BY p.sort_order ASC"
+             ORDER BY pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC"
         )->fetchAll();
     }
 
