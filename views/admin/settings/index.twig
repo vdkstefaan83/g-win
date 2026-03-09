@@ -10,7 +10,14 @@
         {{ csrf_field|raw }}
 
         <div class="space-y-6">
+            {% set currentGroup = '' %}
             {% for setting in settings %}
+            {% if setting.group != currentGroup %}
+                {% set currentGroup = setting.group %}
+                <div class="pt-4 first:pt-0">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2 border-b border-gray-200 pb-2">{{ currentGroup }}</h3>
+                </div>
+            {% endif %}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-b border-gray-100 pb-4">
                 <div>
                     <label for="setting_{{ setting.key }}" class="block text-sm font-medium text-gray-700">{{ setting.label ?? setting.key }}</label>

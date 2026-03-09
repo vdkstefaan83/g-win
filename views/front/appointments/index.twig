@@ -73,14 +73,47 @@
         <!-- Step 2: Date -->
         <div x-show="step === 2" x-transition>
             <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2">Kies een datum</h2>
-            <p class="text-krijgers-500 mb-8" x-text="form.type === 'pregnancy' ? 'Zwangerschapsscans zijn beschikbaar op zaterdagen.' : 'Kinderscans zijn beschikbaar op zondagen.'"></p>
+            <p class="text-krijgers-500 mb-6" x-text="form.type === 'pregnancy' ? 'Zwangerschapsscans zijn beschikbaar op zaterdagen.' : 'Kinderscans zijn beschikbaar op zondagen.'"></p>
 
-            <input type="date" x-model="form.date"
-                   :min="minDate"
-                   @change="dateChanged()"
-                   class="w-full border border-krijgers-200 rounded-xl px-5 py-4 text-lg focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
+            <!-- Visual calendar -->
+            <div class="select-none">
+                <div class="flex items-center justify-between mb-4">
+                    <button type="button" @click="calPrevMonth()" :disabled="!calCanGoPrev()"
+                            class="p-2 rounded-lg hover:bg-krijgers-100 transition disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-5 h-5 text-krijgers-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <span class="text-lg font-display font-bold text-krijgers-800" x-text="calMonthLabel()"></span>
+                    <button type="button" @click="calNextMonth()" :disabled="!calCanGoNext()"
+                            class="p-2 rounded-lg hover:bg-krijgers-100 transition disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-5 h-5 text-krijgers-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+                <div class="grid grid-cols-7 gap-1 mb-2">
+                    <template x-for="d in ['Ma','Di','Wo','Do','Vr','Za','Zo']">
+                        <div class="text-center text-xs font-medium text-krijgers-400 py-1" x-text="d"></div>
+                    </template>
+                </div>
+                <div class="grid grid-cols-7 gap-1">
+                    <template x-for="cell in calDays()" :key="cell.key">
+                        <button type="button"
+                                @click="cell.selectable && selectDate(cell.date)"
+                                class="aspect-square rounded-lg text-sm font-medium flex items-center justify-center transition-all"
+                                :class="{
+                                    'bg-krijgers-gold-500 text-krijgers-900 font-bold shadow': form.date === cell.date,
+                                    'bg-krijgers-50 text-krijgers-800 hover:bg-krijgers-gold-100 hover:text-krijgers-900 cursor-pointer': cell.selectable && form.date !== cell.date,
+                                    'text-krijgers-200 cursor-default': !cell.selectable && cell.day,
+                                    '': !cell.day
+                                }"
+                                :disabled="!cell.selectable"
+                                x-text="cell.day || ''">
+                        </button>
+                    </template>
+                </div>
+            </div>
 
-            <p x-show="dateError" x-text="dateError" class="mt-3 text-red-600 text-sm bg-red-50 px-4 py-2 rounded-xl"></p>
+            <p x-show="form.date" class="mt-4 text-sm text-krijgers-600 bg-krijgers-50 px-4 py-2 rounded-xl">
+                Geselecteerd: <span class="font-semibold" x-text="formatDate(form.date)"></span>
+            </p>
 
             <div class="flex justify-between mt-8">
                 <button @click="step--" class="text-krijgers-600 hover:text-krijgers-800 font-medium flex items-center gap-2">
@@ -176,8 +209,14 @@
 {% block scripts %}
 <script>
 const blockedDates = {{ blocked_dates is defined ? blocked_dates|json_encode|raw : '[]' }};
+const maxMonths = {{ max_booking_months ?? 24 }};
 
 function appointmentForm() {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
+    const maxDate = new Date(today); maxDate.setMonth(maxDate.getMonth() + maxMonths);
+
     return {
         step: 1,
         form: { type: '', date: '', slot_id: null, start_time: '10:00', end_time: '18:00', first_name: '', last_name: '', email: '', phone: '', notes: '' },
@@ -185,22 +224,60 @@ function appointmentForm() {
         dateError: '',
         submitError: '',
         submitting: false,
+        calMonth: tomorrow.getMonth(),
+        calYear: tomorrow.getFullYear(),
 
-        get minDate() {
-            const d = new Date(); d.setDate(d.getDate() + 1);
-            return d.toISOString().split('T')[0];
+        // Calendar helpers
+        calMonthLabel() {
+            return new Date(this.calYear, this.calMonth, 1).toLocaleDateString('nl-BE', { month: 'long', year: 'numeric' });
+        },
+        calCanGoPrev() {
+            return this.calYear > tomorrow.getFullYear() || (this.calYear === tomorrow.getFullYear() && this.calMonth > tomorrow.getMonth());
+        },
+        calCanGoNext() {
+            return this.calYear < maxDate.getFullYear() || (this.calYear === maxDate.getFullYear() && this.calMonth < maxDate.getMonth());
+        },
+        calPrevMonth() { this.calMonth--; if (this.calMonth < 0) { this.calMonth = 11; this.calYear--; } },
+        calNextMonth() { this.calMonth++; if (this.calMonth > 11) { this.calMonth = 0; this.calYear++; } },
+
+        calDays() {
+            const first = new Date(this.calYear, this.calMonth, 1);
+            const lastDay = new Date(this.calYear, this.calMonth + 1, 0).getDate();
+            // Monday=0 offset
+            let startOffset = (first.getDay() + 6) % 7;
+            const cells = [];
+            // Target day: pregnancy=6(sat), child=0(sun)
+            const targetDay = this.form.type === 'pregnancy' ? 6 : 0;
+
+            for (let i = 0; i < startOffset; i++) { cells.push({ key: 'e' + i, day: null, date: null, selectable: false }); }
+
+            for (let d = 1; d <= lastDay; d++) {
+                const dt = new Date(this.calYear, this.calMonth, d);
+                const iso = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+                const isTarget = dt.getDay() === targetDay;
+                const isFuture = dt >= tomorrow;
+                const isInRange = dt <= maxDate;
+                const isBlocked = blockedDates.includes(iso);
+                cells.push({ key: iso, day: d, date: iso, selectable: isTarget && isFuture && isInRange && !isBlocked });
+            }
+            return cells;
+        },
+
+        selectDate(date) {
+            this.form.date = date;
+            this.dateError = '';
+        },
+
+        formatDate(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            return d.toLocaleDateString('nl-BE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
         },
 
         nextStep() { this.step++; },
 
-        dateChanged() { this.dateError = ''; },
-
         validateDate() {
-            if (blockedDates.includes(this.form.date)) { this.dateError = 'Deze datum is niet beschikbaar.'; return; }
-            const d = new Date(this.form.date);
-            const day = d.getDay();
-            if (this.form.type === 'pregnancy' && day !== 6) { this.dateError = 'Zwangerschapsscans zijn alleen op zaterdagen beschikbaar.'; return; }
-            if (this.form.type === 'child' && day !== 0) { this.dateError = 'Kinderscans zijn alleen op zondagen beschikbaar.'; return; }
+            if (!this.form.date) return;
             this.dateError = '';
             if (this.form.type === 'pregnancy') { this.loadSlots(); }
             this.nextStep();

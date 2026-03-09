@@ -328,7 +328,8 @@ CROSS JOIN (
     SELECT 'company_vat', 'BE0837.145.236' UNION ALL
     SELECT 'social_facebook', 'https://www.facebook.com/gwin.be/' UNION ALL
     SELECT 'social_linkedin', 'https://www.linkedin.com/company/6596642' UNION ALL
-    SELECT 'social_sketchfab', 'https://sketchfab.com/g-win'
+    SELECT 'social_sketchfab', 'https://sketchfab.com/g-win' UNION ALL
+    SELECT 'appointment_max_months', '24'
 ) AS seed
 WHERE s.slug = 'gwin';
 
