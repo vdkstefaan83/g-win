@@ -10,7 +10,7 @@
 <h2 class="text-2xl font-bold text-gray-800 mb-6">Nieuwe pagina</h2>
 
 <div class="bg-white rounded-lg shadow p-6 max-w-4xl">
-    <form action="/admin/pages/store" method="POST" id="pageForm">
+    <form action="/admin/pages/store" method="POST" enctype="multipart/form-data" id="pageForm">
         {{ csrf_field|raw }}
 
         <div class="space-y-4">
@@ -18,66 +18,89 @@
                 <div>
                     <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Titel</label>
                     <input type="text" name="title" id="title" required
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           value="{{ old.title }}">
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
-
                 <div>
                     <label for="slug" class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
                     <input type="text" name="slug" id="slug" required
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           value="{{ old.slug }}">
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label for="site_id" class="block text-sm font-medium text-gray-700 mb-1">Site</label>
                     <select name="site_id" id="site_id" required
                             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Selecteer site</option>
                         {% for s in sites %}
-                            <option value="{{ s.id }}" {{ old.site_id == s.id ? 'selected' : '' }}>{{ s.name }}</option>
+                            <option value="{{ s.id }}">{{ s.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-
                 <div>
-                    <label for="template" class="block text-sm font-medium text-gray-700 mb-1">Template</label>
-                    <input type="text" name="template" id="template"
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           value="{{ old.template }}" placeholder="default">
+                    <label for="page_category_id" class="block text-sm font-medium text-gray-700 mb-1">Paginacategorie</label>
+                    <select name="page_category_id" id="page_category_id"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Geen categorie</option>
+                        {% for cat in page_categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-1">Volgorde</label>
+                    <input type="number" name="sort_order" id="sort_order" value="0"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
             </div>
 
             <div>
                 <label for="meta_description" class="block text-sm font-medium text-gray-700 mb-1">Meta beschrijving</label>
                 <input type="text" name="meta_description" id="meta_description"
-                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                       value="{{ old.meta_description }}">
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p class="text-sm font-medium text-gray-700 mb-3">Intro (voor categorie-overzicht)</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="intro_text" class="block text-sm text-gray-600 mb-1">Intro tekst</label>
+                        <textarea name="intro_text" id="intro_text" rows="3"
+                                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="Korte beschrijving voor in het overzicht..."></textarea>
+                    </div>
+                    <div>
+                        <label for="intro_image" class="block text-sm text-gray-600 mb-1">Intro afbeelding</label>
+                        <input type="file" name="intro_image" id="intro_image" accept="image/*"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 file:font-medium">
+                    </div>
+                </div>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Inhoud</label>
-                <div id="editor" class="bg-white" style="min-height: 300px;">{{ old.content|raw }}</div>
-                <textarea name="content" id="content" class="hidden">{{ old.content }}</textarea>
+                <div id="editor" class="bg-white" style="min-height: 300px;"></div>
+                <textarea name="content" id="content" class="hidden"></textarea>
+            </div>
+
+            <div>
+                <label for="images" class="block text-sm font-medium text-gray-700 mb-1">Foto's</label>
+                <input type="file" name="images[]" id="images" accept="image/*" multiple
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 file:font-medium">
+                <p class="text-xs text-gray-500 mt-1">Je kan meerdere foto's tegelijk selecteren.</p>
             </div>
 
             <div class="flex items-center">
                 <input type="checkbox" name="is_published" id="is_published" value="1"
-                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                       {{ old.is_published ? 'checked' : '' }}>
+                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                 <label for="is_published" class="ml-2 text-sm text-gray-700">Gepubliceerd</label>
             </div>
         </div>
 
         <div class="mt-6 flex gap-3">
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">
-                Opslaan
-            </button>
-            <a href="/admin/pages" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium transition">
-                Annuleren
-            </a>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">Opslaan</button>
+            <a href="/admin/pages" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium transition">Annuleren</a>
         </div>
     </form>
 </div>

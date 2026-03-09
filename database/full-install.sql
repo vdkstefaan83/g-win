@@ -22,7 +22,9 @@ DROP TABLE IF EXISTS appointment_slots;
 DROP TABLE IF EXISTS blocks;
 DROP TABLE IF EXISTS menu_items;
 DROP TABLE IF EXISTS menus;
+DROP TABLE IF EXISTS page_images;
 DROP TABLE IF EXISTS pages;
+DROP TABLE IF EXISTS page_categories;
 DROP TABLE IF EXISTS settings;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS customers;
@@ -68,12 +70,30 @@ CREATE TABLE customers (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE page_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    site_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL,
+    description TEXT,
+    image VARCHAR(255),
+    sort_order INT DEFAULT 0,
+    is_active TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_site_slug (site_id, slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE pages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     site_id INT NOT NULL,
+    page_category_id INT,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL,
     content LONGTEXT,
+    intro_text TEXT,
+    intro_image VARCHAR(255),
     meta_title VARCHAR(255),
     meta_description TEXT,
     is_published TINYINT(1) DEFAULT 0,
@@ -81,7 +101,17 @@ CREATE TABLE pages (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE,
+    FOREIGN KEY (page_category_id) REFERENCES page_categories(id) ON DELETE SET NULL,
     UNIQUE KEY unique_site_slug (site_id, slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE page_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    page_id INT NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    sort_order INT DEFAULT 0,
+    is_primary TINYINT(1) DEFAULT 0,
+    FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE menus (
@@ -512,6 +542,83 @@ SELECT s.id, 'Over ons', 'over-ons',
 'Over ons | G-WIN',
 'G-WIN: moderne 3D-technologie gecombineerd met verfijnd handwerk voor unieke 3D-beelden en sculpturen.',
 1, 5
+FROM sites s WHERE s.slug = 'gwin';
+
+-- ============================================================
+-- SEED: Paginacategorieen
+-- ============================================================
+INSERT INTO page_categories (site_id, name, slug, description, sort_order, is_active)
+SELECT s.id, '3D Scannen', '3d-scannen', 'Ontdek onze 3D-scanning diensten voor erfgoed, kunst, industrie en marketing.', 1, 1
+FROM sites s WHERE s.slug = 'gwin';
+
+INSERT INTO page_categories (site_id, name, slug, description, sort_order, is_active)
+SELECT s.id, '3D Beelden & Design Awards', '3d-beelden', 'Exclusieve Design Awards, Logo''s en Gepersonaliseerde 3D-Beeldjes.', 2, 1
+FROM sites s WHERE s.slug = 'gwin';
+
+INSERT INTO page_categories (site_id, name, slug, description, sort_order, is_active)
+SELECT s.id, 'Zwangerschapsbeeldjes', 'zwangerschapsbeeldjes', 'Stijlvolle 3D-zwangerschapsbeeldjes: een tastbare herinnering aan een unieke periode.', 3, 1
+FROM sites s WHERE s.slug = 'gwin';
+
+-- Pagina's koppelen aan categorieen + intro teksten toevoegen
+UPDATE pages SET
+    page_category_id = (SELECT id FROM page_categories WHERE slug = '3d-scannen' LIMIT 1),
+    intro_text = 'Dankzij moderne 3D-scantechnologie digitaliseert G-Win kunstwerken, erfgoedobjecten en industriele onderdelen met uitzonderlijke precisie.'
+WHERE slug = '3d-scannen';
+
+UPDATE pages SET
+    page_category_id = (SELECT id FROM page_categories WHERE slug = '3d-beelden' LIMIT 1),
+    intro_text = 'Exclusieve Design Awards, Logo''s en Gepersonaliseerde 3D-Beeldjes. Moderne technologie gecombineerd met verfijnd handwerk.'
+WHERE slug = '3d-beelden-design-awards';
+
+UPDATE pages SET
+    page_category_id = (SELECT id FROM page_categories WHERE slug = 'zwangerschapsbeeldjes' LIMIT 1),
+    intro_text = 'Stijlvolle 3D-zwangerschapsbeeldjes van 10 tot 25 cm in diverse materialen en afwerkingen.'
+WHERE slug = 'zwangerschapsbeeldjes';
+
+-- Extra voorbeeldpagina's binnen categorieen
+INSERT INTO pages (site_id, page_category_id, title, slug, content, intro_text, is_published, sort_order)
+SELECT s.id,
+    (SELECT id FROM page_categories WHERE slug = '3d-scannen' LIMIT 1),
+    'Erfgoed & Kunst', 'erfgoed-kunst',
+    '<p>G-Win digitaliseert kunstwerken en erfgoedobjecten met 3D-scantechnologie. Van museumsculpturen tot historische artefacten - wij maken nauwkeurige digitale replica''s voor bewaring, restauratie en virtuele presentatie.</p>',
+    'Digitalisering van kunstwerken en erfgoedobjecten met nauwkeurige 3D-scantechnologie.',
+    1, 1
+FROM sites s WHERE s.slug = 'gwin';
+
+INSERT INTO pages (site_id, page_category_id, title, slug, content, intro_text, is_published, sort_order)
+SELECT s.id,
+    (SELECT id FROM page_categories WHERE slug = '3d-scannen' LIMIT 1),
+    'Industriele Scanoplossingen', 'industriele-scanoplossingen',
+    '<p>Industriele 3D-scan- en meetoplossingen in studio of op locatie. Ideaal voor prototyping, reverse engineering, kwaliteitscontrole en productieoptimalisatie.</p>',
+    'Professionele 3D-scanoplossingen voor industrie: prototyping, reverse engineering en kwaliteitscontrole.',
+    1, 2
+FROM sites s WHERE s.slug = 'gwin';
+
+INSERT INTO pages (site_id, page_category_id, title, slug, content, intro_text, is_published, sort_order)
+SELECT s.id,
+    (SELECT id FROM page_categories WHERE slug = '3d-scannen' LIMIT 1),
+    'Product Marketing & Virtuele Beurzen', 'product-marketing',
+    '<p>360 productvisualisatie met 3D-modellen voor websites, virtuele beurzen en digitale productpresentaties. Laat uw producten tot leven komen met interactieve 3D-weergave.</p>',
+    '360 productvisualisatie en interactieve 3D-modellen voor websites en virtuele beurzen.',
+    1, 3
+FROM sites s WHERE s.slug = 'gwin';
+
+INSERT INTO pages (site_id, page_category_id, title, slug, content, intro_text, is_published, sort_order)
+SELECT s.id,
+    (SELECT id FROM page_categories WHERE slug = '3d-beelden' LIMIT 1),
+    'Awards & Trofeeen', 'awards-trofeeen',
+    '<p>Unieke design awards en trofeeen volledig op maat. Van sportprijzen tot bedrijfsawards - elk stuk wordt individueel ontworpen en met de hand afgewerkt.</p>',
+    'Op maat gemaakte design awards en trofeeen voor bedrijfsevenementen en sportprestaties.',
+    1, 1
+FROM sites s WHERE s.slug = 'gwin';
+
+INSERT INTO pages (site_id, page_category_id, title, slug, content, intro_text, is_published, sort_order)
+SELECT s.id,
+    (SELECT id FROM page_categories WHERE slug = '3d-beelden' LIMIT 1),
+    'Logo''s in 3D', 'logos-in-3d',
+    '<p>Uw bedrijfslogo als driedimensionaal object. Perfect als relatiegeschenk, bureaudecoratie of opvallend element op uw beurs- of winkelinrichting.</p>',
+    'Uw bedrijfslogo als uniek driedimensionaal object - perfect als relatiegeschenk of decoratie.',
+    1, 2
 FROM sites s WHERE s.slug = 'gwin';
 
 -- ============================================================

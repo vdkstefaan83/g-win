@@ -21,6 +21,7 @@ use App\Controllers\Admin\OrderController;
 use App\Controllers\Admin\UserController;
 use App\Controllers\Admin\SettingController;
 use App\Controllers\Admin\GoogleCalendarController;
+use App\Controllers\Admin\PageCategoryController;
 use App\Controllers\Admin\AuthController as AdminAuthController;
 
 /** @var \Bramus\Router\Router $router */
@@ -147,6 +148,26 @@ $router->post('/admin/sites/{id}/delete', function ($id) {
     (new SiteController())->destroy((int)$id);
 });
 
+// Page Categories
+$router->get('/admin/page-categories', function () {
+    (new PageCategoryController())->index();
+});
+$router->get('/admin/page-categories/create', function () {
+    (new PageCategoryController())->create();
+});
+$router->post('/admin/page-categories/store', function () {
+    (new PageCategoryController())->store();
+});
+$router->get('/admin/page-categories/{id}/edit', function ($id) {
+    (new PageCategoryController())->edit((int)$id);
+});
+$router->post('/admin/page-categories/{id}/update', function ($id) {
+    (new PageCategoryController())->update((int)$id);
+});
+$router->post('/admin/page-categories/{id}/delete', function ($id) {
+    (new PageCategoryController())->destroy((int)$id);
+});
+
 // Pages
 $router->get('/admin/pages', function () {
     (new AdminPageController())->index();
@@ -165,6 +186,12 @@ $router->post('/admin/pages/{id}/update', function ($id) {
 });
 $router->post('/admin/pages/{id}/delete', function ($id) {
     (new AdminPageController())->destroy((int)$id);
+});
+$router->post('/admin/pages/images/delete', function () {
+    (new AdminPageController())->deleteImage();
+});
+$router->post('/admin/pages/images/reorder', function () {
+    (new AdminPageController())->reorderImages();
 });
 
 // Menus
@@ -367,6 +394,9 @@ $router->post('/admin/google-calendar/disconnect', function () {
 // ============================================================
 // CMS page catch-all (MUST be last)
 // ============================================================
+$router->get('/{category}/{page}', function ($category, $page) {
+    (new PageController())->showCategoryPage($category, $page);
+});
 $router->get('/{slug}', function ($slug) {
-    (new PageController())->show($slug);
+    (new PageController())->showOrCategory($slug);
 });

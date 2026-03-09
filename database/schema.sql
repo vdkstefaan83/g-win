@@ -39,12 +39,30 @@ CREATE TABLE IF NOT EXISTS customers (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS page_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    site_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL,
+    description TEXT,
+    image VARCHAR(255),
+    sort_order INT DEFAULT 0,
+    is_active TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_site_slug_pc (site_id, slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS pages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     site_id INT NOT NULL,
+    page_category_id INT,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL,
     content LONGTEXT,
+    intro_text TEXT,
+    intro_image VARCHAR(255),
     meta_title VARCHAR(255),
     meta_description TEXT,
     is_published TINYINT(1) DEFAULT 0,
@@ -52,7 +70,17 @@ CREATE TABLE IF NOT EXISTS pages (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE,
+    FOREIGN KEY (page_category_id) REFERENCES page_categories(id) ON DELETE SET NULL,
     UNIQUE KEY unique_site_slug (site_id, slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS page_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    page_id INT NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    sort_order INT DEFAULT 0,
+    is_primary TINYINT(1) DEFAULT 0,
+    FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS menus (
