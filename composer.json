@@ -1,0 +1,23 @@
+{
+    "name": "vdkstefaan83/g-win",
+    "description": "G-Win Multi-site MVC Application",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "twig/twig": "^3.8",
+        "bramus/router": "^1.6",
+        "vlucas/phpdotenv": "^5.6",
+        "google/apiclient": "^2.15",
+        "mollie/mollie-api-php": "^2.65"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Core\\": "core/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

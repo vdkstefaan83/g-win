@@ -1,0 +1,66 @@
+<header class="bg-krijgers-800 text-white shadow-lg" x-data="{ mobileMenu: false }">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <a href="/" class="text-2xl font-bold text-krijgers-gold-400">
+                {{ site.name }}
+            </a>
+
+            <!-- Desktop menu -->
+            <div class="hidden md:flex items-center space-x-6">
+                {% if header_menu and header_menu.items %}
+                    {% for item in header_menu.items %}
+                        {% if item.children is defined and item.children|length > 0 %}
+                            <div class="relative" x-data="{ open: false }">
+                                <button @click="open = !open" class="text-white hover:text-krijgers-gold-400 transition">
+                                    {{ item.label }}
+                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
+                                <div x-show="open" @click.away="open = false" class="absolute bg-white text-gray-800 mt-2 py-2 w-48 rounded-lg shadow-xl z-50">
+                                    {% for child in item.children %}
+                                        <a href="{{ child.url ?: '/' ~ child.page_slug }}" class="block px-4 py-2 hover:bg-krijgers-50">{{ child.label }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <a href="{{ item.url ?: '/' ~ item.page_slug }}" class="text-white hover:text-krijgers-gold-400 transition">
+                                {{ item.label }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <a href="/" class="text-white hover:text-krijgers-gold-400 transition">Home</a>
+                    <a href="/afspraken" class="text-white hover:text-krijgers-gold-400 transition">Afspraken</a>
+                    <a href="/shop" class="text-white hover:text-krijgers-gold-400 transition">Shop</a>
+                {% endif %}
+
+                <!-- Cart icon -->
+                <a href="/winkelwagen" class="text-white hover:text-krijgers-gold-400 transition relative">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m1.6 8L5 5M7 13l-1.35 2.7A1 1 0 006.55 17h11.9M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-krijgers-gold-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                </a>
+            </div>
+
+            <!-- Mobile menu button -->
+            <button @click="mobileMenu = !mobileMenu" class="md:hidden text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile menu -->
+        <div x-show="mobileMenu" x-transition class="md:hidden pb-4">
+            {% if header_menu and header_menu.items %}
+                {% for item in header_menu.items %}
+                    <a href="{{ item.url ?: '/' ~ item.page_slug }}" class="block py-2 text-white hover:text-krijgers-gold-400">{{ item.label }}</a>
+                {% endfor %}
+            {% else %}
+                <a href="/" class="block py-2 text-white hover:text-krijgers-gold-400">Home</a>
+                <a href="/afspraken" class="block py-2 text-white hover:text-krijgers-gold-400">Afspraken</a>
+                <a href="/shop" class="block py-2 text-white hover:text-krijgers-gold-400">Shop</a>
+            {% endif %}
+            <a href="/winkelwagen" class="block py-2 text-white hover:text-krijgers-gold-400">Winkelwagen</a>
+        </div>
+    </nav>
+</header>

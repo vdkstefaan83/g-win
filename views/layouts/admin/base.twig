@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin{% endblock %} - {{ site.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'krijgers': {
+                            700: '#a3521d',
+                            800: '#84421f',
+                            900: '#6c371c',
+                        },
+                        'krijgers-gold': {
+                            400: '#ebce4a',
+                            500: '#e3ba22',
+                            600: '#d4a843',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body class="bg-gray-100 min-h-screen" x-data="{ sidebarOpen: true }">
+    <div class="flex min-h-screen">
+        {% include 'layouts/admin/sidebar.twig' %}
+
+        <div class="flex-1 flex flex-col" :class="sidebarOpen ? 'ml-64' : 'ml-0'">
+            {% include 'layouts/admin/header.twig' %}
+
+            <main class="flex-1 p-6">
+                {% include 'components/flash-messages.twig' %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script src="/assets/js/admin.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

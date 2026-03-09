@@ -1,0 +1,55 @@
+{% extends 'layouts/' ~ (layout ?? 'gwin') ~ '/base.twig' %}
+
+{% block title %}Bevestiging - {{ site.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </div>
+
+        <h1 class="text-3xl font-bold text-krijgers-800 mb-4">Afspraak ingepland!</h1>
+
+        {% if appointment %}
+        <div class="bg-gray-50 rounded-lg p-6 mt-6 text-left">
+            <dl class="space-y-3">
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Type:</dt>
+                    <dd class="font-medium">{{ appointment.type == 'pregnancy' ? 'Zwangerschapsbeeldje' : 'Beeldje met kind' }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Datum:</dt>
+                    <dd class="font-medium">{{ appointment.date|date('d/m/Y') }}</dd>
+                </div>
+                {% if appointment.start_time != '00:00:00' %}
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Tijdstip:</dt>
+                    <dd class="font-medium">{{ appointment.start_time[:5] }} - {{ appointment.end_time[:5] }}</dd>
+                </div>
+                {% endif %}
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Status:</dt>
+                    <dd><span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">In afwachting van bevestiging</span></dd>
+                </div>
+            </dl>
+        </div>
+
+        <p class="text-gray-600 mt-6">U ontvangt een bevestigingsmail zodra uw afspraak is goedgekeurd.</p>
+
+        {% if appointment.type == 'pregnancy' %}
+        <div class="bg-amber-50 border-l-4 border-krijgers-gold-600 p-4 rounded mt-6 text-left">
+            <p class="font-semibold text-krijgers-800">Vergeet niet:</p>
+            <ul class="mt-2 text-gray-700 space-y-1">
+                <li>&#8226; Elke afspraak duurt ongeveer 60-90 minuten</li>
+                <li>&#8226; Kom 10 minuten voor uw afspraak</li>
+                <li>&#8226; Bij te laat komen kan uw tijdslot worden ingekort</li>
+            </ul>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <a href="/" class="inline-block mt-8 text-krijgers-800 hover:text-krijgers-gold-600 font-semibold">&larr; Terug naar home</a>
+    </div>
+</div>
+{% endblock %}

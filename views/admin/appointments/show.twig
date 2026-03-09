@@ -1,0 +1,159 @@
+{% extends 'layouts/admin/base.twig' %}
+
+{% block title %}Afspraak details{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="/admin/appointments" class="text-blue-600 hover:text-blue-800 text-sm">&larr; Terug naar afspraken</a>
+</div>
+
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Afspraak #{{ appointment.id }}</h2>
+    <a href="/admin/appointments/{{ appointment.id }}/edit" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+        Bewerken
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Appointment details -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Gegevens</h3>
+
+        <dl class="space-y-3">
+            <div class="flex justify-between">
+                <dt class="text-sm text-gray-500">Klant</dt>
+                <dd class="text-sm font-medium text-gray-900">
+                    {{ appointment.first_name }} {{ appointment.last_name }}
+                    {% if appointment.customer_id %}
+                        <a href="/admin/customers/{{ appointment.customer_id }}" class="text-blue-600 hover:text-blue-800 ml-1">Bekijken</a>
+                    {% endif %}
+                </dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="text-sm text-gray-500">E-mail</dt>
+                <dd class="text-sm text-gray-900">{{ appointment.email }}</dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="text-sm text-gray-500">Telefoon</dt>
+                <dd class="text-sm text-gray-900">{{ appointment.phone }}</dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="text-sm text-gray-500">Type</dt>
+                <dd class="text-sm text-gray-900">{{ appointment.type == 'pregnancy' ? 'Zwangerschap' : 'Kind' }}</dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="text-sm text-gray-500">Datum</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ appointment.date|date('d/m/Y') }}</dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="text-sm text-gray-500">Tijd</dt>
+                <dd class="text-sm text-gray-900">
+                    {% if appointment.start_time and appointment.start_time != '00:00:00' %}
+                        {{ appointment.start_time[:5] }}{% if appointment.end_time and appointment.end_time != '00:00:00' %} - {{ appointment.end_time[:5] }}{% endif %}
+                    {% else %}
+                        Nog niet ingepland
+                    {% endif %}
+                </dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="text-sm text-gray-500">Status</dt>
+                <dd>
+                    <span class="px-2 py-1 text-xs rounded-full
+                        {{ appointment.status == 'pending' ? 'bg-orange-100 text-orange-800' : '' }}
+                        {{ appointment.status == 'confirmed' ? 'bg-green-100 text-green-800' : '' }}
+                        {{ appointment.status == 'cancelled' ? 'bg-red-100 text-red-800' : '' }}">
+                        {{ appointment.status == 'pending' ? 'In optie' : '' }}
+                        {{ appointment.status == 'confirmed' ? 'Bevestigd' : '' }}
+                        {{ appointment.status == 'cancelled' ? 'Geannuleerd' : '' }}
+                    </span>
+                </dd>
+            </div>
+            {% if appointment.notes %}
+            <div>
+                <dt class="text-sm text-gray-500 mb-1">Opmerkingen</dt>
+                <dd class="text-sm text-gray-900 bg-gray-50 rounded p-3">{{ appointment.notes|nl2br }}</dd>
+            </div>
+            {% endif %}
+            <div class="flex justify-between">
+                <dt class="text-sm text-gray-500">Aangemaakt</dt>
+                <dd class="text-sm text-gray-900">{{ appointment.created_at|date('d/m/Y H:i') }}</dd>
+            </div>
+        </dl>
+    </div>
+
+    <!-- Actions -->
+    <div class="space-y-6">
+        {% if appointment.status == 'pending' %}
+        <div class="bg-white rounded-lg shadow p-6" x-data="confirmHandler()">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Bevestigen</h3>
+
+            <form action="/admin/appointments/{{ appointment.id }}/confirm" method="POST">
+                {{ csrf_field|raw }}
+
+                {% if appointment.type == 'child' %}
+                <div class="space-y-4 mb-4">
+                    <p class="text-sm text-gray-600">
+                        Dit is een afspraak voor een kindsessie. Selecteer een datum en tijd voor de afspraak.
+                    </p>
+                    <div>
+                        <label for="confirm_date" class="block text-sm font-medium text-gray-700 mb-1">Datum</label>
+                        <input type="date" name="date" id="confirm_date"
+                               value="{{ appointment.date|date('Y-m-d') }}"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="confirm_start_time" class="block text-sm font-medium text-gray-700 mb-1">Starttijd</label>
+                            <input type="time" name="start_time" id="confirm_start_time"
+                                   value="{{ appointment.start_time ? appointment.start_time[:5] : '' }}"
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="confirm_end_time" class="block text-sm font-medium text-gray-700 mb-1">Eindtijd</label>
+                            <input type="time" name="end_time" id="confirm_end_time"
+                                   value="{{ appointment.end_time ? appointment.end_time[:5] : '' }}"
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">
+                    Afspraak bevestigen
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Annuleren</h3>
+            <form action="/admin/appointments/{{ appointment.id }}/cancel" method="POST" onsubmit="return confirm('Weet je zeker dat je deze afspraak wilt annuleren?')">
+                {{ csrf_field|raw }}
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">
+                    Afspraak annuleren
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if appointment.status == 'confirmed' %}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Annuleren</h3>
+            <form action="/admin/appointments/{{ appointment.id }}/cancel" method="POST" onsubmit="return confirm('Weet je zeker dat je deze bevestigde afspraak wilt annuleren?')">
+                {{ csrf_field|raw }}
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">
+                    Afspraak annuleren
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function confirmHandler() {
+        return {};
+    }
+</script>
+{% endblock %}

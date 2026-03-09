@@ -1,0 +1,173 @@
+{% extends 'layouts/' ~ (layout ?? 'gwin') ~ '/base.twig' %}
+
+{% block title %}Afspraak maken - {{ site.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12" x-data="appointmentForm()">
+    <h1 class="text-4xl font-bold text-krijgers-800 mb-8 text-center">Afspraak maken</h1>
+
+    <form method="POST" action="/afspraken" class="space-y-8">
+        {{ csrf_field|raw }}
+
+        <!-- Step 1: Type selectie -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-krijgers-800 mb-4">1. Kies uw type beeldje</h2>
+            <div class="grid md:grid-cols-2 gap-4">
+                <label class="cursor-pointer">
+                    <input type="radio" name="type" value="pregnancy" x-model="type" class="sr-only peer">
+                    <div class="border-2 rounded-lg p-6 text-center peer-checked:border-krijgers-gold-600 peer-checked:bg-krijgers-gold-600/5 hover:border-krijgers-300 transition">
+                        <h3 class="font-semibold text-lg">Zwangerschapsbeeldje</h3>
+                        <p class="text-gray-500 mt-1">Enkel op zaterdag</p>
+                    </div>
+                </label>
+                <label class="cursor-pointer">
+                    <input type="radio" name="type" value="child" x-model="type" class="sr-only peer">
+                    <div class="border-2 rounded-lg p-6 text-center peer-checked:border-krijgers-gold-600 peer-checked:bg-krijgers-gold-600/5 hover:border-krijgers-300 transition">
+                        <h3 class="font-semibold text-lg">Beeldje met kind</h3>
+                        <p class="text-gray-500 mt-1">Enkel op zondag</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Pregnancy info -->
+        <div x-show="type === 'pregnancy'" x-transition class="bg-amber-50 border-l-4 border-krijgers-gold-600 p-4 rounded">
+            <p class="font-semibold text-krijgers-800">Tijdslot informatie:</p>
+            <ul class="mt-2 text-gray-700 space-y-1">
+                <li>&#8226; Elke afspraak duurt ongeveer 60-90 minuten</li>
+                <li>&#8226; Kom 10 minuten voor uw afspraak</li>
+                <li>&#8226; Bij te laat komen kan uw tijdslot worden ingekort</li>
+            </ul>
+        </div>
+
+        <!-- Step 2: Datum selectie -->
+        <div x-show="type" x-transition class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-krijgers-800 mb-4">2. Kies een datum</h2>
+            <input type="date" name="date" x-model="date" @change="loadSlots()"
+                   :min="minDate"
+                   class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-600 focus:border-transparent">
+            <p x-show="dateError" x-text="dateError" class="text-red-600 mt-2 text-sm"></p>
+        </div>
+
+        <!-- Step 3: Tijdslot (alleen voor zwangerschap) -->
+        <div x-show="type === 'pregnancy' && date && slots.length > 0" x-transition class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-krijgers-800 mb-4">3. Kies een tijdslot</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <template x-for="slot in slots" :key="slot.id">
+                    <label class="cursor-pointer" x-show="slot.status === 'available'">
+                        <input type="radio" name="slot_id" :value="slot.id" x-model="selectedSlot" class="sr-only peer">
+                        <div class="border-2 rounded-lg p-4 text-center peer-checked:border-krijgers-gold-600 peer-checked:bg-krijgers-gold-600/5 hover:border-krijgers-300 transition">
+                            <span x-text="slot.start_time.substring(0,5)" class="font-semibold"></span>
+                            <span class="text-gray-400"> - </span>
+                            <span x-text="slot.end_time.substring(0,5)" class="text-gray-500"></span>
+                        </div>
+                    </label>
+                </template>
+                <template x-for="slot in slots.filter(s => s.status === 'pending')" :key="'p' + slot.id">
+                    <div class="border-2 border-orange-300 bg-orange-50 rounded-lg p-4 text-center opacity-60">
+                        <span x-text="slot.start_time.substring(0,5)" class="font-semibold"></span>
+                        <span class="text-gray-400"> - </span>
+                        <span x-text="slot.end_time.substring(0,5)" class="text-gray-500"></span>
+                        <p class="text-xs text-orange-600 mt-1">In optie</p>
+                    </div>
+                </template>
+                <template x-for="slot in slots.filter(s => s.status === 'confirmed')" :key="'c' + slot.id">
+                    <div class="border-2 border-red-300 bg-red-50 rounded-lg p-4 text-center opacity-60">
+                        <span x-text="slot.start_time.substring(0,5)" class="font-semibold"></span>
+                        <span class="text-gray-400"> - </span>
+                        <span x-text="slot.end_time.substring(0,5)" class="text-gray-500"></span>
+                        <p class="text-xs text-red-600 mt-1">Bezet</p>
+                    </div>
+                </template>
+            </div>
+            <p x-show="slotsMessage" x-text="slotsMessage" class="text-gray-500 mt-4"></p>
+        </div>
+
+        <!-- Step 4: Persoonlijke gegevens -->
+        <div x-show="type && date" x-transition class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-krijgers-800 mb-4">{{ type === 'pregnancy' ? '4' : '3' }}. Uw gegevens</h2>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Voornaam *</label>
+                    <input type="text" name="first_name" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-krijgers-gold-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Achternaam *</label>
+                    <input type="text" name="last_name" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-krijgers-gold-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">E-mailadres *</label>
+                    <input type="email" name="email" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-krijgers-gold-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Telefoonnummer *</label>
+                    <input type="tel" name="phone" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-krijgers-gold-600">
+                </div>
+            </div>
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Opmerkingen</label>
+                <textarea name="notes" rows="3" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-krijgers-gold-600"></textarea>
+            </div>
+        </div>
+
+        <div x-show="type && date" x-transition class="text-center">
+            <button type="submit" class="bg-krijgers-gold-600 text-white px-12 py-4 rounded-lg font-semibold text-lg hover:bg-krijgers-gold-700 transition">
+                Afspraak inplannen
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const blockedDates = {{ blocked_dates|json_encode|raw }};
+
+function appointmentForm() {
+    return {
+        type: '',
+        date: '',
+        slots: [],
+        selectedSlot: '',
+        dateError: '',
+        slotsMessage: '',
+        get minDate() {
+            return new Date().toISOString().split('T')[0];
+        },
+        async loadSlots() {
+            this.dateError = '';
+            this.slotsMessage = '';
+            this.slots = [];
+            this.selectedSlot = '';
+
+            if (!this.date || !this.type) return;
+
+            // Check blocked dates
+            if (blockedDates.includes(this.date)) {
+                this.dateError = 'Deze datum is niet beschikbaar.';
+                return;
+            }
+
+            // Validate day
+            const day = new Date(this.date).getDay();
+            if (this.type === 'pregnancy' && day !== 6) {
+                this.dateError = 'Zwangerschapsbeeldjes zijn enkel mogelijk op zaterdag.';
+                return;
+            }
+            if (this.type === 'child' && day !== 0) {
+                this.dateError = 'Beeldjes met kind zijn enkel mogelijk op zondag.';
+                return;
+            }
+
+            const res = await fetch(`/api/appointment-slots?date=${this.date}&type=${this.type}`);
+            const data = await res.json();
+
+            if (data.message) {
+                this.slotsMessage = data.message;
+            }
+            this.slots = data.slots || [];
+        }
+    }
+}
+</script>
+{% endblock %}

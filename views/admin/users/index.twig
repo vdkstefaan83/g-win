@@ -1,0 +1,59 @@
+{% extends 'layouts/admin/base.twig' %}
+
+{% block title %}Gebruikers{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Gebruikers</h2>
+    <a href="/admin/users/create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+        + Nieuwe gebruiker
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Naam</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-mail</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aangemaakt</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for user in users %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ user.name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ user.email }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs rounded-full {{ user.role == 'superadmin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                        {{ user.role == 'superadmin' ? 'Super Admin' : 'Admin' }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs rounded-full {{ user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ user.is_active ? 'Actief' : 'Inactief' }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ user.created_at|date('d/m/Y') }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
+                    <a href="/admin/users/{{ user.id }}/edit" class="text-blue-600 hover:text-blue-800 font-medium">Bewerken</a>
+                    {% if user.id != current_user.id %}
+                    <form action="/admin/users/{{ user.id }}/delete" method="POST" class="inline" onsubmit="return confirm('Weet je zeker dat je deze gebruiker wilt verwijderen?')">
+                        {{ csrf_field|raw }}
+                        <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Verwijderen</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500">Geen gebruikers gevonden.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

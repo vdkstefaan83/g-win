@@ -1,0 +1,96 @@
+{% extends 'layouts/admin/base.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold text-gray-800 mb-6">Dashboard</h2>
+
+<!-- Stats -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="text-sm text-gray-500">Klanten</div>
+        <div class="text-3xl font-bold text-gray-800 mt-1">{{ total_customers }}</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="text-sm text-gray-500">Bestellingen</div>
+        <div class="text-3xl font-bold text-gray-800 mt-1">{{ total_orders }}</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="text-sm text-gray-500">Producten</div>
+        <div class="text-3xl font-bold text-gray-800 mt-1">{{ total_products }}</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="text-sm text-orange-500">Openstaande afspraken</div>
+        <div class="text-3xl font-bold text-orange-600 mt-1">{{ pending_appointments }}</div>
+    </div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-6">
+    <!-- Upcoming appointments -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b flex justify-between items-center">
+            <h3 class="font-semibold text-gray-800">Komende afspraken</h3>
+            <a href="/admin/appointments" class="text-sm text-blue-600 hover:text-blue-800">Alles bekijken</a>
+        </div>
+        <div class="p-6">
+            {% if upcoming_appointments|length > 0 %}
+                <div class="space-y-3">
+                    {% for apt in upcoming_appointments %}
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <div>
+                            <span class="font-medium">{{ apt.first_name }} {{ apt.last_name }}</span>
+                            <span class="text-sm text-gray-500 ml-2">{{ apt.type == 'pregnancy' ? 'Zwangerschap' : 'Kind' }}</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium">{{ apt.date|date('d/m/Y') }}</div>
+                            {% if apt.start_time != '00:00:00' %}
+                                <div class="text-xs text-gray-500">{{ apt.start_time[:5] }}</div>
+                            {% endif %}
+                            <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full {{ apt.status == 'pending' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800' }}">
+                                {{ apt.status == 'pending' ? 'In optie' : 'Bevestigd' }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center py-4">Geen komende afspraken.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent orders -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b flex justify-between items-center">
+            <h3 class="font-semibold text-gray-800">Recente bestellingen</h3>
+            <a href="/admin/orders" class="text-sm text-blue-600 hover:text-blue-800">Alles bekijken</a>
+        </div>
+        <div class="p-6">
+            {% if recent_orders|length > 0 %}
+                <div class="space-y-3">
+                    {% for order in recent_orders %}
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <div>
+                            <span class="font-medium">{{ order.order_number }}</span>
+                            <span class="text-sm text-gray-500 ml-2">{{ order.first_name }} {{ order.last_name }}</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-medium">&euro;{{ order.total|number_format(2, ',', '.') }}</div>
+                            <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full
+                                {{ order.status == 'paid' ? 'bg-green-100 text-green-800' : '' }}
+                                {{ order.status == 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                                {{ order.status == 'shipped' ? 'bg-blue-100 text-blue-800' : '' }}
+                                {{ order.status == 'cancelled' ? 'bg-red-100 text-red-800' : '' }}">
+                                {{ order.status }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center py-4">Geen bestellingen.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

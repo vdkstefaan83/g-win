@@ -1,0 +1,28 @@
+/* G-Win Admin Styles */
+
+/* Quill editor custom height */
+.ql-editor {
+    min-height: 200px;
+}
+
+.ql-container {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+.ql-toolbar {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+
+/* Sidebar active state */
+.sidebar-active {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-right: 3px solid #d4a843;
+}
+
+/* Sortable drag items */
+.sortable-ghost {
+    opacity: 0.4;
+    background: #f3f4f6;
+}

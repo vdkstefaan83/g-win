@@ -1,0 +1,21 @@
+{% extends 'layouts/admin/base.twig' %}
+{% block title %}Instellingen{% endblock %}
+{% block content %}
+<h2 class="text-2xl font-bold text-gray-800 mb-6">Instellingen</h2>
+<div class="bg-white rounded-lg shadow p-6 max-w-2xl">
+    <form method="POST" action="/admin/settings" class="space-y-6">
+        {{ csrf_field|raw }}
+        <div class="space-y-4">
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Bedrijfsnaam</label>
+                <input type="text" name="settings[company_name]" value="{% for s in settings %}{% if s.setting_key == 'company_name' %}{{ s.setting_value }}{% endif %}{% endfor %}" class="w-full border rounded-lg px-4 py-2"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Contact e-mail</label>
+                <input type="email" name="settings[contact_email]" value="{% for s in settings %}{% if s.setting_key == 'contact_email' %}{{ s.setting_value }}{% endif %}{% endfor %}" class="w-full border rounded-lg px-4 py-2"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Telefoonnummer</label>
+                <input type="text" name="settings[phone]" value="{% for s in settings %}{% if s.setting_key == 'phone' %}{{ s.setting_value }}{% endif %}{% endfor %}" class="w-full border rounded-lg px-4 py-2"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Adres</label>
+                <textarea name="settings[address]" rows="2" class="w-full border rounded-lg px-4 py-2">{% for s in settings %}{% if s.setting_key == 'address' %}{{ s.setting_value }}{% endif %}{% endfor %}</textarea></div>
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Opslaan</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'layouts/' ~ (layout ?? 'gwin') ~ '/base.twig' %}
+
+{% block title %}Betaling geannuleerd - {{ site.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </div>
+        <h1 class="text-3xl font-bold text-krijgers-800 mb-4">Betaling geannuleerd</h1>
+        <p class="text-gray-600 mb-8">Uw betaling is geannuleerd. Uw winkelwagen is bewaard.</p>
+        <a href="/winkelwagen" class="inline-block bg-krijgers-gold-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-krijgers-gold-700 transition">Terug naar winkelwagen</a>
+    </div>
+</div>
+{% endblock %}

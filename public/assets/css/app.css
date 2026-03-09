@@ -1,0 +1,33 @@
+/* G-Win Frontend Styles */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom prose styles for CMS content */
+.prose img {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.prose a {
+    color: #84421f;
+    text-decoration: underline;
+}
+
+.prose a:hover {
+    color: #d4a843;
+}
+
+/* Radio/checkbox card selection styling */
+input[type="radio"]:checked + div,
+input[type="checkbox"]:checked + div {
+    border-color: #d4a843;
+    background-color: rgba(212, 168, 67, 0.05);
+}
+
+/* Transitions */
+.transition-all {
+    transition: all 0.3s ease;
+}

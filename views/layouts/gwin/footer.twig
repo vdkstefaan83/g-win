@@ -1,0 +1,33 @@
+<footer class="bg-krijgers-800 text-white mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-xl font-bold text-krijgers-gold-400 mb-4">{{ site.name }}</h3>
+                <p class="text-gray-300">3D Scanning & Sculpting</p>
+                <p class="text-gray-300 mt-2">Unieke 3D beelden van uw dierbaarste momenten.</p>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold text-krijgers-gold-400 mb-4">Navigatie</h3>
+                {% if footer_menu and footer_menu.items %}
+                    {% for item in footer_menu.items %}
+                        <a href="{{ item.url ?: '/' ~ item.page_slug }}" class="block text-gray-300 hover:text-white mb-2">{{ item.label }}</a>
+                    {% endfor %}
+                {% else %}
+                    <a href="/" class="block text-gray-300 hover:text-white mb-2">Home</a>
+                    <a href="/afspraken" class="block text-gray-300 hover:text-white mb-2">Afspraken</a>
+                    <a href="/shop" class="block text-gray-300 hover:text-white mb-2">Shop</a>
+                {% endif %}
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold text-krijgers-gold-400 mb-4">Contact</h3>
+                <p class="text-gray-300">Neem gerust contact met ons op voor meer informatie.</p>
+            </div>
+        </div>
+
+        <div class="border-t border-krijgers-700 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; {{ "now"|date("Y") }} {{ site.name }}. Alle rechten voorbehouden.</p>
+        </div>
+    </div>
+</footer>

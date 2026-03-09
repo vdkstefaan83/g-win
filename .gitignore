@@ -1,0 +1,10 @@
+/vendor/
+.env
+storage/cache/twig/*
+storage/logs/*
+storage/tokens/*
+public/uploads/products/*
+public/uploads/pages/*
+!.gitkeep
+.DS_Store
+*.swp

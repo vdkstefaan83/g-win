@@ -1,0 +1,33 @@
+{% extends 'layouts/admin/base.twig' %}
+{% block title %}Google Calendar{% endblock %}
+{% block content %}
+<h2 class="text-2xl font-bold text-gray-800 mb-6">Google Calendar Integratie</h2>
+<div class="bg-white rounded-lg shadow p-6 max-w-2xl">
+    {% if is_connected %}
+        <div class="flex items-center mb-6">
+            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div>
+                <h3 class="font-semibold text-green-800">Google Calendar is gekoppeld</h3>
+                <p class="text-sm text-gray-500">Afspraken worden automatisch gesynchroniseerd.</p>
+            </div>
+        </div>
+        <form method="POST" action="/admin/google-calendar/disconnect">
+            {{ csrf_field|raw }}
+            <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700" onclick="return confirm('Weet u zeker dat u wilt ontkoppelen?')">Ontkoppelen</button>
+        </form>
+    {% else %}
+        <div class="flex items-center mb-6">
+            <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mr-4">
+                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+                <h3 class="font-semibold text-gray-800">Google Calendar is niet gekoppeld</h3>
+                <p class="text-sm text-gray-500">Koppel uw Google Calendar om afspraken automatisch te synchroniseren.</p>
+            </div>
+        </div>
+        <a href="/admin/google-calendar/authorize" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Google Calendar koppelen</a>
+    {% endif %}
+</div>
+{% endblock %}

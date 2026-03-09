@@ -1,0 +1,80 @@
+{% extends 'layouts/admin/base.twig' %}
+
+{% block title %}Producten{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Producten</h2>
+    <a href="/admin/products/create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+        + Nieuw product
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow p-4 mb-6">
+    <form method="GET" action="/admin/products" class="flex items-center gap-4">
+        <label for="category_id" class="text-sm font-medium text-gray-700">Filter op categorie:</label>
+        <select name="category_id" id="category_id" onchange="this.form.submit()"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="">Alle categorieën</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {{ selected_category_id == cat.id ? 'selected' : '' }}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Afbeelding</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Naam</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prijs</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categorie</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Voorraad</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for product in products %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    {% if product.image %}
+                        <img src="{{ product.image }}" alt="{{ product.name }}" class="h-12 w-12 object-cover rounded">
+                    {% else %}
+                        <div class="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
+                            <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ product.name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-500">&euro;{{ product.price|number_format(2, ',', '.') }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ product.category_name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="{{ product.stock <= 0 ? 'text-red-600 font-medium' : 'text-gray-500' }}">{{ product.stock }}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs rounded-full {{ product.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600' }}">
+                        {{ product.is_active ? 'Actief' : 'Inactief' }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
+                    <a href="/admin/products/{{ product.id }}/edit" class="text-blue-600 hover:text-blue-800 font-medium">Bewerken</a>
+                    <form action="/admin/products/{{ product.id }}/delete" method="POST" class="inline" onsubmit="return confirm('Weet je zeker dat je dit product wilt verwijderen?')">
+                        {{ csrf_field|raw }}
+                        <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Verwijderen</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="px-6 py-8 text-center text-gray-500">Geen producten gevonden.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
