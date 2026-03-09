@@ -133,4 +133,22 @@ abstract class Controller
 
         return ['data' => $data, 'errors' => $errors];
     }
+
+    private static array $columnCache = [];
+
+    protected function hasColumn(string $table, string $column): bool
+    {
+        if (!isset(self::$columnCache[$table])) {
+            try {
+                $stmt = $this->db->prepare(
+                    "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?"
+                );
+                $stmt->execute([$table]);
+                self::$columnCache[$table] = array_column($stmt->fetchAll(), 'COLUMN_NAME');
+            } catch (\Throwable) {
+                return false;
+            }
+        }
+        return in_array($column, self::$columnCache[$table], true);
+    }
 }
