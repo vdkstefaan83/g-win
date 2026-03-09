@@ -1,21 +1,68 @@
 {% extends 'layouts/admin/base.twig' %}
+
 {% block title %}Instellingen{% endblock %}
+
 {% block content %}
 <h2 class="text-2xl font-bold text-gray-800 mb-6">Instellingen</h2>
-<div class="bg-white rounded-lg shadow p-6 max-w-2xl">
-    <form method="POST" action="/admin/settings" class="space-y-6">
+
+<div class="bg-white rounded-lg shadow p-6 max-w-4xl">
+    <form action="/admin/settings" method="POST">
         {{ csrf_field|raw }}
-        <div class="space-y-4">
-            <div><label class="block text-sm font-medium text-gray-700 mb-1">Bedrijfsnaam</label>
-                <input type="text" name="settings[company_name]" value="{% for s in settings %}{% if s.setting_key == 'company_name' %}{{ s.setting_value }}{% endif %}{% endfor %}" class="w-full border rounded-lg px-4 py-2"></div>
-            <div><label class="block text-sm font-medium text-gray-700 mb-1">Contact e-mail</label>
-                <input type="email" name="settings[contact_email]" value="{% for s in settings %}{% if s.setting_key == 'contact_email' %}{{ s.setting_value }}{% endif %}{% endfor %}" class="w-full border rounded-lg px-4 py-2"></div>
-            <div><label class="block text-sm font-medium text-gray-700 mb-1">Telefoonnummer</label>
-                <input type="text" name="settings[phone]" value="{% for s in settings %}{% if s.setting_key == 'phone' %}{{ s.setting_value }}{% endif %}{% endfor %}" class="w-full border rounded-lg px-4 py-2"></div>
-            <div><label class="block text-sm font-medium text-gray-700 mb-1">Adres</label>
-                <textarea name="settings[address]" rows="2" class="w-full border rounded-lg px-4 py-2">{% for s in settings %}{% if s.setting_key == 'address' %}{{ s.setting_value }}{% endif %}{% endfor %}</textarea></div>
+
+        <div class="space-y-6">
+            {% for setting in settings %}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-b border-gray-100 pb-4">
+                <div>
+                    <label for="setting_{{ setting.key }}" class="block text-sm font-medium text-gray-700">{{ setting.label ?? setting.key }}</label>
+                    {% if setting.description %}
+                        <p class="text-xs text-gray-500 mt-0.5">{{ setting.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="md:col-span-2">
+                    {% if setting.type is defined and setting.type == 'textarea' %}
+                        <textarea name="settings[{{ setting.key }}]" id="setting_{{ setting.key }}" rows="3"
+                                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ setting.value }}</textarea>
+                    {% elseif setting.type is defined and setting.type == 'boolean' %}
+                        <label class="flex items-center">
+                            <input type="checkbox" name="settings[{{ setting.key }}]" value="1"
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                   {{ setting.value ? 'checked' : '' }}>
+                            <span class="ml-2 text-sm text-gray-700">Ingeschakeld</span>
+                        </label>
+                    {% elseif setting.type is defined and setting.type == 'select' and setting.options is defined %}
+                        <select name="settings[{{ setting.key }}]" id="setting_{{ setting.key }}"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            {% for option in setting.options %}
+                                <option value="{{ option }}" {{ setting.value == option ? 'selected' : '' }}>{{ option }}</option>
+                            {% endfor %}
+                        </select>
+                    {% elseif setting.type is defined and setting.type == 'site' %}
+                        <select name="settings[{{ setting.key }}]" id="setting_{{ setting.key }}"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Geen</option>
+                            {% for s in sites %}
+                                <option value="{{ s.id }}" {{ setting.value == s.id ? 'selected' : '' }}>{{ s.name }}</option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <input type="text" name="settings[{{ setting.key }}]" id="setting_{{ setting.key }}"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               value="{{ setting.value }}">
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-center py-4">Geen instellingen gevonden.</p>
+            {% endfor %}
         </div>
-        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Opslaan</button>
+
+        {% if settings|length > 0 %}
+        <div class="mt-6 flex gap-3">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">
+                Instellingen opslaan
+            </button>
+        </div>
+        {% endif %}
     </form>
 </div>
 {% endblock %}
