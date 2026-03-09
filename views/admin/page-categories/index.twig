@@ -16,6 +16,7 @@
             <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Naam</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taal</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Site</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pagina's</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th>
@@ -26,6 +27,11 @@
             <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ cat.name }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-gray-500">/{{ cat.slug }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs rounded-full {{ cat.lang == 'fr' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
+                        {{ cat.lang|upper|default('NL') }}
+                    </span>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ cat.site_name }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ cat.page_count }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
@@ -38,7 +44,7 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="5" class="px-6 py-8 text-center text-gray-500">Geen paginacategorieën gevonden.</td>
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500">Geen paginacategorieën gevonden.</td>
             </tr>
             {% endfor %}
         </tbody>

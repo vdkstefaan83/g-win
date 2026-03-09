@@ -48,6 +48,7 @@ class PageCategoryController extends Controller
         }
 
         $data = $validation['data'];
+        $data['lang'] = $this->input('lang', 'nl');
         $data['description'] = $this->input('description', '');
         $data['sort_order'] = (int) $this->input('sort_order', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
@@ -92,6 +93,7 @@ class PageCategoryController extends Controller
         }
 
         $data = $validation['data'];
+        $data['lang'] = $this->input('lang', 'nl');
         $data['description'] = $this->input('description', '');
         $data['sort_order'] = (int) $this->input('sort_order', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
