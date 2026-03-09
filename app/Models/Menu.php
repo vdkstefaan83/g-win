@@ -40,23 +40,30 @@ class Menu extends Model
 
         if (!$menu) return false;
 
-        $menu['items'] = $this->query(
+        // Single query for all items (parents + children)
+        $allItems = $this->query(
             "SELECT mi.*, p.slug as page_slug FROM menu_items mi
              LEFT JOIN pages p ON mi.page_id = p.id
-             WHERE mi.menu_id = :menu_id AND mi.parent_id IS NULL
+             WHERE mi.menu_id = :menu_id
              ORDER BY mi.sort_order ASC",
             ['menu_id' => $menu['id']]
         )->fetchAll();
 
-        // Get children for each item
-        foreach ($menu['items'] as &$item) {
-            $item['children'] = $this->query(
-                "SELECT mi.*, p.slug as page_slug FROM menu_items mi
-                 LEFT JOIN pages p ON mi.page_id = p.id
-                 WHERE mi.parent_id = :parent_id ORDER BY mi.sort_order ASC",
-                ['parent_id' => $item['id']]
-            )->fetchAll();
+        // Build tree in PHP instead of N+1 queries
+        $parents = [];
+        $children = [];
+        foreach ($allItems as $item) {
+            $item['children'] = [];
+            if ($item['parent_id']) {
+                $children[$item['parent_id']][] = $item;
+            } else {
+                $parents[$item['id']] = $item;
+            }
         }
+        foreach ($parents as &$parent) {
+            $parent['children'] = $children[$parent['id']] ?? [];
+        }
+        $menu['items'] = array_values($parents);
 
         return $menu;
     }
