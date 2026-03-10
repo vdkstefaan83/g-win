@@ -79,10 +79,17 @@ class Setting extends Model
             )->fetchAll();
         }
 
-        // Ensure appointment_max_months exists
-        $keys = array_column($rows, 'setting_key');
-        if (!in_array('appointment_max_months', $keys)) {
-            $rows[] = ['id' => 0, 'site_id' => null, 'setting_key' => 'appointment_max_months', 'setting_value' => '24'];
+        // Index existing rows by key
+        $existingKeys = [];
+        foreach ($rows as $row) {
+            $existingKeys[$row['setting_key']] = true;
+        }
+
+        // Add all defined settings that don't exist in DB yet
+        foreach (self::$settingMeta as $key => $meta) {
+            if (!isset($existingKeys[$key])) {
+                $rows[] = ['id' => 0, 'site_id' => $siteId, 'setting_key' => $key, 'setting_value' => ''];
+            }
         }
 
         // Enrich with labels and metadata
