@@ -39,10 +39,11 @@
             {% for menu in menus %}
             <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ menu.name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 py-1 text-xs rounded-full {{ menu.lang == 'fr' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
-                        {{ menu.lang|upper|default('NL') }}
-                    </span>
+                <td class="px-6 py-4 whitespace-nowrap space-x-1">
+                    <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">NL</span>
+                    {% if menu.has_fr %}
+                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">FR</span>
+                    {% endif %}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-gray-500 text-xs">{{ menu.site_names ?? '-' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">

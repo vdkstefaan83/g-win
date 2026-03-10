@@ -11,22 +11,43 @@ class Menu extends Model
     public function getBySite(int $siteId): array
     {
         return $this->query(
-            "SELECT DISTINCT m.* FROM menus m
+            "SELECT m.*,
+                    GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS site_names,
+                    COUNT(mi.id) AS item_count,
+                    EXISTS(SELECT 1 FROM menus m2
+                           INNER JOIN menu_sites ms2 ON ms2.menu_id = m2.id
+                           WHERE m2.lang = 'fr' AND m2.location = m.location AND ms2.site_id = :site_id
+                    ) AS has_fr
+             FROM menus m
              INNER JOIN menu_sites ms ON ms.menu_id = m.id
-             WHERE ms.site_id = :site_id",
-            ['site_id' => $siteId]
+             LEFT JOIN menu_sites ms4 ON ms4.menu_id = m.id
+             LEFT JOIN sites s ON s.id = ms4.site_id
+             LEFT JOIN menu_items mi ON mi.menu_id = m.id
+             WHERE ms.site_id = :site_id2 AND m.lang = 'nl'
+             GROUP BY m.id
+             ORDER BY m.name ASC",
+            ['site_id' => $siteId, 'site_id2' => $siteId]
         )->fetchAll();
     }
 
     public function getAllWithSite(): array
     {
         return $this->query(
-            "SELECT m.*, GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS site_names
+            "SELECT m.*,
+                    GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS site_names,
+                    COUNT(mi.id) AS item_count,
+                    EXISTS(SELECT 1 FROM menus m2
+                           INNER JOIN menu_sites ms2 ON ms2.menu_id = m2.id
+                           WHERE m2.lang = 'fr' AND m2.location = m.location
+                           AND ms2.site_id IN (SELECT ms3.site_id FROM menu_sites ms3 WHERE ms3.menu_id = m.id)
+                    ) AS has_fr
              FROM menus m
              LEFT JOIN menu_sites ms ON ms.menu_id = m.id
              LEFT JOIN sites s ON s.id = ms.site_id
+             LEFT JOIN menu_items mi ON mi.menu_id = m.id
+             WHERE m.lang = 'nl'
              GROUP BY m.id
-             ORDER BY m.lang ASC, m.name ASC"
+             ORDER BY m.name ASC"
         )->fetchAll();
     }
 
