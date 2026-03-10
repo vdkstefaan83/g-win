@@ -71,7 +71,7 @@
                     {% for order in recent_orders %}
                     <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
                         <div>
-                            <span class="font-medium">{{ order.order_number }}</span>
+                            <a href="/admin/orders/{{ order.id }}" class="font-medium text-blue-600 hover:text-blue-800 hover:underline">{{ order.order_number }}</a>
                             <span class="text-sm text-gray-500 ml-2">{{ order.first_name }} {{ order.last_name }}</span>
                         </div>
                         <div class="text-right">
