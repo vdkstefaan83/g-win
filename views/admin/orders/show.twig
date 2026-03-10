@@ -92,15 +92,6 @@
                     <dt class="text-sm text-gray-500">Telefoon</dt>
                     <dd class="text-sm text-gray-900">{{ order.customer.phone ?: '-' }}</dd>
                 </div>
-                {% if order.customer.address %}
-                <div>
-                    <dt class="text-sm text-gray-500">Adres</dt>
-                    <dd class="text-sm text-gray-900">
-                        {{ order.customer.address }}<br>
-                        {{ order.customer.postal_code }} {{ order.customer.city }}
-                    </dd>
-                </div>
-                {% endif %}
             </dl>
         </div>
 
