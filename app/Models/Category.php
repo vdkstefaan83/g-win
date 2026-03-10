@@ -13,15 +13,16 @@ class Category extends Model
         return $this->findBy('slug', $slug);
     }
 
-    public function getActive(): array
+    public function getActive(string $lang = 'nl'): array
     {
         return $this->query(
             "SELECT c.*, COUNT(p.id) as product_count
              FROM categories c
-             LEFT JOIN products p ON c.id = p.category_id AND p.is_active = 1
-             WHERE c.is_active = 1
+             LEFT JOIN products p ON c.id = p.category_id AND p.is_active = 1 AND p.lang = :lang
+             WHERE c.is_active = 1 AND c.lang = :lang2
              GROUP BY c.id
-             ORDER BY c.sort_order ASC"
+             ORDER BY c.sort_order ASC",
+            ['lang' => $lang, 'lang2' => $lang]
         )->fetchAll();
     }
 

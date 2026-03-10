@@ -46,7 +46,7 @@ class HomeController extends Controller
             $footerMenu = $menuModel->getByLocationAndSite('footer', $site['id'], $lang);
 
             $productModel = new Product();
-            $featuredProducts = $productModel->getFeatured(4);
+            $featuredProducts = $productModel->getFeatured(4, $lang);
         }
 
         $layout = $this->site['layout'] ?? 'gwin';

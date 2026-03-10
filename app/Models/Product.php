@@ -44,38 +44,40 @@ class Product extends Model
         return $product;
     }
 
-    public function getActive(string $orderBy = 'created_at', string $direction = 'DESC'): array
+    public function getActive(string $lang = 'nl', string $orderBy = 'created_at', string $direction = 'DESC'): array
     {
         return $this->query(
             "SELECT p.*, pi.filename as primary_image
              FROM products p
              LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-             WHERE p.is_active = 1
-             ORDER BY p.{$orderBy} {$direction}"
+             WHERE p.is_active = 1 AND p.lang = :lang
+             ORDER BY p.{$orderBy} {$direction}",
+            ['lang' => $lang]
         )->fetchAll();
     }
 
-    public function getByCategory(int $categoryId): array
+    public function getByCategory(int $categoryId, string $lang = 'nl'): array
     {
         return $this->query(
             "SELECT p.*, pi.filename as primary_image
              FROM products p
              LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-             WHERE p.category_id = :category_id AND p.is_active = 1
+             WHERE p.category_id = :category_id AND p.is_active = 1 AND p.lang = :lang
              ORDER BY p.sort_order ASC, p.name ASC",
-            ['category_id' => $categoryId]
+            ['category_id' => $categoryId, 'lang' => $lang]
         )->fetchAll();
     }
 
-    public function getFeatured(int $limit = 8): array
+    public function getFeatured(int $limit = 8, string $lang = 'nl'): array
     {
         return $this->query(
             "SELECT p.*, pi.filename as primary_image
              FROM products p
              LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-             WHERE p.is_active = 1 AND p.is_featured = 1
+             WHERE p.is_active = 1 AND p.is_featured = 1 AND p.lang = :lang
              ORDER BY p.created_at DESC
-             LIMIT {$limit}"
+             LIMIT {$limit}",
+            ['lang' => $lang]
         )->fetchAll();
     }
 

@@ -27,17 +27,19 @@ class ShopController extends Controller
 
     public function index(): void
     {
+        $lang = App::getLang();
         $productModel = new Product();
         $categoryModel = new Category();
 
         $this->render('front/shop/index.twig', array_merge($this->getSiteMenus(), [
-            'products' => $productModel->getActive(),
-            'categories' => $categoryModel->getActive(),
+            'products' => $productModel->getActive($lang),
+            'categories' => $categoryModel->getActive($lang),
         ]));
     }
 
     public function category(string $slug): void
     {
+        $lang = App::getLang();
         $categoryModel = new Category();
         $category = $categoryModel->findBySlug($slug);
 
@@ -51,8 +53,8 @@ class ShopController extends Controller
 
         $this->render('front/shop/category.twig', array_merge($this->getSiteMenus(), [
             'category' => $category,
-            'products' => $productModel->getByCategory($category['id']),
-            'categories' => $categoryModel->getActive(),
+            'products' => $productModel->getByCategory($category['id'], $lang),
+            'categories' => $categoryModel->getActive($lang),
         ]));
     }
 
