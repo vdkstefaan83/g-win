@@ -44,7 +44,6 @@ class Setting extends Model
 
     private static array $settingMeta = [
 'appointment_max_months' => ['label' => 'Max maanden vooruit boeken', 'group' => 'Afspraken', 'description' => 'Hoeveel maanden op voorhand klanten een afspraak kunnen boeken (standaard 24).'],
-        'blocked_dates' => ['label' => 'Geblokkeerde datums (JSON)', 'group' => 'Afspraken', 'type' => 'textarea', 'description' => 'JSON array van datums, bijv. ["2026-04-01","2026-04-02"]'],
         'appointment_deposit_amount' => ['label' => 'Voorschotbedrag (€)', 'group' => 'Afspraken - Betaling', 'description' => 'Bedrag dat de klant moet betalen als voorschot (bijv. 50.00).'],
         'appointment_payment_deadline_days' => ['label' => 'Betaaltermijn (werkdagen)', 'group' => 'Afspraken - Betaling', 'description' => 'Aantal werkdagen waarbinnen de klant moet betalen na boeking (standaard 3).'],
         'appointment_reminder_extra_days' => ['label' => 'Extra dagen na herinnering', 'group' => 'Afspraken - Betaling', 'description' => 'Aantal dagen na de herinneringsmail voordat de afspraak wordt geannuleerd (standaard 2).'],
