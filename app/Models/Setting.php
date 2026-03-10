@@ -76,10 +76,13 @@ class Setting extends Model
             }
         }
 
+        // Only show settings defined in $settingMeta
+        $rows = array_filter($rows, fn($row) => isset(self::$settingMeta[$row['setting_key']]));
+
         // Enrich with labels and metadata
         foreach ($rows as &$row) {
             $key = $row['setting_key'];
-            $meta = self::$settingMeta[$key] ?? [];
+            $meta = self::$settingMeta[$key];
             $row['key'] = $key;
             $row['value'] = $row['setting_value'];
             $row['label'] = $meta['label'] ?? $key;
