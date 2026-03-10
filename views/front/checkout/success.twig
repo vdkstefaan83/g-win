@@ -1,6 +1,6 @@
 {% extends 'layouts/' ~ (layout ?? 'gwin') ~ '/base.twig' %}
 
-{% block title %}Betaling geslaagd - {{ site.name }}{% endblock %}
+{% block title %}{{ t('payment_success') }} - {{ site.name }}{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto px-4 py-16">
@@ -8,10 +8,10 @@
         <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
         </div>
-        <h1 class="text-3xl font-display font-bold text-krijgers-800 mb-3">Bedankt voor uw bestelling!</h1>
-        <p class="text-krijgers-500 mb-10">Uw betaling is ontvangen. U ontvangt een bevestiging per e-mail.</p>
-        <a href="/shop" class="inline-flex items-center bg-krijgers-800 text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-krijgers-700 transition-all shadow-lg hover:-translate-y-0.5">
-            Verder winkelen
+        <h1 class="text-3xl font-display font-bold text-krijgers-800 mb-3">{{ t('thank_you_order') }}</h1>
+        <p class="text-krijgers-500 mb-10">{{ t('payment_received') }}</p>
+        <a href="{{ lang_url('/shop') }}" class="inline-flex items-center bg-krijgers-800 text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-krijgers-700 transition-all shadow-lg hover:-translate-y-0.5">
+            {{ t('continue_shopping') }}
         </a>
     </div>
 </div>

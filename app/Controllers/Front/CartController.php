@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Front;
 
+use Core\App;
 use Core\Controller;
 use App\Models\Cart;
 use App\Models\CartItem;
@@ -30,12 +31,13 @@ class CartController extends Controller
         $siteModel = new Site();
         $site = $siteModel->findBySlug($this->site['slug']);
         $menuModel = new Menu();
+        $lang = App::getLang();
 
         $this->render('front/cart/index.twig', [
             'cart_items' => $items,
             'cart_total' => $total,
-            'header_menu' => $site ? $menuModel->getByLocationAndSite('header', $site['id']) : false,
-            'footer_menu' => $site ? $menuModel->getByLocationAndSite('footer', $site['id']) : false,
+            'header_menu' => $site ? $menuModel->getByLocationAndSite('header', $site['id'], $lang) : false,
+            'footer_menu' => $site ? $menuModel->getByLocationAndSite('footer', $site['id'], $lang) : false,
             'layout' => $this->site['layout'] ?? 'gwin',
         ]);
     }

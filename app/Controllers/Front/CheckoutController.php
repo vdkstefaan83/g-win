@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Front;
 
+use Core\App;
 use Core\Controller;
 use Core\Session;
 use App\Models\Cart;
@@ -22,18 +23,19 @@ class CheckoutController extends Controller
 
         if (empty($items)) {
             Session::flash('warning', 'Uw winkelwagen is leeg.');
-            $this->redirect('/shop');
+            $this->redirect(App::langUrl('/shop'));
         }
 
         $siteModel = new Site();
         $site = $siteModel->findBySlug($this->site['slug']);
         $menuModel = new Menu();
+        $lang = App::getLang();
 
         $this->render('front/checkout/index.twig', [
             'cart_items' => $items,
             'cart_total' => $cartModel->getTotal($cart['id']),
-            'header_menu' => $site ? $menuModel->getByLocationAndSite('header', $site['id']) : false,
-            'footer_menu' => $site ? $menuModel->getByLocationAndSite('footer', $site['id']) : false,
+            'header_menu' => $site ? $menuModel->getByLocationAndSite('header', $site['id'], $lang) : false,
+            'footer_menu' => $site ? $menuModel->getByLocationAndSite('footer', $site['id'], $lang) : false,
             'layout' => $this->site['layout'] ?? 'gwin',
         ]);
     }
@@ -52,7 +54,7 @@ class CheckoutController extends Controller
 
         if (!empty($validation['errors'])) {
             Session::flash('error', implode(' ', $validation['errors']));
-            $this->redirect('/afrekenen');
+            $this->redirect(App::langUrl('/afrekenen'));
         }
 
         $cartModel = new Cart();
@@ -61,7 +63,7 @@ class CheckoutController extends Controller
 
         if (empty($items)) {
             Session::flash('error', 'Uw winkelwagen is leeg.');
-            $this->redirect('/shop');
+            $this->redirect(App::langUrl('/shop'));
         }
 
         // Find or create customer
@@ -127,7 +129,7 @@ class CheckoutController extends Controller
             $this->redirect($redirectUrl);
         } else {
             Session::flash('error', 'Er is een fout opgetreden bij het aanmaken van de betaling.');
-            $this->redirect('/afrekenen');
+            $this->redirect(App::langUrl('/afrekenen'));
         }
     }
 }

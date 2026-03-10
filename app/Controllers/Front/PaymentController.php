@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Front;
 
+use Core\App;
 use Core\Controller;
 use Core\Session;
 use App\Models\Order;
@@ -31,10 +32,11 @@ class PaymentController extends Controller
         $siteModel = new Site();
         $site = $siteModel->findBySlug($this->site['slug']);
         $menuModel = new Menu();
+        $lang = App::getLang();
 
         $this->render('front/checkout/success.twig', [
-            'header_menu' => $site ? $menuModel->getByLocationAndSite('header', $site['id']) : false,
-            'footer_menu' => $site ? $menuModel->getByLocationAndSite('footer', $site['id']) : false,
+            'header_menu' => $site ? $menuModel->getByLocationAndSite('header', $site['id'], $lang) : false,
+            'footer_menu' => $site ? $menuModel->getByLocationAndSite('footer', $site['id'], $lang) : false,
             'layout' => $this->site['layout'] ?? 'gwin',
         ]);
     }
@@ -46,10 +48,11 @@ class PaymentController extends Controller
         $siteModel = new Site();
         $site = $siteModel->findBySlug($this->site['slug']);
         $menuModel = new Menu();
+        $lang = App::getLang();
 
         $this->render('front/checkout/cancel.twig', [
-            'header_menu' => $site ? $menuModel->getByLocationAndSite('header', $site['id']) : false,
-            'footer_menu' => $site ? $menuModel->getByLocationAndSite('footer', $site['id']) : false,
+            'header_menu' => $site ? $menuModel->getByLocationAndSite('header', $site['id'], $lang) : false,
+            'footer_menu' => $site ? $menuModel->getByLocationAndSite('footer', $site['id'], $lang) : false,
             'layout' => $this->site['layout'] ?? 'gwin',
         ]);
     }

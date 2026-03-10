@@ -1,51 +1,51 @@
 {% extends 'layouts/' ~ (layout ?? 'gwin') ~ '/base.twig' %}
 
-{% block title %}Afrekenen - {{ site.name }}{% endblock %}
+{% block title %}{{ t('checkout') }} - {{ site.name }}{% endblock %}
 
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-3xl font-display font-bold text-krijgers-800 mb-8">Afrekenen</h1>
+    <h1 class="text-3xl font-display font-bold text-krijgers-800 mb-8">{{ t('checkout') }}</h1>
 
-    <form method="POST" action="/afrekenen" class="grid md:grid-cols-3 gap-8">
+    <form method="POST" action="{{ lang_url('/afrekenen') }}" class="grid md:grid-cols-3 gap-8">
         {{ csrf_field|raw }}
 
         <div class="md:col-span-2 space-y-6">
             <div class="bg-white rounded-2xl shadow-sm p-6 md:p-8">
-                <h2 class="text-lg font-display font-semibold text-krijgers-800 mb-5">Persoonlijke gegevens</h2>
+                <h2 class="text-lg font-display font-semibold text-krijgers-800 mb-5">{{ t('personal_info') }}</h2>
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Voornaam *</label>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('first_name') }} *</label>
                         <input type="text" name="first_name" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Achternaam *</label>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('last_name') }} *</label>
                         <input type="text" name="last_name" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">E-mailadres *</label>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('email_address') }} *</label>
                         <input type="email" name="email" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Telefoon *</label>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('phone') }} *</label>
                         <input type="tel" name="phone" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                     </div>
                 </div>
             </div>
 
             <div class="bg-white rounded-2xl shadow-sm p-6 md:p-8">
-                <h2 class="text-lg font-display font-semibold text-krijgers-800 mb-5">Verzendadres</h2>
+                <h2 class="text-lg font-display font-semibold text-krijgers-800 mb-5">{{ t('shipping_address') }}</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Adres *</label>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('address') }} *</label>
                         <input type="text" name="address" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                     </div>
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Postcode *</label>
+                            <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('postal_code') }} *</label>
                             <input type="text" name="postal_code" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Stad *</label>
+                            <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('city') }} *</label>
                             <input type="text" name="city" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                         </div>
                     </div>
@@ -53,7 +53,7 @@
             </div>
 
             <div class="bg-white rounded-2xl shadow-sm p-6 md:p-8" x-data="{ method: 'bancontact' }">
-                <h2 class="text-lg font-display font-semibold text-krijgers-800 mb-5">Betaalmethode</h2>
+                <h2 class="text-lg font-display font-semibold text-krijgers-800 mb-5">{{ t('payment_method') }}</h2>
                 <div class="space-y-3">
                     <label class="flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all" :class="method === 'bancontact' ? 'border-krijgers-gold-500 bg-krijgers-gold-500/5' : 'border-krijgers-100 hover:border-krijgers-200'">
                         <input type="radio" name="payment_method" value="bancontact" x-model="method" class="sr-only">
@@ -73,7 +73,7 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Opmerkingen (optioneel)</label>
+                <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('notes_optional') }}</label>
                 <textarea name="notes" rows="3" class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow"></textarea>
             </div>
         </div>
@@ -81,7 +81,7 @@
         <!-- Order summary -->
         <div>
             <div class="bg-white rounded-2xl shadow-sm p-6 sticky top-28">
-                <h2 class="text-lg font-display font-semibold text-krijgers-800 mb-5">Overzicht</h2>
+                <h2 class="text-lg font-display font-semibold text-krijgers-800 mb-5">{{ t('overview') }}</h2>
                 <div class="space-y-3">
                     {% for item in cart_items %}
                     <div class="flex justify-between text-sm">
@@ -91,13 +91,13 @@
                     {% endfor %}
                 </div>
                 <div class="border-t border-krijgers-100 mt-5 pt-5 flex justify-between font-bold text-lg">
-                    <span class="text-krijgers-600">Totaal</span>
+                    <span class="text-krijgers-600">{{ t('total') }}</span>
                     <span class="text-krijgers-800">&euro;{{ cart_total|number_format(2, ',', '.') }}</span>
                 </div>
                 <button type="submit" class="w-full mt-6 bg-krijgers-gold-500 text-krijgers-900 py-3.5 rounded-xl font-semibold hover:bg-krijgers-gold-400 transition-all shadow-lg shadow-krijgers-gold-500/20 hover:-translate-y-0.5">
-                    Bestelling plaatsen
+                    {{ t('place_order') }}
                 </button>
-                <p class="text-xs text-krijgers-400 text-center mt-3">Veilig betalen via Mollie</p>
+                <p class="text-xs text-krijgers-400 text-center mt-3">{{ t('secure_payment') }}</p>
             </div>
         </div>
     </form>

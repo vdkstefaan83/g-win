@@ -1,6 +1,6 @@
 {% extends 'layouts/' ~ (layout ?? 'gwin') ~ '/base.twig' %}
 
-{% block title %}{{ category.name }} - Shop - {{ site.name }}{% endblock %}
+{% block title %}{{ category.name }} - {{ t('shop') }} - {{ site.name }}{% endblock %}
 
 {% block content %}
 <!-- Category hero -->
@@ -9,7 +9,7 @@
         <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920&q=80" alt="" class="w-full h-full object-cover opacity-20">
     </div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <span class="text-krijgers-gold-400 text-sm font-semibold tracking-[0.2em] uppercase">Webshop</span>
+        <span class="text-krijgers-gold-400 text-sm font-semibold tracking-[0.2em] uppercase">{{ t('webshop') }}</span>
         <h1 class="text-4xl md:text-5xl font-display font-bold text-white mt-3">{{ category.name }}</h1>
         {% if category.description %}
             <p class="text-krijgers-200 mt-4 max-w-2xl mx-auto">{{ category.description }}</p>
@@ -22,13 +22,13 @@
         <!-- Sidebar -->
         <aside class="lg:w-72 flex-shrink-0">
             <div class="bg-white rounded-2xl p-6 shadow-sm sticky top-28">
-                <h2 class="font-display font-semibold text-lg text-krijgers-800 mb-5">Categorieën</h2>
+                <h2 class="font-display font-semibold text-lg text-krijgers-800 mb-5">{{ t('categories') }}</h2>
                 <nav class="space-y-1">
-                    <a href="/shop" class="flex items-center justify-between px-4 py-2.5 rounded-xl text-sm text-krijgers-600 hover:bg-krijgers-50 hover:text-krijgers-800 transition-colors">
-                        Alle producten
+                    <a href="{{ lang_url('/shop') }}" class="flex items-center justify-between px-4 py-2.5 rounded-xl text-sm text-krijgers-600 hover:bg-krijgers-50 hover:text-krijgers-800 transition-colors">
+                        {{ t('all_products') }}
                     </a>
                     {% for cat in categories %}
-                        <a href="/shop/categorie/{{ cat.slug }}"
+                        <a href="{{ lang_url('/shop/categorie/' ~ cat.slug) }}"
                            class="flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-colors {{ cat.id == category.id ? 'text-krijgers-800 bg-krijgers-gold-500/10' : 'text-krijgers-600 hover:bg-krijgers-50 hover:text-krijgers-800' }}">
                             {{ cat.name }}
                             <span class="text-xs text-krijgers-400 bg-krijgers-50 px-2 py-0.5 rounded-full">{{ cat.product_count }}</span>
@@ -49,7 +49,7 @@
             {% else %}
                 <div class="text-center py-20">
                     <svg class="w-16 h-16 text-krijgers-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                    <p class="text-krijgers-400 text-lg">Geen producten in deze categorie.</p>
+                    <p class="text-krijgers-400 text-lg">{{ t('no_products_category') }}</p>
                 </div>
             {% endif %}
         </div>

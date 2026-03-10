@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Front;
 
+use Core\App;
 use Core\Controller;
 use App\Models\Product;
 use App\Models\Category;
@@ -15,10 +16,11 @@ class ShopController extends Controller
         $siteModel = new Site();
         $site = $siteModel->findBySlug($this->site['slug']);
         $menuModel = new Menu();
+        $lang = App::getLang();
 
         return [
-            'header_menu' => $site ? $menuModel->getByLocationAndSite('header', $site['id']) : false,
-            'footer_menu' => $site ? $menuModel->getByLocationAndSite('footer', $site['id']) : false,
+            'header_menu' => $site ? $menuModel->getByLocationAndSite('header', $site['id'], $lang) : false,
+            'footer_menu' => $site ? $menuModel->getByLocationAndSite('footer', $site['id'], $lang) : false,
             'layout' => $this->site['layout'] ?? 'gwin',
         ];
     }

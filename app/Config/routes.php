@@ -129,7 +129,13 @@ $router->post('/paiement', function () {
 $router->get('/betaling/succes', function () {
     (new PaymentController())->returnSuccess();
 });
+$router->get('/paiement/succes', function () {
+    (new PaymentController())->returnSuccess();
+});
 $router->get('/betaling/annulatie', function () {
+    (new PaymentController())->cancel();
+});
+$router->get('/paiement/annulation', function () {
     (new PaymentController())->cancel();
 });
 $router->post('/webhook/mollie', function () {

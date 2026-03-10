@@ -1,10 +1,10 @@
 {% extends 'layouts/' ~ (layout ?? 'gwin') ~ '/base.twig' %}
 
-{% block title %}Winkelwagen - {{ site.name }}{% endblock %}
+{% block title %}{{ t('cart') }} - {{ site.name }}{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12" x-data="cartPage()">
-    <h1 class="text-3xl font-display font-bold text-krijgers-800 mb-8">Winkelwagen</h1>
+    <h1 class="text-3xl font-display font-bold text-krijgers-800 mb-8">{{ t('cart') }}</h1>
 
     {% if cart_items|length > 0 %}
     <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
@@ -21,8 +21,8 @@
                     {% endif %}
                 </div>
                 <div class="flex-1 min-w-0">
-                    <a href="/shop/product/{{ item.slug }}" class="font-display font-semibold text-krijgers-800 hover:text-krijgers-gold-700 transition-colors">{{ item.name }}</a>
-                    <p class="text-sm text-krijgers-400 mt-0.5">&euro;{{ item.price|number_format(2, ',', '.') }} per stuk</p>
+                    <a href="{{ lang_url('/shop/product/' ~ item.slug) }}" class="font-display font-semibold text-krijgers-800 hover:text-krijgers-gold-700 transition-colors">{{ item.name }}</a>
+                    <p class="text-sm text-krijgers-400 mt-0.5">&euro;{{ item.price|number_format(2, ',', '.') }} {{ t('per_piece') }}</p>
                 </div>
                 <div class="flex items-center border border-krijgers-200 rounded-xl overflow-hidden">
                     <button @click="updateQuantity({{ item.id }}, {{ item.quantity - 1 }})" class="px-3 py-2 text-krijgers-600 hover:text-krijgers-800 hover:bg-krijgers-50 transition-colors">
@@ -42,18 +42,18 @@
         </div>
 
         <div class="bg-krijgers-50 px-6 py-5 flex justify-between items-center">
-            <span class="text-krijgers-600 font-medium">Totaal</span>
+            <span class="text-krijgers-600 font-medium">{{ t('total') }}</span>
             <span class="text-2xl font-bold text-krijgers-800">&euro;{{ cart_total|number_format(2, ',', '.') }}</span>
         </div>
     </div>
 
     <div class="mt-8 flex justify-between items-center">
-        <a href="/shop" class="inline-flex items-center text-krijgers-600 hover:text-krijgers-800 font-medium transition-colors">
+        <a href="{{ lang_url('/shop') }}" class="inline-flex items-center text-krijgers-600 hover:text-krijgers-800 font-medium transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-            Verder winkelen
+            {{ t('continue_shopping') }}
         </a>
-        <a href="/afrekenen" class="bg-krijgers-gold-500 text-krijgers-900 px-8 py-3.5 rounded-xl font-semibold hover:bg-krijgers-gold-400 transition-all shadow-lg shadow-krijgers-gold-500/20 hover:-translate-y-0.5">
-            Afrekenen
+        <a href="{{ lang_url('/afrekenen') }}" class="bg-krijgers-gold-500 text-krijgers-900 px-8 py-3.5 rounded-xl font-semibold hover:bg-krijgers-gold-400 transition-all shadow-lg shadow-krijgers-gold-500/20 hover:-translate-y-0.5">
+            {{ t('checkout') }}
         </a>
     </div>
 
@@ -62,9 +62,9 @@
         <div class="w-20 h-20 bg-krijgers-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg class="w-10 h-10 text-krijgers-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
         </div>
-        <p class="text-krijgers-400 text-lg mb-6">Uw winkelwagen is leeg.</p>
-        <a href="/shop" class="inline-flex items-center bg-krijgers-800 text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-krijgers-700 transition-all shadow-lg hover:-translate-y-0.5">
-            Bekijk shop
+        <p class="text-krijgers-400 text-lg mb-6">{{ t('cart_empty') }}</p>
+        <a href="{{ lang_url('/shop') }}" class="inline-flex items-center bg-krijgers-800 text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-krijgers-700 transition-all shadow-lg hover:-translate-y-0.5">
+            {{ t('view_shop') }}
         </a>
     </div>
     {% endif %}
