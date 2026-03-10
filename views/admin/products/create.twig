@@ -30,6 +30,15 @@
                 </div>
             </div>
 
+            <div>
+                <label for="lang" class="block text-sm font-medium text-gray-700 mb-1">Taal</label>
+                <select name="lang" id="lang"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="nl" {{ old.lang == 'nl' or old.lang is not defined ? 'selected' : '' }}>Nederlands</option>
+                    <option value="fr" {{ old.lang == 'fr' ? 'selected' : '' }}>Frans</option>
+                </select>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Prijs</label>

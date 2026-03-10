@@ -78,4 +78,23 @@ class Product extends Model
              LIMIT {$limit}"
         )->fetchAll();
     }
+
+    public function getAllWithCategory(): array
+    {
+        return $this->query(
+            "SELECT p.*, c.name as category_name,
+                    (SELECT pi.filename FROM product_images pi WHERE pi.product_id = p.id AND pi.is_primary = 1 LIMIT 1) as image
+             FROM products p
+             LEFT JOIN categories c ON p.category_id = c.id
+             ORDER BY p.lang ASC, p.name ASC"
+        )->fetchAll();
+    }
+
+    public function getByLang(string $lang): array
+    {
+        return $this->query(
+            "SELECT id, name FROM products WHERE lang = :lang ORDER BY name ASC",
+            ['lang' => $lang]
+        )->fetchAll();
+    }
 }

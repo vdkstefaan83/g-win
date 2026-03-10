@@ -18,3 +18,8 @@ ALTER TABLE page_categories ADD FOREIGN KEY fk_page_categories_translation (tran
 
 -- Menus
 ALTER TABLE menus ADD COLUMN lang CHAR(2) NOT NULL DEFAULT 'nl' AFTER site_id;
+
+-- Products
+ALTER TABLE products ADD COLUMN lang CHAR(2) NOT NULL DEFAULT 'nl' AFTER category_id;
+ALTER TABLE products ADD COLUMN translation_of INT NULL AFTER lang;
+ALTER TABLE products ADD FOREIGN KEY fk_products_translation (translation_of) REFERENCES products(id) ON DELETE SET NULL;

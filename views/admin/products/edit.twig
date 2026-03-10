@@ -30,6 +30,27 @@
                 </div>
             </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="lang" class="block text-sm font-medium text-gray-700 mb-1">Taal</label>
+                    <select name="lang" id="lang"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="nl" {{ product.lang == 'nl' ? 'selected' : '' }}>Nederlands</option>
+                        <option value="fr" {{ product.lang == 'fr' ? 'selected' : '' }}>Frans</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="translation_of" class="block text-sm font-medium text-gray-700 mb-1">Vertaling van</label>
+                    <select name="translation_of" id="translation_of"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">— Geen —</option>
+                        {% for tp in translatable_products %}
+                            <option value="{{ tp.id }}" {{ product.translation_of == tp.id ? 'selected' : '' }}>{{ tp.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Prijs</label>

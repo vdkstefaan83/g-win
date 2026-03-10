@@ -26,7 +26,7 @@ class ProductController extends Controller
     public function index(): void
     {
         $this->render('admin/products/index.twig', [
-            'products' => $this->productModel->findAll('name', 'ASC'),
+            'products' => $this->productModel->getAllWithCategory(),
             'categories' => $this->categoryModel->findAll('name', 'ASC'),
         ]);
     }
@@ -57,6 +57,8 @@ class ProductController extends Controller
         $data['stock'] = (int) $this->input('stock', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
         $data['is_featured'] = $this->input('is_featured') ? 1 : 0;
+        $data['lang'] = $this->input('lang', 'nl');
+        $data['translation_of'] = $this->input('translation_of') ?: null;
 
         $productId = $this->productModel->create($data);
 
@@ -77,9 +79,13 @@ class ProductController extends Controller
             $this->redirect('/admin/products');
         }
 
+        $otherLang = ($product['lang'] ?? 'nl') === 'nl' ? 'fr' : 'nl';
+        $translatableProducts = $this->productModel->getByLang($otherLang);
+
         $this->render('admin/products/edit.twig', [
             'product' => $product,
             'categories' => $this->categoryModel->findAll('name', 'ASC'),
+            'translatable_products' => $translatableProducts,
         ]);
     }
 
@@ -102,6 +108,8 @@ class ProductController extends Controller
         $data['stock'] = (int) $this->input('stock', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
         $data['is_featured'] = $this->input('is_featured') ? 1 : 0;
+        $data['lang'] = $this->input('lang', 'nl');
+        $data['translation_of'] = $this->input('translation_of') ?: null;
 
         $this->productModel->update($id, $data);
 
