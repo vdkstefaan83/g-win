@@ -2,25 +2,43 @@
 
 namespace App\Services;
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 class MailService
 {
     public static function send(string $to, string $subject, string $body): bool
     {
-        $from = $_ENV['MAIL_FROM'] ?? 'noreply@g-win.be';
+        $mail = new PHPMailer(true);
 
-        $headers = [
-            'From' => $from,
-            'Reply-To' => $from,
-            'Content-Type' => 'text/html; charset=UTF-8',
-            'MIME-Version' => '1.0',
-        ];
+        try {
+            $mail->isSMTP();
+            $mail->Host = $_ENV['MAIL_HOST'] ?? 'localhost';
+            $mail->Port = (int) ($_ENV['MAIL_PORT'] ?? 587);
+            $mail->SMTPSecure = $mail->Port === 465 ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
 
-        $headerString = '';
-        foreach ($headers as $key => $value) {
-            $headerString .= "{$key}: {$value}\r\n";
+            $username = $_ENV['MAIL_USER'] ?? '';
+            if (!empty($username)) {
+                $mail->SMTPAuth = true;
+                $mail->Username = $username;
+                $mail->Password = $_ENV['MAIL_PASS'] ?? '';
+            }
+
+            $from = $_ENV['MAIL_FROM'] ?? 'noreply@g-win.be';
+            $mail->setFrom($from, 'G-Win');
+            $mail->addAddress($to);
+
+            $mail->isHTML(true);
+            $mail->CharSet = 'UTF-8';
+            $mail->Subject = $subject;
+            $mail->Body = $body;
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log('Mail send failed: ' . $mail->ErrorInfo);
+            return false;
         }
-
-        return mail($to, $subject, $body, $headerString);
     }
 
     public static function sendAppointmentConfirmation(array $appointment, array $customer): bool
