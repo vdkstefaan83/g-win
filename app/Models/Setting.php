@@ -43,19 +43,7 @@ class Setting extends Model
     }
 
     private static array $settingMeta = [
-        'company_name' => ['label' => 'Bedrijfsnaam', 'group' => 'Bedrijf'],
-        'company_tagline' => ['label' => 'Tagline', 'group' => 'Bedrijf'],
-        'company_owner' => ['label' => 'Eigenaar', 'group' => 'Bedrijf'],
-        'company_address' => ['label' => 'Adres', 'group' => 'Bedrijf'],
-        'company_city' => ['label' => 'Stad', 'group' => 'Bedrijf'],
-        'company_phone' => ['label' => 'Telefoon', 'group' => 'Bedrijf'],
-        'company_mobile' => ['label' => 'GSM', 'group' => 'Bedrijf'],
-        'company_email' => ['label' => 'E-mail', 'group' => 'Bedrijf'],
-        'company_vat' => ['label' => 'BTW-nummer', 'group' => 'Bedrijf'],
-        'social_facebook' => ['label' => 'Facebook URL', 'group' => 'Sociaal'],
-        'social_linkedin' => ['label' => 'LinkedIn URL', 'group' => 'Sociaal'],
-        'social_sketchfab' => ['label' => 'Sketchfab URL', 'group' => 'Sociaal'],
-        'appointment_max_months' => ['label' => 'Max maanden vooruit boeken', 'group' => 'Afspraken', 'description' => 'Hoeveel maanden op voorhand klanten een afspraak kunnen boeken (standaard 24).'],
+'appointment_max_months' => ['label' => 'Max maanden vooruit boeken', 'group' => 'Afspraken', 'description' => 'Hoeveel maanden op voorhand klanten een afspraak kunnen boeken (standaard 24).'],
         'blocked_dates' => ['label' => 'Geblokkeerde datums (JSON)', 'group' => 'Afspraken', 'type' => 'textarea', 'description' => 'JSON array van datums, bijv. ["2026-04-01","2026-04-02"]'],
         'appointment_deposit_amount' => ['label' => 'Voorschotbedrag (€)', 'group' => 'Afspraken - Betaling', 'description' => 'Bedrag dat de klant moet betalen als voorschot (bijv. 50.00).'],
         'appointment_payment_deadline_days' => ['label' => 'Betaaltermijn (werkdagen)', 'group' => 'Afspraken - Betaling', 'description' => 'Aantal werkdagen waarbinnen de klant moet betalen na boeking (standaard 3).'],
@@ -106,7 +94,7 @@ class Setting extends Model
 
         // Sort by group then label
         usort($rows, function($a, $b) {
-            $groupOrder = ['Bedrijf' => 1, 'Sociaal' => 2, 'Afspraken' => 3, 'Afspraken - Betaling' => 4, 'SMS' => 5, 'Overig' => 9];
+            $groupOrder = ['Afspraken' => 1, 'Afspraken - Betaling' => 2, 'SMS' => 3, 'Overig' => 9];
             $ga = $groupOrder[$a['group']] ?? 9;
             $gb = $groupOrder[$b['group']] ?? 9;
             return $ga === $gb ? strcmp($a['label'], $b['label']) : $ga - $gb;
