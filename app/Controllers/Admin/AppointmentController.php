@@ -6,6 +6,8 @@ use Core\Controller;
 use Core\Session;
 use App\Models\Appointment;
 use App\Models\Setting;
+use App\Services\AppointmentPaymentService;
+use App\Services\AppointmentNotificationService;
 
 class AppointmentController extends Controller
 {
@@ -78,7 +80,7 @@ class AppointmentController extends Controller
         }
 
         // For child appointments, admin sets the date and time during confirmation
-        $data = ['status' => 'confirmed'];
+        $data = [];
 
         if ($appointment['type'] === 'child') {
             $date = $this->input('date');
@@ -90,8 +92,24 @@ class AppointmentController extends Controller
             if ($endTime) $data['end_time'] = $endTime;
         }
 
-        $this->appointmentModel->update($id, $data);
-        Session::flash('success', 'Afspraak bevestigd.');
+        if (!empty($data)) {
+            $this->appointmentModel->update($id, $data);
+        }
+
+        // Create payment request and send email with payment link
+        $paymentService = new AppointmentPaymentService();
+        $paymentUrl = $paymentService->createPaymentRequest($id);
+
+        if ($paymentUrl) {
+            $appointment = $this->appointmentModel->getWithCustomer($id);
+            $notificationService = new AppointmentNotificationService();
+            $notificationService->sendPaymentRequest($appointment, $paymentUrl);
+
+            Session::flash('success', 'Betaalverzoek verstuurd naar ' . $appointment['email']);
+        } else {
+            Session::flash('error', 'Fout bij aanmaken betaalverzoek.');
+        }
+
         $this->redirect('/admin/appointments');
     }
 

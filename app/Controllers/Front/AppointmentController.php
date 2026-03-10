@@ -11,8 +11,6 @@ use App\Models\Customer;
 use App\Models\Setting;
 use App\Models\Site;
 use App\Models\Menu;
-use App\Services\AppointmentPaymentService;
-use App\Services\AppointmentNotificationService;
 
 class AppointmentController extends Controller
 {
@@ -191,18 +189,8 @@ class AppointmentController extends Controller
             ]);
         }
 
-        // Create payment request and send email
-        $paymentService = new AppointmentPaymentService();
-        $paymentUrl = $paymentService->createPaymentRequest($appointmentId);
-
-        if ($paymentUrl) {
-            $appointment = $appointmentModel->getWithCustomer($appointmentId);
-            $notificationService = new AppointmentNotificationService();
-            $notificationService->sendPaymentRequest($appointment, $paymentUrl);
-        }
-
         if (App::getLang() === 'fr') {
-            Session::flash('success', 'Votre rendez-vous est planifié ! Vous recevrez un e-mail avec un lien de paiement.');
+            Session::flash('success', 'Votre rendez-vous est planifié ! Vous recevrez un e-mail de confirmation dès qu\'il sera approuvé.');
             $this->redirect("/fr/rendez-vous/confirmation/{$appointmentId}");
         } else {
             Session::flash('success', 'Uw afspraak is ingepland! U ontvangt een e-mail met een betaallink.');
