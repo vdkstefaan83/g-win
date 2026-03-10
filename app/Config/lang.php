@@ -68,6 +68,15 @@ return [
         'payment_received' => 'Uw betaling is ontvangen. U ontvangt een bevestiging per e-mail.',
         'payment_cancelled_msg' => 'Uw betaling is geannuleerd. Uw winkelwagen is bewaard.',
         'back_to_cart' => 'Terug naar winkelwagen',
+        // Homepage sections
+        'what_we_do' => 'Wat wij doen',
+        'our_services' => 'Onze diensten',
+        'more_info' => 'Meer info',
+        'portfolio' => 'Portfolio',
+        'remarkable_works' => 'Opmerkelijke realisaties',
+        'featured_products' => 'Uitgelichte producten',
+        'view_all_products' => 'Bekijk alle producten',
+        'contact_us' => 'Neem contact op',
         // Appointments
         'apt_title' => 'Maak een afspraak',
         'apt_subtitle' => 'Plan uw persoonlijke 3D-scan sessie in ons atelier.',
@@ -177,6 +186,15 @@ return [
         'payment_received' => 'Votre paiement a été reçu. Vous recevrez une confirmation par e-mail.',
         'payment_cancelled_msg' => 'Votre paiement a été annulé. Votre panier a été sauvegardé.',
         'back_to_cart' => 'Retour au panier',
+        // Homepage sections
+        'what_we_do' => 'Ce que nous faisons',
+        'our_services' => 'Nos services',
+        'more_info' => 'Plus d\'infos',
+        'portfolio' => 'Portfolio',
+        'remarkable_works' => 'Réalisations remarquables',
+        'featured_products' => 'Produits en vedette',
+        'view_all_products' => 'Voir tous les produits',
+        'contact_us' => 'Contactez-nous',
         // Appointments
         'apt_title' => 'Prendre rendez-vous',
         'apt_subtitle' => 'Planifiez votre séance de scan 3D personnelle dans notre atelier.',
