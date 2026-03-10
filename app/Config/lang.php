@@ -130,6 +130,14 @@ return [
         'day_fri' => 'Vr',
         'day_sat' => 'Za',
         'day_sun' => 'Zo',
+        // Appointment payment flow
+        'apt_payment_required' => 'Betaling vereist',
+        'apt_payment_info' => 'Om uw afspraak te bevestigen, betaal een voorschot van',
+        'apt_payment_before' => 'vóór',
+        'apt_pay_now' => 'Nu betalen',
+        'apt_payment_success_title' => 'Betaling ontvangen',
+        'apt_payment_success_sub' => 'Uw betaling is ontvangen en uw afspraak is bevestigd. U ontvangt een bevestigingsmail.',
+        'apt_payment_confirmed' => 'Bevestigd',
     ],
     'fr' => [
         'home' => 'Accueil',
@@ -256,5 +264,13 @@ return [
         'day_fri' => 'Ve',
         'day_sat' => 'Sa',
         'day_sun' => 'Di',
+        // Appointment payment flow
+        'apt_payment_required' => 'Paiement requis',
+        'apt_payment_info' => 'Pour confirmer votre rendez-vous, veuillez payer un acompte de',
+        'apt_payment_before' => 'avant le',
+        'apt_pay_now' => 'Payer maintenant',
+        'apt_payment_success_title' => 'Paiement reçu',
+        'apt_payment_success_sub' => 'Votre paiement a été reçu et votre rendez-vous est confirmé. Vous recevrez un e-mail de confirmation.',
+        'apt_payment_confirmed' => 'Confirmé',
     ],
 ];

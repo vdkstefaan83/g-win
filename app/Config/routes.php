@@ -71,6 +71,20 @@ $router->get('/rendez-vous/confirmation/{id}', function ($id) {
     (new AppointmentController())->confirm((int)$id);
 });
 
+// Appointment payment flow
+$router->get('/afspraken/betalen/{token}', function ($token) {
+    (new AppointmentController())->pay($token);
+});
+$router->get('/rendez-vous/betalen/{token}', function ($token) {
+    (new AppointmentController())->pay($token);
+});
+$router->get('/afspraken/betaling/succes/{id}', function ($id) {
+    (new AppointmentController())->paymentSuccess((int)$id);
+});
+$router->get('/rendez-vous/betaling/succes/{id}', function ($id) {
+    (new AppointmentController())->paymentSuccess((int)$id);
+});
+
 // API - Appointment slots (AJAX)
 $router->get('/api/appointment-slots', function () {
     (new AppointmentController())->getAvailableSlots();

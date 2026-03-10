@@ -148,6 +148,14 @@ CREATE TABLE IF NOT EXISTS appointments (
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
     status ENUM('pending', 'confirmed', 'completed', 'cancelled') DEFAULT 'pending',
+    payment_status ENUM('none', 'pending', 'paid', 'overdue', 'cancelled') DEFAULT 'none',
+    payment_deadline DATETIME NULL,
+    reminder_sent_at DATETIME NULL,
+    reminder_deadline DATETIME NULL,
+    pre_reminder_sent_at DATETIME NULL,
+    deposit_amount DECIMAL(10,2) NULL,
+    payment_token VARCHAR(64) NULL UNIQUE,
+    lang CHAR(2) NOT NULL DEFAULT 'nl',
     notes TEXT,
     google_event_id VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -155,6 +163,17 @@ CREATE TABLE IF NOT EXISTS appointments (
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
     INDEX idx_date (date),
     INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS appointment_notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    appointment_id INT NOT NULL,
+    type ENUM('payment_request', 'payment_reminder', 'payment_confirmed', 'cancellation', 'pre_appointment_reminder') NOT NULL,
+    channel ENUM('email', 'sms') NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('sent', 'failed') DEFAULT 'sent',
+    details TEXT,
+    FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS categories (
@@ -250,14 +269,17 @@ CREATE TABLE IF NOT EXISTS order_items (
 
 CREATE TABLE IF NOT EXISTS payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL,
+    order_id INT NULL,
+    appointment_id INT NULL,
+    payment_type ENUM('order', 'appointment') NOT NULL DEFAULT 'order',
     mollie_id VARCHAR(255),
     method ENUM('bancontact', 'paypal') NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
     status ENUM('open', 'pending', 'paid', 'failed', 'cancelled', 'refunded') DEFAULT 'open',
     paid_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS settings (

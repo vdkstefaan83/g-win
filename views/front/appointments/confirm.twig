@@ -61,6 +61,21 @@
             </div>
         </div>
         {% endif %}
+
+        {% if payment_url %}
+        <div class="bg-krijgers-gold-500/10 border border-krijgers-gold-300 rounded-xl p-6 text-left mb-8">
+            <h3 class="font-semibold text-krijgers-800 mb-2">{{ t('apt_payment_required') }}</h3>
+            <p class="text-sm text-krijgers-600 mb-4">
+                {{ t('apt_payment_info') }}
+                <strong>&euro;{{ appointment.deposit_amount|number_format(2, ',', '.') }}</strong>
+                {{ t('apt_payment_before') }}
+                <strong>{{ appointment.payment_deadline|date('d/m/Y') }}</strong>.
+            </p>
+            <a href="{{ payment_url }}" class="inline-block bg-krijgers-gold-500 text-krijgers-900 px-6 py-3 rounded-xl font-semibold hover:bg-krijgers-gold-400 transition-all shadow-lg shadow-krijgers-gold-500/20 hover:-translate-y-0.5">
+                {{ t('apt_pay_now') }}
+            </a>
+        </div>
+        {% endif %}
         {% endif %}
 
         <a href="{{ lang_url('/') }}" class="inline-flex items-center text-krijgers-gold-700 font-semibold hover:text-krijgers-gold-600 transition-colors">

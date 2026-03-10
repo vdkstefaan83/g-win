@@ -57,11 +57,18 @@ class PaymentService
     public function handleWebhook(string $mollieId): void
     {
         try {
-            $molliePayment = $this->mollie->payments->get($mollieId);
             $payment = $this->paymentModel->findByMollieId($mollieId);
-
             if (!$payment) return;
 
+            // Route to appointment payment handler if this is an appointment payment
+            if (($payment['payment_type'] ?? 'order') === 'appointment') {
+                $appointmentPaymentService = new AppointmentPaymentService();
+                $appointmentPaymentService->handleWebhook($payment);
+                return;
+            }
+
+            // Handle order payment
+            $molliePayment = $this->mollie->payments->get($mollieId);
             $status = $molliePayment->status;
             $updateData = ['status' => $status];
 

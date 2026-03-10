@@ -1,0 +1,47 @@
+{% extends 'layouts/' ~ (layout ?? 'gwin') ~ '/base.twig' %}
+
+{% block title %}{{ t('apt_payment_success_title') }} - {{ site.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-16">
+    <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12 text-center">
+        <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </div>
+
+        <h1 class="text-3xl font-display font-bold text-krijgers-800 mb-3">{{ t('apt_payment_success_title') }}</h1>
+        <p class="text-krijgers-500 mb-10">{{ t('apt_payment_success_sub') }}</p>
+
+        {% if appointment %}
+        <div class="bg-krijgers-50 rounded-xl p-6 text-left space-y-4 mb-8">
+            <div class="flex justify-between">
+                <span class="text-sm text-krijgers-500">{{ t('apt_type') }}</span>
+                <span class="font-semibold text-krijgers-800">{{ appointment.type == 'pregnancy' ? t('apt_pregnancy') : t('apt_child') }}</span>
+            </div>
+            <div class="border-t border-krijgers-100"></div>
+            <div class="flex justify-between">
+                <span class="text-sm text-krijgers-500">{{ t('apt_date') }}</span>
+                <span class="font-semibold text-krijgers-800">{{ appointment.date|date('d/m/Y') }}</span>
+            </div>
+            {% if appointment.start_time != '00:00:00' %}
+            <div class="border-t border-krijgers-100"></div>
+            <div class="flex justify-between">
+                <span class="text-sm text-krijgers-500">{{ t('apt_time') }}</span>
+                <span class="font-semibold text-krijgers-800">{{ appointment.start_time[:5] }} - {{ appointment.end_time[:5] }}</span>
+            </div>
+            {% endif %}
+            <div class="border-t border-krijgers-100"></div>
+            <div class="flex justify-between">
+                <span class="text-sm text-krijgers-500">{{ t('apt_status') }}</span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">{{ t('apt_payment_confirmed') }}</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <a href="{{ lang_url('/') }}" class="inline-flex items-center text-krijgers-gold-700 font-semibold hover:text-krijgers-gold-600 transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            {{ t('back_to_home') }}
+        </a>
+    </div>
+</div>
+{% endblock %}

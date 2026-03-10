@@ -61,6 +61,66 @@ class Appointment extends Model
         )->fetchAll();
     }
 
+    public function findByPaymentToken(string $token): array|false
+    {
+        return $this->query(
+            "SELECT a.*, c.first_name, c.last_name, c.email, c.phone
+             FROM appointments a
+             JOIN customers c ON a.customer_id = c.id
+             WHERE a.payment_token = :token LIMIT 1",
+            ['token' => $token]
+        )->fetch();
+    }
+
+    /**
+     * Appointments past payment deadline, no reminder sent yet.
+     */
+    public function getPendingPaymentOverdue(): array
+    {
+        return $this->query(
+            "SELECT a.*, c.first_name, c.last_name, c.email, c.phone
+             FROM appointments a
+             JOIN customers c ON a.customer_id = c.id
+             WHERE a.payment_status = 'pending'
+             AND a.payment_deadline IS NOT NULL
+             AND a.payment_deadline < NOW()
+             AND a.reminder_sent_at IS NULL
+             AND a.status != 'cancelled'"
+        )->fetchAll();
+    }
+
+    /**
+     * Appointments past reminder deadline (should be cancelled).
+     */
+    public function getOverdueReminderExpired(): array
+    {
+        return $this->query(
+            "SELECT a.*, c.first_name, c.last_name, c.email, c.phone
+             FROM appointments a
+             JOIN customers c ON a.customer_id = c.id
+             WHERE a.payment_status = 'overdue'
+             AND a.reminder_deadline IS NOT NULL
+             AND a.reminder_deadline < NOW()
+             AND a.status != 'cancelled'"
+        )->fetchAll();
+    }
+
+    /**
+     * Confirmed appointments coming up within X days, no pre-reminder sent yet.
+     */
+    public function getUpcomingForReminder(int $daysAhead): array
+    {
+        return $this->query(
+            "SELECT a.*, c.first_name, c.last_name, c.email, c.phone
+             FROM appointments a
+             JOIN customers c ON a.customer_id = c.id
+             WHERE a.status = 'confirmed'
+             AND a.date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL :days DAY)
+             AND a.pre_reminder_sent_at IS NULL",
+            ['days' => $daysAhead]
+        )->fetchAll();
+    }
+
     public function filterByStatus(?string $status = null, ?string $type = null, ?string $dateFrom = null, ?string $dateTo = null): array
     {
         $sql = "SELECT a.*, c.first_name, c.last_name, c.email, c.phone

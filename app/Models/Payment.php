@@ -17,4 +17,9 @@ class Payment extends Model
     {
         return $this->findBy('order_id', $orderId);
     }
+
+    public function findByAppointment(int $appointmentId): array|false
+    {
+        return $this->findBy('appointment_id', $appointmentId);
+    }
 }

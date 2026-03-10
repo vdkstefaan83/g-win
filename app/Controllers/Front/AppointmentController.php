@@ -11,6 +11,8 @@ use App\Models\Customer;
 use App\Models\Setting;
 use App\Models\Site;
 use App\Models\Menu;
+use App\Services\AppointmentPaymentService;
+use App\Services\AppointmentNotificationService;
 
 class AppointmentController extends Controller
 {
@@ -161,6 +163,7 @@ class AppointmentController extends Controller
             }
 
             $slot = $slotModel->findById((int)$slotId);
+            $lang = App::getLang();
             $appointmentId = $appointmentModel->create([
                 'customer_id' => $customerId,
                 'slot_id' => (int)$slotId,
@@ -170,9 +173,11 @@ class AppointmentController extends Controller
                 'end_time' => $slot['end_time'],
                 'status' => 'pending',
                 'notes' => $this->input('notes', ''),
+                'lang' => $lang,
             ]);
         } else {
             // Child: just the date, admin will confirm time
+            $lang = App::getLang();
             $appointmentId = $appointmentModel->create([
                 'customer_id' => $customerId,
                 'slot_id' => 0,
@@ -182,14 +187,25 @@ class AppointmentController extends Controller
                 'end_time' => '00:00:00',
                 'status' => 'pending',
                 'notes' => $this->input('notes', ''),
+                'lang' => $lang,
             ]);
         }
 
+        // Create payment request and send email
+        $paymentService = new AppointmentPaymentService();
+        $paymentUrl = $paymentService->createPaymentRequest($appointmentId);
+
+        if ($paymentUrl) {
+            $appointment = $appointmentModel->getWithCustomer($appointmentId);
+            $notificationService = new AppointmentNotificationService();
+            $notificationService->sendPaymentRequest($appointment, $paymentUrl);
+        }
+
         if (App::getLang() === 'fr') {
-            Session::flash('success', 'Votre rendez-vous est planifié ! Vous recevrez une confirmation dès qu\'il sera approuvé.');
+            Session::flash('success', 'Votre rendez-vous est planifié ! Vous recevrez un e-mail avec un lien de paiement.');
             $this->redirect("/fr/rendez-vous/confirmation/{$appointmentId}");
         } else {
-            Session::flash('success', 'Uw afspraak is ingepland! U ontvangt een bevestiging zodra deze is goedgekeurd.');
+            Session::flash('success', 'Uw afspraak is ingepland! U ontvangt een e-mail met een betaallink.');
             $this->redirect("/afspraken/bevestiging/{$appointmentId}");
         }
     }
@@ -202,13 +218,79 @@ class AppointmentController extends Controller
         $siteModel = new Site();
         $site = $siteModel->findBySlug($this->site['slug']);
         $menuModel = new Menu();
-        $headerMenu = $site ? $menuModel->getByLocationAndSite('header', $site['id'], App::getLang()) : false;
-        $footerMenu = $site ? $menuModel->getByLocationAndSite('footer', $site['id'], App::getLang()) : false;
+        $lang = App::getLang();
+        $headerMenu = $site ? $menuModel->getByLocationAndSite('header', $site['id'], $lang) : false;
+        $footerMenu = $site ? $menuModel->getByLocationAndSite('footer', $site['id'], $lang) : false;
+
+        // Build the payment URL if payment is pending
+        $paymentUrl = null;
+        if ($appointment && $appointment['payment_token'] && $appointment['payment_status'] === 'pending') {
+            $paymentUrl = $lang === 'fr'
+                ? "/fr/rendez-vous/betalen/{$appointment['payment_token']}"
+                : "/afspraken/betalen/{$appointment['payment_token']}";
+        }
 
         $this->render('front/appointments/confirm.twig', [
             'appointment' => $appointment,
+            'payment_url' => $paymentUrl,
             'header_menu' => $headerMenu,
             'footer_menu' => $footerMenu,
+            'layout' => $this->site['layout'] ?? 'gwin',
+        ]);
+    }
+
+    public function pay(string $token): void
+    {
+        $appointmentModel = new Appointment();
+        $appointment = $appointmentModel->findByPaymentToken($token);
+
+        if (!$appointment || $appointment['payment_status'] === 'paid') {
+            $aptUrl = App::getLang() === 'fr' ? '/fr/rendez-vous' : '/afspraken';
+            Session::flash('error', App::getLang() === 'fr'
+                ? 'Lien de paiement invalide ou déjà payé.'
+                : 'Ongeldige betaallink of al betaald.');
+            $this->redirect($aptUrl);
+            return;
+        }
+
+        if ($appointment['payment_status'] === 'cancelled' || $appointment['status'] === 'cancelled') {
+            $aptUrl = App::getLang() === 'fr' ? '/fr/rendez-vous' : '/afspraken';
+            Session::flash('error', App::getLang() === 'fr'
+                ? 'Ce rendez-vous a été annulé.'
+                : 'Deze afspraak is geannuleerd.');
+            $this->redirect($aptUrl);
+            return;
+        }
+
+        // Redirect to Mollie checkout
+        $paymentService = new AppointmentPaymentService();
+        $checkoutUrl = $paymentService->initiatePayment($appointment);
+
+        if ($checkoutUrl) {
+            $this->redirect($checkoutUrl);
+        } else {
+            $aptUrl = App::getLang() === 'fr' ? '/fr/rendez-vous' : '/afspraken';
+            Session::flash('error', App::getLang() === 'fr'
+                ? 'Erreur lors de la création du paiement.'
+                : 'Er is een fout opgetreden bij het aanmaken van de betaling.');
+            $this->redirect($aptUrl);
+        }
+    }
+
+    public function paymentSuccess(int $id): void
+    {
+        $appointmentModel = new Appointment();
+        $appointment = $appointmentModel->getWithCustomer($id);
+
+        $siteModel = new Site();
+        $site = $siteModel->findBySlug($this->site['slug']);
+        $menuModel = new Menu();
+        $lang = App::getLang();
+
+        $this->render('front/appointments/payment-success.twig', [
+            'appointment' => $appointment,
+            'header_menu' => $site ? $menuModel->getByLocationAndSite('header', $site['id'], $lang) : false,
+            'footer_menu' => $site ? $menuModel->getByLocationAndSite('footer', $site['id'], $lang) : false,
             'layout' => $this->site['layout'] ?? 'gwin',
         ]);
     }
