@@ -22,15 +22,16 @@ class Page extends Model
     {
         return $this->query(
             "SELECT p.*, pc.name AS category_name,
-                    GROUP_CONCAT(s2.name ORDER BY s2.name SEPARATOR ', ') AS site_names
+                    GROUP_CONCAT(s2.name ORDER BY s2.name SEPARATOR ', ') AS site_names,
+                    (SELECT COUNT(*) FROM pages p2 WHERE p2.translation_of = p.id) > 0 AS has_fr
              FROM pages p
              INNER JOIN page_sites ps ON ps.page_id = p.id
              LEFT JOIN page_categories pc ON p.page_category_id = pc.id
              LEFT JOIN page_sites ps2 ON ps2.page_id = p.id
              LEFT JOIN sites s2 ON s2.id = ps2.site_id
-             WHERE ps.site_id = :site_id
+             WHERE ps.site_id = :site_id AND p.translation_of IS NULL
              GROUP BY p.id
-             ORDER BY p.lang ASC, pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC",
+             ORDER BY pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC",
             ['site_id' => $siteId]
         )->fetchAll();
     }
@@ -39,13 +40,15 @@ class Page extends Model
     {
         return $this->query(
             "SELECT p.*, pc.name AS category_name,
-                    GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS site_names
+                    GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS site_names,
+                    (SELECT COUNT(*) FROM pages p2 WHERE p2.translation_of = p.id) > 0 AS has_fr
              FROM pages p
              LEFT JOIN page_sites ps ON ps.page_id = p.id
              LEFT JOIN sites s ON s.id = ps.site_id
              LEFT JOIN page_categories pc ON p.page_category_id = pc.id
+             WHERE p.translation_of IS NULL
              GROUP BY p.id
-             ORDER BY p.lang ASC, pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC"
+             ORDER BY pc.name ASC, p.page_category_id IS NULL, p.sort_order ASC"
         )->fetchAll();
     }
 

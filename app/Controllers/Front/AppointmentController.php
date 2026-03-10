@@ -43,7 +43,7 @@ class AppointmentController extends Controller
         $type = $this->input('type');
 
         if (!$date || !$type) {
-            $this->json(['error' => 'Datum en type zijn verplicht.'], 400);
+            $this->json(['error' => 'Missing date/type.'], 400);
             return;
         }
 
@@ -52,18 +52,18 @@ class AppointmentController extends Controller
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
 
         if (in_array($date, $blockedDates)) {
-            $this->json(['slots' => [], 'message' => 'Deze datum is niet beschikbaar.']);
+            $this->json(['slots' => [], 'message' => 'Date not available.']);
             return;
         }
 
         // Validate day of week
         $dayOfWeek = (int) date('w', strtotime($date));
         if ($type === 'pregnancy' && $dayOfWeek !== 6) {
-            $this->json(['slots' => [], 'message' => 'Zwangerschapsbeeldjes zijn enkel op zaterdag.']);
+            $this->json(['slots' => [], 'message' => 'Pregnancy scans are only on Saturdays.']);
             return;
         }
         if ($type === 'child' && $dayOfWeek !== 0) {
-            $this->json(['slots' => [], 'message' => 'Beeldjes met kind zijn enkel op zondag.']);
+            $this->json(['slots' => [], 'message' => 'Child scans are only on Sundays.']);
             return;
         }
 
@@ -103,9 +103,11 @@ class AppointmentController extends Controller
             'type' => 'required',
         ]);
 
+        $aptUrl = App::getLang() === 'fr' ? '/fr/rendez-vous' : '/afspraken';
+
         if (!empty($validation['errors'])) {
             Session::flash('error', implode(' ', $validation['errors']));
-            $this->redirect(App::langUrl('/afspraken'));
+            $this->redirect($aptUrl);
         }
 
         $type = $validation['data']['type'];
@@ -114,16 +116,16 @@ class AppointmentController extends Controller
 
         // Validate date
         if (!$date) {
-            Session::flash('error', 'Selecteer een datum.');
-            $this->redirect(App::langUrl('/afspraken'));
+            Session::flash('error', App::getLang() === 'fr' ? 'Sélectionnez une date.' : 'Selecteer een datum.');
+            $this->redirect($aptUrl);
         }
 
         // Check blocked dates
         $settingModel = new Setting();
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
         if (in_array($date, $blockedDates)) {
-            Session::flash('error', 'Deze datum is niet beschikbaar.');
-            $this->redirect(App::langUrl('/afspraken'));
+            Session::flash('error', App::getLang() === 'fr' ? 'Cette date n\'est pas disponible.' : 'Deze datum is niet beschikbaar.');
+            $this->redirect($aptUrl);
         }
 
         // Find or create customer
@@ -148,14 +150,14 @@ class AppointmentController extends Controller
         if ($type === 'pregnancy') {
             // Must have a slot selected
             if (!$slotId) {
-                Session::flash('error', 'Selecteer een tijdslot.');
-                $this->redirect(App::langUrl('/afspraken'));
+                Session::flash('error', App::getLang() === 'fr' ? 'Sélectionnez un créneau.' : 'Selecteer een tijdslot.');
+                $this->redirect($aptUrl);
             }
 
             $slotModel = new AppointmentSlot();
             if ($slotModel->isSlotBooked($date, (int)$slotId)) {
-                Session::flash('error', 'Dit tijdslot is niet meer beschikbaar.');
-                $this->redirect(App::langUrl('/afspraken'));
+                Session::flash('error', App::getLang() === 'fr' ? 'Ce créneau n\'est plus disponible.' : 'Dit tijdslot is niet meer beschikbaar.');
+                $this->redirect($aptUrl);
             }
 
             $slot = $slotModel->findById((int)$slotId);
@@ -183,8 +185,13 @@ class AppointmentController extends Controller
             ]);
         }
 
-        Session::flash('success', 'Uw afspraak is ingepland! U ontvangt een bevestiging zodra deze is goedgekeurd.');
-        $this->redirect(App::langUrl("/afspraken/bevestiging/{$appointmentId}"));
+        if (App::getLang() === 'fr') {
+            Session::flash('success', 'Votre rendez-vous est planifié ! Vous recevrez une confirmation dès qu\'il sera approuvé.');
+            $this->redirect("/fr/rendez-vous/confirmation/{$appointmentId}");
+        } else {
+            Session::flash('success', 'Uw afspraak is ingepland! U ontvangt een bevestiging zodra deze is goedgekeurd.');
+            $this->redirect("/afspraken/bevestiging/{$appointmentId}");
+        }
     }
 
     public function confirm(int $id): void

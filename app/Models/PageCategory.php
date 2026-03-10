@@ -42,12 +42,14 @@ class PageCategory extends Model
     public function getAllWithSite(): array
     {
         return $this->query(
-            "SELECT pc.*, s.name AS site_name, COUNT(p.id) AS page_count
+            "SELECT pc.*, s.name AS site_name, COUNT(p.id) AS page_count,
+                    (SELECT COUNT(*) FROM page_categories pc2 WHERE pc2.translation_of = pc.id) > 0 AS has_fr
              FROM page_categories pc
              LEFT JOIN sites s ON pc.site_id = s.id
              LEFT JOIN pages p ON pc.id = p.page_category_id AND p.is_published = 1
+             WHERE pc.translation_of IS NULL
              GROUP BY pc.id
-             ORDER BY pc.lang ASC, pc.sort_order ASC"
+             ORDER BY pc.sort_order ASC"
         )->fetchAll();
     }
 }

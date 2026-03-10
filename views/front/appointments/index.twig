@@ -1,6 +1,6 @@
 {% extends 'layouts/' ~ (layout ?? 'gwin') ~ '/base.twig' %}
 
-{% block title %}Afspraak maken - {{ site.name }}{% endblock %}
+{% block title %}{{ t('appointments') }} - {{ site.name }}{% endblock %}
 
 {% block content %}
 <!-- Hero -->
@@ -10,16 +10,16 @@
     </div>
     <div class="absolute top-1/3 right-0 w-96 h-96 bg-krijgers-gold-500/5 rounded-full blur-3xl"></div>
     <div class="relative max-w-4xl mx-auto px-4 text-center">
-        <span class="text-krijgers-gold-400 text-sm font-semibold tracking-[0.2em] uppercase">Afspraken</span>
-        <h1 class="text-4xl md:text-5xl font-display font-bold text-white mt-3">Maak een afspraak</h1>
-        <p class="text-krijgers-200 mt-4 max-w-xl mx-auto">Plan uw persoonlijke 3D-scan sessie in ons atelier.</p>
+        <span class="text-krijgers-gold-400 text-sm font-semibold tracking-[0.2em] uppercase">{{ t('appointments') }}</span>
+        <h1 class="text-4xl md:text-5xl font-display font-bold text-white mt-3">{{ t('apt_title') }}</h1>
+        <p class="text-krijgers-200 mt-4 max-w-xl mx-auto">{{ t('apt_subtitle') }}</p>
     </div>
 </section>
 
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16" x-data="appointmentForm()">
     <!-- Progress steps -->
     <div class="flex items-center justify-center mb-12">
-        <template x-for="(stepLabel, i) in ['Type', 'Datum', 'Tijdstip', 'Gegevens']" :key="i">
+        <template x-for="(stepLabel, i) in stepLabels" :key="i">
             <div class="flex items-center">
                 <div class="flex items-center">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all"
@@ -44,8 +44,8 @@
     <div class="bg-white rounded-2xl shadow-sm p-8 md:p-10">
         <!-- Step 1: Type -->
         <div x-show="step === 1" x-transition>
-            <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2">Kies het type afspraak</h2>
-            <p class="text-krijgers-500 mb-8">Selecteer welk type 3D-scan u wenst.</p>
+            <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2">{{ t('apt_choose_type') }}</h2>
+            <p class="text-krijgers-500 mb-8">{{ t('apt_choose_type_sub') }}</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button @click="form.type = 'pregnancy'; nextStep()"
@@ -54,8 +54,8 @@
                     <div class="w-14 h-14 bg-krijgers-gold-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-krijgers-gold-500/20 transition-colors">
                         <svg class="w-7 h-7 text-krijgers-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                     </div>
-                    <h3 class="text-lg font-display font-bold text-krijgers-800 mb-1">Zwangerschapsscan</h3>
-                    <p class="text-sm text-krijgers-500">Zaterdagen, vaste tijdsloten van 60-90 min</p>
+                    <h3 class="text-lg font-display font-bold text-krijgers-800 mb-1">{{ t('apt_pregnancy') }}</h3>
+                    <p class="text-sm text-krijgers-500">{{ t('apt_pregnancy_desc') }}</p>
                 </button>
 
                 <button @click="form.type = 'child'; nextStep()"
@@ -64,16 +64,16 @@
                     <div class="w-14 h-14 bg-krijgers-gold-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-krijgers-gold-500/20 transition-colors">
                         <svg class="w-7 h-7 text-krijgers-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
-                    <h3 class="text-lg font-display font-bold text-krijgers-800 mb-1">Kinderscan</h3>
-                    <p class="text-sm text-krijgers-500">Zondagen, tijdstip in overleg</p>
+                    <h3 class="text-lg font-display font-bold text-krijgers-800 mb-1">{{ t('apt_child') }}</h3>
+                    <p class="text-sm text-krijgers-500">{{ t('apt_child_desc') }}</p>
                 </button>
             </div>
         </div>
 
         <!-- Step 2: Date -->
         <div x-show="step === 2" x-transition>
-            <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2">Kies een datum</h2>
-            <p class="text-krijgers-500 mb-6" x-text="form.type === 'pregnancy' ? 'Zwangerschapsscans zijn beschikbaar op zaterdagen.' : 'Kinderscans zijn beschikbaar op zondagen.'"></p>
+            <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2">{{ t('apt_choose_date') }}</h2>
+            <p class="text-krijgers-500 mb-6" x-text="form.type === 'pregnancy' ? translations.pregnancyDates : translations.childDates"></p>
 
             <!-- Visual calendar -->
             <div class="select-none">
@@ -89,7 +89,7 @@
                     </button>
                 </div>
                 <div class="grid grid-cols-7 gap-1 mb-2">
-                    <template x-for="d in ['Ma','Di','Wo','Do','Vr','Za','Zo']">
+                    <template x-for="d in dayLabels">
                         <div class="text-center text-xs font-medium text-krijgers-400 py-1" x-text="d"></div>
                     </template>
                 </div>
@@ -112,26 +112,26 @@
             </div>
 
             <p x-show="form.date" class="mt-4 text-sm text-krijgers-600 bg-krijgers-50 px-4 py-2 rounded-xl">
-                Geselecteerd: <span class="font-semibold" x-text="formatDate(form.date)"></span>
+                {{ t('apt_selected') }}: <span class="font-semibold" x-text="formatDate(form.date)"></span>
             </p>
 
             <div class="flex justify-between mt-8">
                 <button @click="step--" class="text-krijgers-600 hover:text-krijgers-800 font-medium flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    Vorige
+                    {{ t('previous') }}
                 </button>
                 <button @click="validateDate()" :disabled="!form.date"
                         class="bg-krijgers-800 text-white px-8 py-3 rounded-xl font-semibold hover:bg-krijgers-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
-                    Volgende
+                    {{ t('next') }}
                 </button>
             </div>
         </div>
 
         <!-- Step 3: Time slot -->
         <div x-show="step === 3" x-transition>
-            <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2">Kies een tijdstip</h2>
-            <p class="text-krijgers-500 mb-8" x-show="form.type === 'pregnancy'">Selecteer een beschikbaar tijdslot.</p>
-            <p class="text-krijgers-500 mb-8" x-show="form.type === 'child'">Bij kinderscans wordt het exacte tijdstip later bevestigd door ons team.</p>
+            <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2">{{ t('apt_choose_time') }}</h2>
+            <p class="text-krijgers-500 mb-8" x-show="form.type === 'pregnancy'">{{ t('apt_select_slot') }}</p>
+            <p class="text-krijgers-500 mb-8" x-show="form.type === 'child'">{{ t('apt_child_time_info') }}</p>
 
             <template x-if="form.type === 'pregnancy'">
                 <div class="grid grid-cols-2 gap-3">
@@ -148,42 +148,42 @@
             <div class="flex justify-between mt-8">
                 <button @click="step--" class="text-krijgers-600 hover:text-krijgers-800 font-medium flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    Vorige
+                    {{ t('previous') }}
                 </button>
                 <button @click="nextStep()"
                         :disabled="form.type === 'pregnancy' && !form.slot_id"
                         class="bg-krijgers-800 text-white px-8 py-3 rounded-xl font-semibold hover:bg-krijgers-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
-                    Volgende
+                    {{ t('next') }}
                 </button>
             </div>
         </div>
 
         <!-- Step 4: Personal details -->
         <div x-show="step === 4" x-transition>
-            <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2">Uw gegevens</h2>
-            <p class="text-krijgers-500 mb-8">Vul uw contactgegevens in om de afspraak te bevestigen.</p>
+            <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2">{{ t('apt_your_details') }}</h2>
+            <p class="text-krijgers-500 mb-8">{{ t('apt_details_sub') }}</p>
 
             <form @submit.prevent="submitAppointment()" class="space-y-5">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Voornaam *</label>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('first_name') }} *</label>
                         <input type="text" x-model="form.first_name" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Achternaam *</label>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('last_name') }} *</label>
                         <input type="text" x-model="form.last_name" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-krijgers-700 mb-1.5">E-mail *</label>
+                    <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('email_address') }} *</label>
                     <input type="email" x-model="form.email" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Telefoon *</label>
+                    <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('phone') }} *</label>
                     <input type="tel" x-model="form.phone" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-krijgers-700 mb-1.5">Opmerkingen (optioneel)</label>
+                    <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('notes_optional') }}</label>
                     <textarea x-model="form.notes" rows="3" class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow"></textarea>
                 </div>
 
@@ -192,12 +192,12 @@
                 <div class="flex justify-between pt-4">
                     <button type="button" @click="step--" class="text-krijgers-600 hover:text-krijgers-800 font-medium flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                        Vorige
+                        {{ t('previous') }}
                     </button>
                     <button type="submit" :disabled="submitting"
                             class="bg-krijgers-gold-500 text-krijgers-900 px-8 py-3 rounded-xl font-semibold hover:bg-krijgers-gold-400 transition-all shadow-lg shadow-krijgers-gold-500/20 disabled:opacity-50 flex items-center gap-2">
                         <svg x-show="submitting" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                        Afspraak bevestigen
+                        {{ t('apt_confirm_btn') }}
                     </button>
                 </div>
             </form>
@@ -210,12 +210,14 @@
 <script>
 const blockedDates = {{ blocked_dates is defined ? blocked_dates|json_encode|raw : '[]' }};
 const maxMonths = {{ max_booking_months ?? 24 }};
+const currentLang = '{{ lang }}';
 
 function appointmentForm() {
     const today = new Date();
     today.setHours(0,0,0,0);
     const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
     const maxDate = new Date(today); maxDate.setMonth(maxDate.getMonth() + maxMonths);
+    const locale = currentLang === 'fr' ? 'fr-BE' : 'nl-BE';
 
     return {
         step: 1,
@@ -226,10 +228,16 @@ function appointmentForm() {
         submitting: false,
         calMonth: tomorrow.getMonth(),
         calYear: tomorrow.getFullYear(),
+        stepLabels: ['{{ t("step_type") }}', '{{ t("step_date") }}', '{{ t("step_time") }}', '{{ t("step_details") }}'],
+        dayLabels: ['{{ t("day_mon") }}', '{{ t("day_tue") }}', '{{ t("day_wed") }}', '{{ t("day_thu") }}', '{{ t("day_fri") }}', '{{ t("day_sat") }}', '{{ t("day_sun") }}'],
+        translations: {
+            pregnancyDates: '{{ t("apt_pregnancy_dates") }}',
+            childDates: '{{ t("apt_child_dates") }}'
+        },
 
         // Calendar helpers
         calMonthLabel() {
-            return new Date(this.calYear, this.calMonth, 1).toLocaleDateString('nl-BE', { month: 'long', year: 'numeric' });
+            return new Date(this.calYear, this.calMonth, 1).toLocaleDateString(locale, { month: 'long', year: 'numeric' });
         },
         calCanGoPrev() {
             return this.calYear > tomorrow.getFullYear() || (this.calYear === tomorrow.getFullYear() && this.calMonth > tomorrow.getMonth());
@@ -271,7 +279,7 @@ function appointmentForm() {
         formatDate(iso) {
             if (!iso) return '';
             const d = new Date(iso);
-            return d.toLocaleDateString('nl-BE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            return d.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
         },
 
         nextStep() { this.step++; },

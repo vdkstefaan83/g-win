@@ -21,26 +21,29 @@ class Block extends Model
     public function getAllWithSite(): array
     {
         return $this->query(
-            "SELECT b.*, GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS site_names
+            "SELECT b.*, GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS site_names,
+                    (SELECT COUNT(*) FROM blocks b2 WHERE b2.translation_of = b.id) > 0 AS has_fr
              FROM blocks b
              LEFT JOIN block_sites bs ON bs.block_id = b.id
              LEFT JOIN sites s ON s.id = bs.site_id
+             WHERE b.translation_of IS NULL
              GROUP BY b.id
-             ORDER BY b.lang ASC, b.sort_order ASC"
+             ORDER BY b.sort_order ASC"
         )->fetchAll();
     }
 
     public function getBySite(int $siteId): array
     {
         return $this->query(
-            "SELECT b.*, GROUP_CONCAT(s2.name ORDER BY s2.name SEPARATOR ', ') AS site_names
+            "SELECT b.*, GROUP_CONCAT(s2.name ORDER BY s2.name SEPARATOR ', ') AS site_names,
+                    (SELECT COUNT(*) FROM blocks b2 WHERE b2.translation_of = b.id) > 0 AS has_fr
              FROM blocks b
              INNER JOIN block_sites bs ON bs.block_id = b.id
              LEFT JOIN block_sites bs2 ON bs2.block_id = b.id
              LEFT JOIN sites s2 ON s2.id = bs2.site_id
-             WHERE bs.site_id = :site_id
+             WHERE bs.site_id = :site_id AND b.translation_of IS NULL
              GROUP BY b.id
-             ORDER BY b.lang ASC, b.sort_order ASC",
+             ORDER BY b.sort_order ASC",
             ['site_id' => $siteId]
         )->fetchAll();
     }

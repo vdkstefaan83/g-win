@@ -25,6 +25,20 @@ class Category extends Model
         )->fetchAll();
     }
 
+    public function getAllForAdmin(): array
+    {
+        return $this->query(
+            "SELECT c.*, p.name AS parent_name, COUNT(pr.id) AS product_count,
+                    (SELECT COUNT(*) FROM categories c2 WHERE c2.translation_of = c.id) > 0 AS has_fr
+             FROM categories c
+             LEFT JOIN categories p ON c.parent_id = p.id
+             LEFT JOIN products pr ON c.id = pr.category_id
+             WHERE c.translation_of IS NULL
+             GROUP BY c.id
+             ORDER BY c.sort_order ASC"
+        )->fetchAll();
+    }
+
     public function getParentCategories(): array
     {
         return $this->query(

@@ -98,10 +98,12 @@ class Product extends Model
     {
         return $this->query(
             "SELECT p.*, c.name as category_name,
-                    (SELECT pi.filename FROM product_images pi WHERE pi.product_id = p.id AND pi.is_primary = 1 LIMIT 1) as image
+                    (SELECT pi.filename FROM product_images pi WHERE pi.product_id = p.id AND pi.is_primary = 1 LIMIT 1) as image,
+                    (SELECT COUNT(*) FROM products p2 WHERE p2.translation_of = p.id) > 0 AS has_fr
              FROM products p
              LEFT JOIN categories c ON p.category_id = c.id
-             ORDER BY p.lang ASC, p.name ASC"
+             WHERE p.translation_of IS NULL
+             ORDER BY p.name ASC"
         )->fetchAll();
     }
 

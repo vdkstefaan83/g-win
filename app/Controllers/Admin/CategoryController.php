@@ -19,7 +19,7 @@ class CategoryController extends Controller
     public function index(): void
     {
         $this->render('admin/categories/index.twig', [
-            'categories' => $this->categoryModel->findAll('sort_order', 'ASC'),
+            'categories' => $this->categoryModel->getAllForAdmin(),
         ]);
     }
 
