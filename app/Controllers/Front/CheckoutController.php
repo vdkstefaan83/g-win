@@ -93,6 +93,20 @@ class CheckoutController extends Controller
             . $validation['data']['postal_code'] . ' '
             . $validation['data']['city'];
 
+        // Billing address: use separate address if provided, otherwise same as shipping
+        $billingAddr = trim($this->input('billing_address', ''));
+        if (!empty($billingAddr)) {
+            $billingAddress = $billingAddr . ', '
+                . trim($this->input('billing_postal_code', '')) . ' '
+                . trim($this->input('billing_city', ''));
+        } else {
+            $billingAddress = $shippingAddress;
+        }
+
+        // Company info
+        $companyName = trim($this->input('company_name', ''));
+        $vatNumber = trim($this->input('vat_number', ''));
+
         $orderId = $orderModel->create([
             'customer_id' => $customerId,
             'order_number' => $orderModel->generateOrderNumber(),
@@ -100,7 +114,9 @@ class CheckoutController extends Controller
             'subtotal' => $total,
             'total' => $total,
             'shipping_address' => $shippingAddress,
-            'billing_address' => $shippingAddress,
+            'billing_address' => $billingAddress,
+            'company_name' => $companyName ?: null,
+            'vat_number' => $vatNumber ?: null,
             'notes' => $this->input('notes', ''),
         ]);
 

@@ -228,6 +228,8 @@ CREATE TABLE IF NOT EXISTS orders (
     total DECIMAL(10,2) NOT NULL,
     shipping_address TEXT,
     billing_address TEXT,
+    company_name VARCHAR(255),
+    vat_number VARCHAR(50),
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

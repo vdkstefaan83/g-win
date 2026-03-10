@@ -68,6 +68,14 @@ return [
         'payment_received' => 'Uw betaling is ontvangen. U ontvangt een bevestiging per e-mail.',
         'payment_cancelled_msg' => 'Uw betaling is geannuleerd. Uw winkelwagen is bewaard.',
         'back_to_cart' => 'Terug naar winkelwagen',
+        // Checkout - business & billing
+        'company_name' => 'Bedrijfsnaam',
+        'vat_number' => 'BTW-nummer',
+        'billing_address' => 'Facturatieadres',
+        'billing_different' => 'Facturatieadres verschilt van verzendadres',
+        'billing_addr' => 'Adres',
+        'billing_postal' => 'Postcode',
+        'billing_city' => 'Stad',
         // Homepage sections
         'what_we_do' => 'Wat wij doen',
         'our_services' => 'Onze diensten',
@@ -186,6 +194,14 @@ return [
         'payment_received' => 'Votre paiement a été reçu. Vous recevrez une confirmation par e-mail.',
         'payment_cancelled_msg' => 'Votre paiement a été annulé. Votre panier a été sauvegardé.',
         'back_to_cart' => 'Retour au panier',
+        // Checkout - business & billing
+        'company_name' => 'Nom de l\'entreprise',
+        'vat_number' => 'Numéro de TVA',
+        'billing_address' => 'Adresse de facturation',
+        'billing_different' => 'L\'adresse de facturation diffère de l\'adresse de livraison',
+        'billing_addr' => 'Adresse',
+        'billing_postal' => 'Code postal',
+        'billing_city' => 'Ville',
         // Homepage sections
         'what_we_do' => 'Ce que nous faisons',
         'our_services' => 'Nos services',

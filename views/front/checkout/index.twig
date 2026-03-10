@@ -3,7 +3,7 @@
 {% block title %}{{ t('checkout') }} - {{ site.name }}{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12" x-data="{ differentBilling: false }">
     <h1 class="text-3xl font-display font-bold text-krijgers-800 mb-8">{{ t('checkout') }}</h1>
 
     <form method="POST" action="{{ lang_url('/afrekenen') }}" class="grid md:grid-cols-3 gap-8">
@@ -29,6 +29,14 @@
                         <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('phone') }} *</label>
                         <input type="tel" name="phone" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('company_name') }}</label>
+                        <input type="text" name="company_name" class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('vat_number') }}</label>
+                        <input type="text" name="vat_number" placeholder="BE0123.456.789" class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
+                    </div>
                 </div>
             </div>
 
@@ -47,6 +55,33 @@
                         <div>
                             <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('city') }} *</label>
                             <input type="text" name="city" required class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 pt-5 border-t border-krijgers-100">
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" x-model="differentBilling" class="rounded border-krijgers-300 text-krijgers-gold-600 focus:ring-krijgers-gold-500">
+                        <span class="text-sm font-medium text-krijgers-700">{{ t('billing_different') }}</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm p-6 md:p-8" x-show="differentBilling" x-transition>
+                <h2 class="text-lg font-display font-semibold text-krijgers-800 mb-5">{{ t('billing_address') }}</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('billing_addr') }} *</label>
+                        <input type="text" name="billing_address" :required="differentBilling" class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('billing_postal') }} *</label>
+                            <input type="text" name="billing_postal_code" :required="differentBilling" class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('billing_city') }} *</label>
+                            <input type="text" name="billing_city" :required="differentBilling" class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500 transition-shadow">
                         </div>
                     </div>
                 </div>
