@@ -118,7 +118,10 @@ class App
     {
         $path = '/' . ltrim($path, '/');
         if (self::$lang !== 'nl') {
-            return '/' . self::$lang . $path;
+            // Don't add prefix if path already starts with the language prefix
+            if (!str_starts_with($path, '/' . self::$lang . '/') && $path !== '/' . self::$lang) {
+                return '/' . self::$lang . $path;
+            }
         }
         return $path;
     }

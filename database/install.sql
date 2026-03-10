@@ -1388,12 +1388,12 @@ FROM sites s WHERE s.slug = 'gwin';
 SET @fr_header_menu_id = LAST_INSERT_ID();
 
 INSERT INTO menu_items (menu_id, label, url, page_id, sort_order) VALUES
-(@fr_header_menu_id, 'Accueil', '/fr/', NULL, 0),
+(@fr_header_menu_id, 'Accueil', '/', NULL, 0),
 (@fr_header_menu_id, 'Scan 3D', NULL, (SELECT id FROM pages WHERE slug = 'scan-3d' AND lang = 'fr' LIMIT 1), 1),
 (@fr_header_menu_id, 'Sculptures 3D & Awards', NULL, (SELECT id FROM pages WHERE slug = 'sculptures-3d-design-awards' AND lang = 'fr' LIMIT 1), 2),
 (@fr_header_menu_id, 'Sculptures de grossesse', NULL, (SELECT id FROM pages WHERE slug = 'sculptures-de-grossesse' AND lang = 'fr' LIMIT 1), 3),
-(@fr_header_menu_id, 'Boutique', '/fr/boutique', NULL, 4),
-(@fr_header_menu_id, 'Rendez-vous', '/fr/rendez-vous', NULL, 5),
+(@fr_header_menu_id, 'Boutique', '/boutique', NULL, 4),
+(@fr_header_menu_id, 'Rendez-vous', '/rendez-vous', NULL, 5),
 (@fr_header_menu_id, 'Contact', NULL, (SELECT id FROM pages WHERE slug = 'contact-fr' AND lang = 'fr' LIMIT 1), 6);
 
 -- Footer menu (FR)
@@ -1404,7 +1404,7 @@ FROM sites s WHERE s.slug = 'gwin';
 SET @fr_footer_menu_id = LAST_INSERT_ID();
 
 INSERT INTO menu_items (menu_id, label, url, page_id, sort_order) VALUES
-(@fr_footer_menu_id, 'Accueil', '/fr/', NULL, 0),
+(@fr_footer_menu_id, 'Accueil', '/', NULL, 0),
 (@fr_footer_menu_id, 'Scan 3D', NULL, (SELECT id FROM pages WHERE slug = 'scan-3d' AND lang = 'fr' LIMIT 1), 1),
 (@fr_footer_menu_id, 'Sculptures 3D & Awards', NULL, (SELECT id FROM pages WHERE slug = 'sculptures-3d-design-awards' AND lang = 'fr' LIMIT 1), 2),
 (@fr_footer_menu_id, 'Sculptures de grossesse', NULL, (SELECT id FROM pages WHERE slug = 'sculptures-de-grossesse' AND lang = 'fr' LIMIT 1), 3),

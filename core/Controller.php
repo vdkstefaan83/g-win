@@ -71,6 +71,7 @@ abstract class Controller
             'flash' => Session::getFlash(),
             'current_user' => Auth::user(),
             'current_url' => $_SERVER['REQUEST_URI'] ?? '/',
+            'base_url' => preg_replace('#^/fr(/|$)#', '/', $_SERVER['REQUEST_URI'] ?? '/'),
         ]);
 
         echo $this->twig->render($template, $data);
