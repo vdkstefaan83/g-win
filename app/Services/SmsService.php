@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Setting;
-
 class SmsService
 {
     private string $username;
@@ -12,10 +10,9 @@ class SmsService
 
     public function __construct()
     {
-        $settingModel = new Setting();
-        $this->username = $_ENV['CLICKSEND_API_USERNAME'] ?? $settingModel->get('clicksend_api_username', null, '');
-        $this->apiKey = $_ENV['CLICKSEND_API_KEY'] ?? $settingModel->get('clicksend_api_key', null, '');
-        $this->senderName = $settingModel->get('sms_sender_name', null, 'G-Win');
+        $this->username = $_ENV['CLICKSEND_API_USERNAME'] ?? '';
+        $this->apiKey = $_ENV['CLICKSEND_API_KEY'] ?? '';
+        $this->senderName = $_ENV['CLICKSEND_SENDER_NAME'] ?? 'G-Win';
     }
 
     public function send(string $to, string $message): bool

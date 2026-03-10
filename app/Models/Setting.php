@@ -48,9 +48,6 @@ class Setting extends Model
         'appointment_payment_deadline_days' => ['label' => 'Betaaltermijn (werkdagen)', 'group' => 'Afspraken - Betaling', 'description' => 'Aantal werkdagen waarbinnen de klant moet betalen na boeking (standaard 3).'],
         'appointment_reminder_extra_days' => ['label' => 'Extra dagen na herinnering', 'group' => 'Afspraken - Betaling', 'description' => 'Aantal dagen na de herinneringsmail voordat de afspraak wordt geannuleerd (standaard 2).'],
         'appointment_pre_reminder_days' => ['label' => 'Herinnering dagen voor afspraak', 'group' => 'Afspraken - Betaling', 'description' => 'Aantal dagen voor de afspraak om een herinnering te sturen (standaard 3).'],
-        'clicksend_api_username' => ['label' => 'ClickSend gebruikersnaam', 'group' => 'SMS'],
-        'clicksend_api_key' => ['label' => 'ClickSend API key', 'group' => 'SMS'],
-        'sms_sender_name' => ['label' => 'SMS afzendernaam', 'group' => 'SMS', 'description' => 'Max 11 tekens (bijv. G-Win).'],
     ];
 
     public function getAllForSite(?int $siteId = null): array
@@ -93,7 +90,7 @@ class Setting extends Model
 
         // Sort by group then label
         usort($rows, function($a, $b) {
-            $groupOrder = ['Afspraken' => 1, 'Afspraken - Betaling' => 2, 'SMS' => 3, 'Overig' => 9];
+            $groupOrder = ['Afspraken' => 1, 'Afspraken - Betaling' => 2, 'Overig' => 9];
             $ga = $groupOrder[$a['group']] ?? 9;
             $gb = $groupOrder[$b['group']] ?? 9;
             return $ga === $gb ? strcmp($a['label'], $b['label']) : $ga - $gb;
