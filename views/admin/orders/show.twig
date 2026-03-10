@@ -80,26 +80,24 @@
                 <div>
                     <dt class="text-sm text-gray-500">Naam</dt>
                     <dd class="text-sm font-medium text-gray-900">
-                        {{ order.first_name }} {{ order.last_name }}
-                        {% if order.customer_id %}
-                            <a href="/admin/customers/{{ order.customer_id }}" class="text-blue-600 hover:text-blue-800 ml-1">Bekijken</a>
-                        {% endif %}
+                        {{ order.customer.first_name }} {{ order.customer.last_name }}
+                        <a href="/admin/customers/{{ order.customer_id }}" class="text-blue-600 hover:text-blue-800 ml-1">Bekijken</a>
                     </dd>
                 </div>
                 <div>
                     <dt class="text-sm text-gray-500">E-mail</dt>
-                    <dd class="text-sm text-gray-900">{{ order.email }}</dd>
+                    <dd class="text-sm text-gray-900">{{ order.customer.email }}</dd>
                 </div>
                 <div>
                     <dt class="text-sm text-gray-500">Telefoon</dt>
-                    <dd class="text-sm text-gray-900">{{ order.phone ?: '-' }}</dd>
+                    <dd class="text-sm text-gray-900">{{ order.customer.phone ?: '-' }}</dd>
                 </div>
-                {% if order.address %}
+                {% if order.customer.address %}
                 <div>
                     <dt class="text-sm text-gray-500">Adres</dt>
                     <dd class="text-sm text-gray-900">
-                        {{ order.address }}<br>
-                        {{ order.postal_code }} {{ order.city }}
+                        {{ order.customer.address }}<br>
+                        {{ order.customer.postal_code }} {{ order.customer.city }}
                     </dd>
                 </div>
                 {% endif %}
@@ -155,21 +153,21 @@
                 <div class="flex justify-between">
                     <dt class="text-sm text-gray-500">Betaalstatus</dt>
                     <dd>
-                        <span class="px-2 py-1 text-xs rounded-full {{ order.payment_status == 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                            {{ order.payment_status == 'paid' ? 'Betaald' : 'Niet betaald' }}
+                        <span class="px-2 py-1 text-xs rounded-full {{ order.payment.status == 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                            {{ order.payment.status == 'paid' ? 'Betaald' : 'Niet betaald' }}
                         </span>
                     </dd>
                 </div>
-                {% if order.payment_method %}
+                {% if order.payment.method %}
                 <div class="flex justify-between">
                     <dt class="text-sm text-gray-500">Betaalmethode</dt>
-                    <dd class="text-sm text-gray-900">{{ order.payment_method }}</dd>
+                    <dd class="text-sm text-gray-900">{{ order.payment.method }}</dd>
                 </div>
                 {% endif %}
-                {% if order.payment_id %}
+                {% if order.payment.mollie_id %}
                 <div class="flex justify-between">
-                    <dt class="text-sm text-gray-500">Betaal-ID</dt>
-                    <dd class="text-sm text-gray-900 font-mono text-xs">{{ order.payment_id }}</dd>
+                    <dt class="text-sm text-gray-500">Mollie ID</dt>
+                    <dd class="text-sm text-gray-900 font-mono text-xs">{{ order.payment.mollie_id }}</dd>
                 </div>
                 {% endif %}
                 <div class="flex justify-between">
