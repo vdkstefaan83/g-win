@@ -105,6 +105,28 @@ class Page extends Model
         return false;
     }
 
+    /**
+     * Find the linked translation record (any status, for admin editing).
+     */
+    public function findLinkedTranslation(int $pageId): array|false
+    {
+        // Check if another page points to this one
+        $result = $this->query(
+            "SELECT * FROM pages WHERE translation_of = :id LIMIT 1",
+            ['id' => $pageId]
+        )->fetch();
+
+        if ($result) return $result;
+
+        // Check if this page points to another
+        $page = $this->findById($pageId);
+        if ($page && $page['translation_of']) {
+            return $this->findById((int) $page['translation_of']);
+        }
+
+        return false;
+    }
+
     public function getSiteIds(int $pageId): array
     {
         return array_column(

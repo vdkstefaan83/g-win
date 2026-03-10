@@ -61,31 +61,85 @@ class CategoryController extends Controller
             $this->redirect('/admin/categories');
         }
 
+        $translation = $this->categoryModel->findLinkedTranslation($id);
+
+        if (($category['lang'] ?? 'nl') === 'nl') {
+            $nl = $category;
+            $fr = $translation ?: [];
+        } else {
+            $fr = $category;
+            $nl = $translation ?: [];
+        }
+
         $this->render('admin/categories/edit.twig', [
             'category' => $category,
+            'nl' => $nl,
+            'fr' => $fr,
             'parent_categories' => $this->categoryModel->getParentCategories(),
         ]);
     }
 
     public function update(int $id): void
     {
-        $validation = $this->validate([
-            'name' => 'required|max:100',
-            'slug' => 'required|max:100',
-        ]);
+        $nlName = trim($this->input('nl_name', ''));
+        $nlSlug = trim($this->input('nl_slug', ''));
 
-        if (!empty($validation['errors'])) {
-            Session::flash('error', implode(' ', $validation['errors']));
+        if (empty($nlName) || empty($nlSlug)) {
+            Session::flash('error', 'NL naam en slug zijn verplicht.');
             $this->redirect("/admin/categories/{$id}/edit");
         }
 
-        $data = $validation['data'];
-        $data['description'] = $this->input('description', '');
-        $data['parent_id'] = $this->input('parent_id') ?: null;
-        $data['sort_order'] = (int) $this->input('sort_order', 0);
-        $data['is_active'] = $this->input('is_active') ? 1 : 0;
+        // Shared fields
+        $shared = [
+            'parent_id' => $this->input('parent_id') ?: null,
+            'is_active' => $this->input('is_active') ? 1 : 0,
+        ];
 
-        $this->categoryModel->update($id, $data);
+        // Determine NL/FR records
+        $category = $this->categoryModel->findById($id);
+        $translation = $this->categoryModel->findLinkedTranslation($id);
+
+        if (($category['lang'] ?? 'nl') === 'nl') {
+            $nlId = $category['id'];
+            $frId = $translation ? $translation['id'] : null;
+        } else {
+            $frId = $category['id'];
+            $nlId = $translation ? $translation['id'] : null;
+        }
+
+        // Update NL
+        $nlData = array_merge($shared, [
+            'name' => $nlName,
+            'slug' => $nlSlug,
+            'description' => $this->input('nl_description', ''),
+            'lang' => 'nl',
+            'translation_of' => null,
+        ]);
+
+        if ($nlId) {
+            $this->categoryModel->update($nlId, $nlData);
+        } else {
+            $nlId = $this->categoryModel->create($nlData);
+        }
+
+        // Update FR (only if name filled)
+        $frName = trim($this->input('fr_name', ''));
+        if (!empty($frName)) {
+            $frData = array_merge($shared, [
+                'name' => $frName,
+                'slug' => trim($this->input('fr_slug', '')),
+                'description' => $this->input('fr_description', ''),
+                'lang' => 'fr',
+                'translation_of' => $nlId,
+            ]);
+
+            if ($frId) {
+                $this->categoryModel->update($frId, $frData);
+            } else {
+                $this->categoryModel->create($frData);
+            }
+        }
+
         Session::flash('success', 'Categorie bijgewerkt.');
         $this->redirect('/admin/categories');
     }

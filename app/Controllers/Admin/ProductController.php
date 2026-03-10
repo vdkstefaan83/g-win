@@ -79,41 +79,90 @@ class ProductController extends Controller
             $this->redirect('/admin/products');
         }
 
-        $otherLang = ($product['lang'] ?? 'nl') === 'nl' ? 'fr' : 'nl';
-        $translatableProducts = $this->productModel->getByLang($otherLang);
+        $translation = $this->productModel->findLinkedTranslation($id);
+
+        if (($product['lang'] ?? 'nl') === 'nl') {
+            $nl = $product;
+            $fr = $translation ?: [];
+        } else {
+            $fr = $product;
+            $nl = $translation ?: [];
+        }
 
         $this->render('admin/products/edit.twig', [
             'product' => $product,
+            'nl' => $nl,
+            'fr' => $fr,
             'categories' => $this->categoryModel->findAll('name', 'ASC'),
-            'translatable_products' => $translatableProducts,
         ]);
     }
 
     public function update(int $id): void
     {
-        $validation = $this->validate([
-            'name' => 'required|max:255',
-            'slug' => 'required|max:255',
-            'price' => 'required|numeric',
-        ]);
+        $nlName = trim($this->input('nl_name', ''));
+        $nlSlug = trim($this->input('nl_slug', ''));
+        $price = $this->input('price', '');
 
-        if (!empty($validation['errors'])) {
-            Session::flash('error', implode(' ', $validation['errors']));
+        if (empty($nlName) || empty($nlSlug) || $price === '') {
+            Session::flash('error', 'NL naam, slug en prijs zijn verplicht.');
             $this->redirect("/admin/products/{$id}/edit");
         }
 
-        $data = $validation['data'];
-        $data['category_id'] = $this->input('category_id') ?: null;
-        $data['description'] = $this->input('description', '');
-        $data['stock'] = (int) $this->input('stock', 0);
-        $data['is_active'] = $this->input('is_active') ? 1 : 0;
-        $data['is_featured'] = $this->input('is_featured') ? 1 : 0;
-        $data['lang'] = $this->input('lang', 'nl');
-        $data['translation_of'] = $this->input('translation_of') ?: null;
+        // Shared fields
+        $shared = [
+            'category_id' => $this->input('category_id') ?: null,
+            'price' => (float) $price,
+            'stock' => (int) $this->input('stock', 0),
+            'is_active' => $this->input('is_active') ? 1 : 0,
+            'is_featured' => $this->input('is_featured') ? 1 : 0,
+        ];
 
-        $this->productModel->update($id, $data);
+        // Determine NL/FR records
+        $product = $this->productModel->findById($id);
+        $translation = $this->productModel->findLinkedTranslation($id);
 
-        // Handle new image uploads
+        if (($product['lang'] ?? 'nl') === 'nl') {
+            $nlId = $product['id'];
+            $frId = $translation ? $translation['id'] : null;
+        } else {
+            $frId = $product['id'];
+            $nlId = $translation ? $translation['id'] : null;
+        }
+
+        // Update NL
+        $nlData = array_merge($shared, [
+            'name' => $nlName,
+            'slug' => $nlSlug,
+            'description' => $this->input('nl_description', ''),
+            'lang' => 'nl',
+            'translation_of' => null,
+        ]);
+
+        if ($nlId) {
+            $this->productModel->update($nlId, $nlData);
+        } else {
+            $nlId = $this->productModel->create($nlData);
+        }
+
+        // Update FR (only if name filled)
+        $frName = trim($this->input('fr_name', ''));
+        if (!empty($frName)) {
+            $frData = array_merge($shared, [
+                'name' => $frName,
+                'slug' => trim($this->input('fr_slug', '')),
+                'description' => $this->input('fr_description', ''),
+                'lang' => 'fr',
+                'translation_of' => $nlId,
+            ]);
+
+            if ($frId) {
+                $this->productModel->update($frId, $frData);
+            } else {
+                $frId = $this->productModel->create($frData);
+            }
+        }
+
+        // Handle new image uploads (on the record being edited)
         if (!empty($_FILES['images']['name'][0])) {
             $this->handleImageUploads($id);
         }

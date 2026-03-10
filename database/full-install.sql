@@ -197,10 +197,13 @@ CREATE TABLE categories (
     slug VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
     parent_id INT,
+    lang CHAR(2) NOT NULL DEFAULT 'nl',
+    translation_of INT NULL,
     sort_order INT DEFAULT 0,
     is_active TINYINT(1) DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE SET NULL
+    FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE SET NULL,
+    FOREIGN KEY (translation_of) REFERENCES categories(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE products (

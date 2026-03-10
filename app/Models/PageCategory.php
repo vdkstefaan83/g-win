@@ -24,6 +24,21 @@ class PageCategory extends Model
         )->fetchAll();
     }
 
+    public function findLinkedTranslation(int $catId): array|false
+    {
+        $result = $this->query(
+            "SELECT * FROM page_categories WHERE translation_of = :id LIMIT 1",
+            ['id' => $catId]
+        )->fetch();
+        if ($result) return $result;
+
+        $cat = $this->findById($catId);
+        if ($cat && $cat['translation_of']) {
+            return $this->findById((int) $cat['translation_of']);
+        }
+        return false;
+    }
+
     public function getAllWithSite(): array
     {
         return $this->query(

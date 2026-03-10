@@ -31,4 +31,19 @@ class Category extends Model
             "SELECT * FROM categories WHERE parent_id IS NULL ORDER BY sort_order ASC"
         )->fetchAll();
     }
+
+    public function findLinkedTranslation(int $catId): array|false
+    {
+        $result = $this->query(
+            "SELECT * FROM categories WHERE translation_of = :id LIMIT 1",
+            ['id' => $catId]
+        )->fetch();
+        if ($result) return $result;
+
+        $cat = $this->findById($catId);
+        if ($cat && !empty($cat['translation_of'])) {
+            return $this->findById((int) $cat['translation_of']);
+        }
+        return false;
+    }
 }

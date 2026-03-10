@@ -79,6 +79,21 @@ class Product extends Model
         )->fetchAll();
     }
 
+    public function findLinkedTranslation(int $productId): array|false
+    {
+        $result = $this->query(
+            "SELECT * FROM products WHERE translation_of = :id LIMIT 1",
+            ['id' => $productId]
+        )->fetch();
+        if ($result) return $result;
+
+        $product = $this->findById($productId);
+        if ($product && $product['translation_of']) {
+            return $this->findById((int) $product['translation_of']);
+        }
+        return false;
+    }
+
     public function getAllWithCategory(): array
     {
         return $this->query(

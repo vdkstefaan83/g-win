@@ -110,8 +110,21 @@ class BlockController extends Controller
 
         $block['site_ids'] = $this->blockModel->getSiteIds($id);
 
+        // Find linked translation
+        $translation = $this->blockModel->findLinkedTranslation($id);
+
+        if (($block['lang'] ?? 'nl') === 'nl') {
+            $nl = $block;
+            $fr = $translation ?: [];
+        } else {
+            $fr = $block;
+            $nl = $translation ?: [];
+        }
+
         $this->render('admin/blocks/edit.twig', [
             'block' => $block,
+            'nl' => $nl,
+            'fr' => $fr,
             'sites' => $this->siteModel->findAll('name', 'ASC'),
         ]);
     }
@@ -124,37 +137,33 @@ class BlockController extends Controller
             $this->redirect("/admin/blocks/{$id}/edit");
         }
 
-        $validation = $this->validate([
-            'title' => 'required|max:255',
-            'type' => 'required',
-        ]);
-
-        if (!empty($validation['errors'])) {
-            Session::flash('error', implode(' ', $validation['errors']));
+        $nlTitle = trim($this->input('nl_title', ''));
+        $type = $this->input('type', '');
+        if (empty($nlTitle) || empty($type)) {
+            Session::flash('error', 'NL titel en type zijn verplicht.');
             $this->redirect("/admin/blocks/{$id}/edit");
         }
 
-        $data = $validation['data'];
-        $data['site_id'] = (int) $siteIds[0];
-        $data['lang'] = $this->input('lang', 'nl');
-        $data['content'] = $this->input('content', '');
-        $data['sort_order'] = (int) $this->input('sort_order', 0);
-        $data['is_active'] = $this->input('is_active') ? 1 : 0;
+        // Shared fields
+        $shared = [
+            'site_id' => (int) $siteIds[0],
+            'type' => $type,
+            'sort_order' => (int) $this->input('sort_order', 0),
+            'is_active' => $this->input('is_active') ? 1 : 0,
+            'link_url' => $this->input('link_url', ''),
+        ];
 
-        $data['subtitle'] = $this->input('subtitle', '');
-        $data['link_url'] = $this->input('link_url', '');
-
-        if ($data['type'] === 'hero') {
-            $data['options'] = json_encode([
+        if ($type === 'hero') {
+            $shared['options'] = json_encode([
                 'show_appointment_btn' => (bool) $this->input('opt_appointment_btn'),
                 'show_shop_btn' => (bool) $this->input('opt_shop_btn'),
             ]);
         }
 
-        // Support image URL or file upload
+        // Handle image (shared)
         $imageUrl = $this->input('image_url', '');
         if (!empty($imageUrl)) {
-            $data['image'] = $imageUrl;
+            $shared['image'] = $imageUrl;
         } elseif (!empty($_FILES['image']['name'])) {
             $block = $this->blockModel->findById($id);
             if ($block && $block['image'] && !str_starts_with($block['image'], 'http')) {
@@ -162,12 +171,59 @@ class BlockController extends Controller
             }
             $filename = FileUpload::uploadImage($_FILES['image'], 'pages');
             if ($filename) {
-                $data['image'] = 'pages/' . $filename;
+                $shared['image'] = 'pages/' . $filename;
             }
         }
 
-        $this->blockModel->update($id, $data);
-        $this->blockModel->syncSites($id, $siteIds);
+        // Determine NL/FR records
+        $block = $this->blockModel->findById($id);
+        $translation = $this->blockModel->findLinkedTranslation($id);
+
+        if (($block['lang'] ?? 'nl') === 'nl') {
+            $nlId = $block['id'];
+            $frId = $translation ? $translation['id'] : null;
+        } else {
+            $frId = $block['id'];
+            $nlId = $translation ? $translation['id'] : null;
+        }
+
+        // Update NL
+        $nlData = array_merge($shared, [
+            'title' => $nlTitle,
+            'subtitle' => $this->input('nl_subtitle', ''),
+            'content' => $this->input('nl_content', ''),
+            'lang' => 'nl',
+            'translation_of' => null,
+        ]);
+
+        if ($nlId) {
+            $this->blockModel->update($nlId, $nlData);
+            $this->blockModel->syncSites($nlId, $siteIds);
+        } else {
+            $nlId = $this->blockModel->create($nlData);
+            $this->blockModel->syncSites($nlId, $siteIds);
+        }
+
+        // Update FR (only if title filled)
+        $frTitle = trim($this->input('fr_title', ''));
+        if (!empty($frTitle)) {
+            $frData = array_merge($shared, [
+                'title' => $frTitle,
+                'subtitle' => $this->input('fr_subtitle', ''),
+                'content' => $this->input('fr_content', ''),
+                'lang' => 'fr',
+                'translation_of' => $nlId,
+            ]);
+
+            if ($frId) {
+                $this->blockModel->update($frId, $frData);
+                $this->blockModel->syncSites($frId, $siteIds);
+            } else {
+                $frId = $this->blockModel->create($frData);
+                $this->blockModel->syncSites($frId, $siteIds);
+            }
+        }
+
         Session::flash('success', 'Blok bijgewerkt.');
         $this->redirect('/admin/blocks');
     }

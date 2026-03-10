@@ -53,6 +53,21 @@ class Block extends Model
         );
     }
 
+    public function findLinkedTranslation(int $blockId): array|false
+    {
+        $result = $this->query(
+            "SELECT * FROM blocks WHERE translation_of = :id LIMIT 1",
+            ['id' => $blockId]
+        )->fetch();
+        if ($result) return $result;
+
+        $block = $this->findById($blockId);
+        if ($block && $block['translation_of']) {
+            return $this->findById((int) $block['translation_of']);
+        }
+        return false;
+    }
+
     public function syncSites(int $blockId, array $siteIds): void
     {
         $this->query("DELETE FROM block_sites WHERE block_id = :id", ['id' => $blockId]);
