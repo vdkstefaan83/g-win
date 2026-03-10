@@ -11,6 +11,7 @@ use App\Models\Customer;
 use App\Models\Setting;
 use App\Models\Site;
 use App\Models\Menu;
+use App\Services\AppointmentPaymentService;
 
 class AppointmentController extends Controller
 {
