@@ -63,7 +63,7 @@ class Product extends Model
              FROM products p
              LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
              WHERE p.category_id = :category_id AND p.is_active = 1 AND p.lang = :lang
-             ORDER BY p.sort_order ASC, p.name ASC",
+             ORDER BY p.name ASC",
             ['category_id' => $categoryId, 'lang' => $lang]
         )->fetchAll();
     }
