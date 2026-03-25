@@ -63,8 +63,13 @@ abstract class Controller
             }
         }
 
+        // Resolve layout: database site layout takes priority, then config, then 'gwin' default
+        $dbSiteForLayout = $this->getResolvedSite();
+        $layout = $dbSiteForLayout['layout'] ?? $this->site['layout'] ?? 'gwin';
+
         $data = array_merge($data, [
             'site' => $this->site,
+            'layout' => $layout,
             'lang' => $lang,
             'csrf_token' => Csrf::token(),
             'csrf_field' => Csrf::field(),
