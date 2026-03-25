@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="{{ lang|default('nl') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}{{ site.name }}{% endblock %}</title>
+    {% block meta %}{% endblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Playfair Display', 'Georgia', 'serif'],
+                    },
+                    colors: {
+                        'sk': {
+                            50: '#fdf8fb',
+                            100: '#f9eff6',
+                            200: '#f2dfec',
+                            300: '#eacbe1',
+                            400: '#dca8cf',
+                            500: '#c87eb4',
+                            600: '#ae5d97',
+                            700: '#8e4a7a',
+                            800: '#6e395e',
+                            900: '#4e2842',
+                        },
+                        'sk-warm': {
+                            50: '#F8F6F4',
+                            100: '#E7E3DD',
+                            200: '#d8c3a5',
+                            300: '#c9ad88',
+                            400: '#b89670',
+                            500: '#a07c55',
+                            600: '#876645',
+                            700: '#6d5138',
+                            800: '#5a432e',
+                            900: '#3d2e1f',
+                        },
+                        'sk-text': '#5C5C5C',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out',
+                        'slide-in': 'slideIn 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideIn: {
+                            '0%': { opacity: '0', transform: 'translateX(-20px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body class="bg-sk-warm-50 min-h-screen flex flex-col font-sans antialiased text-sk-text">
+    {% include 'layouts/sterrekindje/header.twig' %}
+
+    {% include 'components/flash-messages.twig' %}
+
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'layouts/sterrekindje/footer.twig' %}
+
+    <script src="/assets/js/app.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

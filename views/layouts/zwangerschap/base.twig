@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="{{ lang|default('nl') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}{{ site.name }}{% endblock %}</title>
+    {% block meta %}{% endblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Playfair Display', 'Georgia', 'serif'],
+                    },
+                    colors: {
+                        'zw': {
+                            50: '#fdf5f3',
+                            100: '#fae8e4',
+                            200: '#f2d0c8',
+                            300: '#E8CFCB',
+                            400: '#d4a49b',
+                            500: '#c07d72',
+                            600: '#a85f54',
+                            700: '#8c4e44',
+                            800: '#6e3e36',
+                            900: '#4e2c26',
+                        },
+                        'zw-accent': {
+                            50: '#fdf8f0',
+                            100: '#f9ecd6',
+                            200: '#efc98a',
+                            300: '#d69b4b',
+                            400: '#c08539',
+                            500: '#a56e2e',
+                            600: '#875724',
+                            700: '#6b441c',
+                            800: '#533616',
+                            900: '#3b2610',
+                        },
+                        'zw-green': {
+                            50: '#f4f7f4',
+                            100: '#e2eae3',
+                            200: '#c5d5c8',
+                            300: '#a3b8a6',
+                            400: '#839a87',
+                            500: '#6a806e',
+                            600: '#546658',
+                            700: '#435145',
+                            800: '#353f37',
+                            900: '#262d27',
+                        },
+                        'zw-logo': '#0099cc',
+                        'zw-text': '#4A4A4A',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out',
+                        'slide-in': 'slideIn 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideIn: {
+                            '0%': { opacity: '0', transform: 'translateX(-20px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body class="bg-[#FAFAF7] min-h-screen flex flex-col font-sans antialiased text-zw-text">
+    {% include 'layouts/zwangerschap/header.twig' %}
+
+    {% include 'components/flash-messages.twig' %}
+
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'layouts/zwangerschap/footer.twig' %}
+
+    <script src="/assets/js/app.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
