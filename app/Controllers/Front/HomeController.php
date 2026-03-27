@@ -17,6 +17,10 @@ class HomeController extends Controller
         $site = $siteModel->findBySlug($this->site['slug']);
         if (!$site) {
             $host = $_SERVER['HTTP_HOST'] ?? '';
+            $site = $siteModel->findByLinkedDomain($host);
+        }
+        if (!$site) {
+            $host = $_SERVER['HTTP_HOST'] ?? '';
             $site = $siteModel->findByDomain($host);
         }
         if (!$site) {

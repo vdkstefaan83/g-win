@@ -16,7 +16,7 @@
             <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Naam</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Domein</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Domeinen</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Layout</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th>
             </tr>
@@ -26,7 +26,20 @@
             <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ site_item.name }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ site_item.slug }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ site_item.domain }}</td>
+                <td class="px-6 py-4 text-gray-500">
+                    {% if site_item.domains|length > 0 %}
+                        <div class="flex flex-wrap gap-1">
+                            {% for d in site_item.domains %}
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs {{ d.is_primary ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700' }}">
+                                    {{ d.domain }}
+                                    <span class="text-[10px] uppercase font-semibold {{ d.default_lang == 'fr' ? 'text-orange-600' : 'text-gray-400' }}">{{ d.default_lang }}</span>
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <span class="text-gray-400 text-sm">{{ site_item.domain }}</span>
+                    {% endif %}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ site_item.layout }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
                     <a href="/admin/sites/{{ site_item.id }}/edit" class="text-blue-600 hover:text-blue-800 font-medium">Bewerken</a>

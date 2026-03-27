@@ -20,12 +20,12 @@ class App
 
     public function __construct()
     {
-        // Resolve current site
+        // Resolve current site (also detects domain default language)
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
         self::$site = SiteResolver::resolve($host);
 
-        // Resolve language from URL prefix (strips /fr/ from REQUEST_URI)
-        self::$lang = LangResolver::resolve();
+        // Resolve language from URL prefix, with domain default as fallback
+        self::$lang = LangResolver::resolve(SiteResolver::getDomainDefaultLang());
 
         // Load translations
         self::$translations = require dirname(__DIR__) . '/app/Config/lang.php';

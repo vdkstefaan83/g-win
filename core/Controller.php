@@ -26,6 +26,7 @@ abstract class Controller
         if (self::$resolvedSite === null) {
             $siteModel = new Site();
             self::$resolvedSite = $siteModel->findBySlug($this->site['slug'])
+                ?: $siteModel->findByLinkedDomain($_SERVER['HTTP_HOST'] ?? '')
                 ?: $siteModel->findByDomain($_SERVER['HTTP_HOST'] ?? '')
                 ?: $siteModel->findFirst()
                 ?: false;

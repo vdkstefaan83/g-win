@@ -11,13 +11,16 @@ class LangResolver
      * Detect language from URL prefix and strip it from REQUEST_URI.
      * /fr/about -> lang=fr, REQUEST_URI=/about
      * /about -> lang=nl, REQUEST_URI=/about (unchanged)
+     *
+     * If $domainDefaultLang is set, use it as the default instead of 'nl'
+     * when no language prefix is present in the URL.
      */
-    public static function resolve(): string
+    public static function resolve(?string $domainDefaultLang = null): string
     {
         $uri = $_SERVER['REQUEST_URI'] ?? '/';
         $path = parse_url($uri, PHP_URL_PATH) ?? '/';
 
-        // Check for language prefix (e.g. /fr/ or /fr)
+        // Check for explicit language prefix in URL (e.g. /fr/ or /fr)
         if (preg_match('#^/(fr)(/.*)?$#', $path, $matches)) {
             self::$lang = $matches[1];
             $newPath = $matches[2] ?? '/';
@@ -26,6 +29,9 @@ class LangResolver
             // Rewrite REQUEST_URI so the router sees the clean path
             $query = parse_url($uri, PHP_URL_QUERY);
             $_SERVER['REQUEST_URI'] = $newPath . ($query ? '?' . $query : '');
+        } elseif ($domainDefaultLang && in_array($domainDefaultLang, self::$supportedLangs, true)) {
+            // No language prefix in URL: use domain's default language
+            self::$lang = $domainDefaultLang;
         }
 
         return self::$lang;

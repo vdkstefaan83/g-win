@@ -2,9 +2,36 @@
 
 namespace Core\Helpers;
 
+use App\Models\Site;
+
 class SiteResolver
 {
+    private static ?string $domainDefaultLang = null;
+
     public static function resolve(string $host): array
+    {
+        // Try database lookup via site_domains table
+        try {
+            $siteModel = new Site();
+            $site = $siteModel->findByLinkedDomain($host);
+
+            if ($site) {
+                self::$domainDefaultLang = $site['domain_default_lang'] ?? 'nl';
+                return [
+                    'slug' => $site['slug'],
+                    'name' => $site['name'],
+                    'layout' => $site['layout'],
+                ];
+            }
+        } catch (\Throwable $e) {
+            // DB not available yet (e.g. during migration), fall through to config
+        }
+
+        // Fallback to static config file
+        return self::resolveFromConfig($host);
+    }
+
+    private static function resolveFromConfig(string $host): array
     {
         $sites = require dirname(__DIR__, 2) . '/app/Config/sites.php';
 
@@ -35,5 +62,13 @@ class SiteResolver
 
         // Last resort
         return reset($sites) ?: ['slug' => 'gwin', 'name' => 'G-Win', 'layout' => 'gwin'];
+    }
+
+    /**
+     * Get the default language for the resolved domain, or null if not set via DB.
+     */
+    public static function getDomainDefaultLang(): ?string
+    {
+        return self::$domainDefaultLang;
     }
 }

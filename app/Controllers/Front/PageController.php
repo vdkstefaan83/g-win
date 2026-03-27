@@ -16,6 +16,9 @@ class PageController extends Controller
         $siteModel = new Site();
         $site = $siteModel->findBySlug($this->site['slug']);
         if (!$site) {
+            $site = $siteModel->findByLinkedDomain($_SERVER['HTTP_HOST'] ?? '');
+        }
+        if (!$site) {
             $site = $siteModel->findByDomain($_SERVER['HTTP_HOST'] ?? '');
         }
         if (!$site) {
