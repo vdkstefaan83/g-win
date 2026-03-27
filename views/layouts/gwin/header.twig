@@ -5,9 +5,13 @@
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-20">
             <a href="{{ lang_url('/') }}" class="group flex items-center space-x-3">
-                <span class="text-2xl font-display font-bold text-krijgers-gold-400 group-hover:text-krijgers-gold-300 transition-colors">
-                    {{ site.name }}
-                </span>
+                {% if site_logo() %}
+                    <img src="{{ site_logo() }}" alt="{{ site.name }}" class="h-12 w-auto">
+                {% else %}
+                    <span class="text-2xl font-display font-bold text-krijgers-gold-400 group-hover:text-krijgers-gold-300 transition-colors">
+                        {{ site.name }}
+                    </span>
+                {% endif %}
             </a>
 
             <!-- Desktop menu -->

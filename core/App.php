@@ -60,6 +60,27 @@ class App
             return self::langUrl($path);
         }));
 
+        // Site logo function: {{ site_logo('liggend') }} or {{ site_logo() }}
+        $publicDir = dirname(__DIR__) . '/public';
+        self::$twig->addFunction(new TwigFunction('site_logo', function (string $variant = '') use ($publicDir) {
+            $layout = self::$site['layout'] ?? 'gwin';
+            $lang = self::$lang;
+            $suffix = $variant ? '_' . $variant : '';
+            $filename = $layout . '_' . $lang . '_logo' . $suffix . '.png';
+            $path = '/assets/images/' . $filename;
+
+            if (file_exists($publicDir . $path)) {
+                return $path;
+            }
+            // Fallback: try without language
+            $filenameFallback = $layout . '_logo' . $suffix . '.png';
+            $pathFallback = '/assets/images/' . $filenameFallback;
+            if (file_exists($publicDir . $pathFallback)) {
+                return $pathFallback;
+            }
+            return null;
+        }));
+
         if (($_ENV['APP_DEBUG'] ?? 'false') === 'true') {
             self::$twig->addExtension(new \Twig\Extension\DebugExtension());
         }

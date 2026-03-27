@@ -6,7 +6,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             <!-- Brand -->
             <div class="lg:col-span-1">
-                <h3 class="text-2xl font-display font-bold text-zw-logo mb-4">{{ site.name }}</h3>
+                {% if site_logo() %}
+                    <img src="{{ site_logo() }}" alt="{{ site.name }}" class="h-10 w-auto mb-4">
+                {% else %}
+                    <h3 class="text-2xl font-display font-bold text-zw-logo mb-4">{{ site.name }}</h3>
+                {% endif %}
                 <p class="text-zw-green-100 text-sm leading-relaxed mb-6">{{ site_description|default('') }}</p>
                 <div class="flex space-x-3">
                     <a href="#" target="_blank" class="w-10 h-10 bg-white/10 hover:bg-zw-accent-300 rounded-lg flex items-center justify-center transition-colors">
