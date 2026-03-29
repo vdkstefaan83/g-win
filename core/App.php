@@ -66,17 +66,28 @@ class App
             $layout = self::$site['layout'] ?? 'gwin';
             $lang = self::$lang;
             $suffix = $variant ? '_' . $variant : '';
-            $filename = $layout . '_' . $lang . '_logo' . $suffix . '.png';
-            $path = '/assets/images/' . $filename;
+            $extensions = ['svg', 'png'];
 
-            if (file_exists($publicDir . $path)) {
-                return $path;
+            // Try: {layout}_{lang}{_variant}.{ext}
+            foreach ($extensions as $ext) {
+                $path = '/assets/images/' . $layout . '_' . $lang . $suffix . '.' . $ext;
+                if (file_exists($publicDir . $path)) {
+                    return $path;
+                }
             }
-            // Fallback: try without language
-            $filenameFallback = $layout . '_logo' . $suffix . '.png';
-            $pathFallback = '/assets/images/' . $filenameFallback;
-            if (file_exists($publicDir . $pathFallback)) {
-                return $pathFallback;
+            // Fallback: {layout}_{lang}_logo{_variant}.{ext}
+            foreach ($extensions as $ext) {
+                $path = '/assets/images/' . $layout . '_' . $lang . '_logo' . $suffix . '.' . $ext;
+                if (file_exists($publicDir . $path)) {
+                    return $path;
+                }
+            }
+            // Fallback: without language
+            foreach ($extensions as $ext) {
+                $path = '/assets/images/' . $layout . $suffix . '.' . $ext;
+                if (file_exists($publicDir . $path)) {
+                    return $path;
+                }
             }
             return null;
         }));
