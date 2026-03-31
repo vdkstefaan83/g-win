@@ -6,7 +6,7 @@
         <div class="flex justify-between items-center h-20">
             <a href="{{ lang_url('/') }}" class="group flex items-center space-x-3">
                 {% if site_logo('liggend') or site_logo() %}
-                    <img src="{{ site_logo('liggend') ?: site_logo() }}" alt="{{ site.name }}" class="h-12 w-auto bg-transparent">
+                    <img src="{{ site_logo('liggend') ?: site_logo() }}" alt="{{ site.name }}" class="h-16 w-auto bg-transparent">
                 {% else %}
                     <span class="text-2xl font-display font-bold text-zw-logo group-hover:text-zw-accent-300 transition-colors">
                         {{ site.name }}
