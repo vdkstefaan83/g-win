@@ -66,7 +66,7 @@ class App
             $layout = self::$site['layout'] ?? 'gwin';
             $lang = self::$lang;
             $suffix = $variant ? '_' . $variant : '';
-            $extensions = ['svg', 'png'];
+            $extensions = ['png', 'svg'];
 
             // Try: {layout}_{lang}{_variant}.{ext}
             foreach ($extensions as $ext) {
