@@ -71,8 +71,8 @@ main {
     border-radius: 0.5rem;
 }
 
-/* Image loading placeholder */
-img {
+/* Image loading placeholder (not for logos/transparent images) */
+img:not([src$=".svg"]):not([src$=".png"]) {
     background-color: #f3ede5;
 }
 
