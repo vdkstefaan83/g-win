@@ -71,10 +71,6 @@ main {
     border-radius: 0.5rem;
 }
 
-/* Image loading placeholder (not for logos/transparent images) */
-img:not([src$=".svg"]):not([src$=".png"]) {
-    background-color: #f3ede5;
-}
 
 /* Number input arrows hidden */
 input[type="number"]::-webkit-inner-spin-button,
