@@ -51,7 +51,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-gray-500 text-xs">{{ block.site_names ?? '-' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     {% if block.image %}
-                        <img src="{{ block.image }}" alt="" class="h-10 w-16 object-cover rounded">
+                        <img src="{{ block.image starts with 'http' ? block.image : '/uploads/' ~ block.image }}" alt="" class="h-10 w-16 object-cover rounded">
                     {% else %}
                         <span class="text-gray-400 text-sm">-</span>
                     {% endif %}
