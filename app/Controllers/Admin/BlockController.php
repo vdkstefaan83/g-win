@@ -76,15 +76,16 @@ class BlockController extends Controller
             ]);
         }
 
-        // Support image URL or file upload
-        $imageUrl = $this->input('image_url', '');
-        if (!empty($imageUrl)) {
-            $data['image'] = $imageUrl;
-        } elseif (!empty($_FILES['image']['name'])) {
+        // Support image URL or file upload — upload takes priority
+        if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $filename = FileUpload::uploadImage($_FILES['image'], 'pages');
             if ($filename) {
                 $data['image'] = 'pages/' . $filename;
+            } else {
+                Session::flash('error', 'Afbeelding uploaden mislukt. Controleer bestandstype (jpg/png/gif/webp) en grootte (max 5MB).');
             }
+        } elseif (!empty($this->input('image_url', ''))) {
+            $data['image'] = $this->input('image_url', '');
         }
 
         $blockId = $this->blockModel->create($data);
@@ -160,19 +161,20 @@ class BlockController extends Controller
             ]);
         }
 
-        // Handle image (shared)
-        $imageUrl = $this->input('image_url', '');
-        if (!empty($imageUrl)) {
-            $shared['image'] = $imageUrl;
-        } elseif (!empty($_FILES['image']['name'])) {
-            $block = $this->blockModel->findById($id);
-            if ($block && $block['image'] && !str_starts_with($block['image'], 'http')) {
-                FileUpload::delete($block['image']);
+        // Handle image (shared) — file upload takes priority over URL
+        if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $existingBlock = $this->blockModel->findById($id);
+            if ($existingBlock && $existingBlock['image'] && !str_starts_with($existingBlock['image'], 'http')) {
+                FileUpload::delete($existingBlock['image']);
             }
             $filename = FileUpload::uploadImage($_FILES['image'], 'pages');
             if ($filename) {
                 $shared['image'] = 'pages/' . $filename;
+            } else {
+                Session::flash('error', 'Afbeelding uploaden mislukt. Controleer bestandstype (jpg/png/gif/webp) en grootte (max 5MB).');
             }
+        } elseif (!empty($this->input('image_url', ''))) {
+            $shared['image'] = $this->input('image_url', '');
         }
 
         // Determine NL/FR records
