@@ -72,21 +72,21 @@ class App
             foreach ($extensions as $ext) {
                 $path = '/assets/images/' . $layout . '_' . $lang . $suffix . '.' . $ext;
                 if (file_exists($publicDir . $path)) {
-                    return $path;
+                    return $path . '?v=' . filemtime($publicDir . $path);
                 }
             }
             // Fallback: {layout}_{lang}_logo{_variant}.{ext}
             foreach ($extensions as $ext) {
                 $path = '/assets/images/' . $layout . '_' . $lang . '_logo' . $suffix . '.' . $ext;
                 if (file_exists($publicDir . $path)) {
-                    return $path;
+                    return $path . '?v=' . filemtime($publicDir . $path);
                 }
             }
             // Fallback: without language
             foreach ($extensions as $ext) {
                 $path = '/assets/images/' . $layout . $suffix . '.' . $ext;
                 if (file_exists($publicDir . $path)) {
-                    return $path;
+                    return $path . '?v=' . filemtime($publicDir . $path);
                 }
             }
             return null;
