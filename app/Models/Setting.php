@@ -44,7 +44,7 @@ class Setting extends Model
 
     private static array $settingMeta = [
         'site_description' => ['label' => 'Site beschrijving', 'group' => 'Site', 'description' => 'Korte beschrijving voor in de footer.'],
-        'contact_address' => ['label' => 'Adres', 'group' => 'Contact', 'description' => 'Adres in de footer (bijv. Straat 1, 8000 Stad).'],
+        'contact_address' => ['label' => 'Adres', 'group' => 'Contact', 'type' => 'textarea', 'description' => 'Adres in de footer. Gebruik een nieuwe lijn voor postcode/stad.'],
         'contact_phone' => ['label' => 'Telefoon', 'group' => 'Contact', 'description' => 'Telefoonnummer in de footer.'],
         'contact_email' => ['label' => 'E-mail', 'group' => 'Contact', 'description' => 'E-mailadres in de footer.'],
         'appointment_max_months' => ['label' => 'Max maanden vooruit boeken', 'group' => 'Afspraken', 'description' => 'Hoeveel maanden op voorhand klanten een afspraak kunnen boeken (standaard 24).'],
