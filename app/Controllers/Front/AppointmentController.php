@@ -27,6 +27,12 @@ class AppointmentController extends Controller
 
         $settingModel = new Setting();
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
+        $blockedDates = array_map(function ($entry) {
+            if (is_string($entry)) {
+                return ['date' => $entry, 'period' => 'hele_dag', 'reason' => ''];
+            }
+            return $entry;
+        }, $blockedDates);
         $maxBookingMonths = (int) $settingModel->get('appointment_max_months', null, '24');
 
         $this->render('front/appointments/index.twig', [

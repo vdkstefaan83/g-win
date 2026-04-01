@@ -209,6 +209,7 @@
 {% block scripts %}
 <script>
 const blockedDates = {{ blocked_dates is defined ? blocked_dates|json_encode|raw : '[]' }};
+console.log('Blocked dates:', JSON.stringify(blockedDates));
 const maxMonths = {{ max_booking_months ?? 24 }};
 const currentLang = '{{ lang }}';
 
