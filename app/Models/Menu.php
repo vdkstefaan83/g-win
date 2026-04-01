@@ -12,8 +12,8 @@ class Menu extends Model
     {
         return $this->query(
             "SELECT m.*,
-                    GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS site_names,
-                    COUNT(mi.id) AS item_count,
+                    GROUP_CONCAT(DISTINCT s.name ORDER BY s.name SEPARATOR ', ') AS site_names,
+                    COUNT(DISTINCT mi.id) AS item_count,
                     EXISTS(SELECT 1 FROM menus m2
                            INNER JOIN menu_sites ms2 ON ms2.menu_id = m2.id
                            WHERE m2.lang = 'fr' AND m2.location = m.location AND ms2.site_id = :site_id
@@ -34,8 +34,8 @@ class Menu extends Model
     {
         return $this->query(
             "SELECT m.*,
-                    GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS site_names,
-                    COUNT(mi.id) AS item_count,
+                    GROUP_CONCAT(DISTINCT s.name ORDER BY s.name SEPARATOR ', ') AS site_names,
+                    COUNT(DISTINCT mi.id) AS item_count,
                     EXISTS(SELECT 1 FROM menus m2
                            INNER JOIN menu_sites ms2 ON ms2.menu_id = m2.id
                            WHERE m2.lang = 'fr' AND m2.location = m.location
