@@ -56,8 +56,13 @@
             <form action="/admin/appointments/block-date" method="POST" class="flex items-end gap-3 flex-wrap">
                 {{ csrf_field|raw }}
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Datum</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Van datum</label>
                     <input type="date" name="blocked_date" required
+                           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tot datum (optioneel)</label>
+                    <input type="date" name="blocked_date_end"
                            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>

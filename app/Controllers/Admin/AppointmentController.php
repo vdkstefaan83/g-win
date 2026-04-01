@@ -130,15 +130,25 @@ class AppointmentController extends Controller
 
     public function blockDate(): void
     {
-        $date = $this->input('blocked_date');
-        if (!$date) {
+        $dateStart = $this->input('blocked_date');
+        if (!$dateStart) {
             Session::flash('error', 'Selecteer een datum.');
             $this->redirect('/admin/appointments');
             return;
         }
 
+        $dateEnd = $this->input('blocked_date_end') ?: $dateStart;
         $period = $this->input('period', 'hele_dag');
         $reason = $this->input('reason', '');
+
+        // Build list of dates to block
+        $datesToBlock = [];
+        $current = new \DateTime($dateStart);
+        $end = new \DateTime($dateEnd);
+        while ($current <= $end) {
+            $datesToBlock[] = $current->format('Y-m-d');
+            $current->modify('+1 day');
+        }
 
         $settingModel = new Setting();
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
@@ -151,22 +161,32 @@ class AppointmentController extends Controller
             return $entry;
         }, $blockedDates);
 
-        // Check if already blocked with same period
-        $exists = false;
-        foreach ($blockedDates as $bd) {
-            if ($bd['date'] === $date && $bd['period'] === $period) {
-                $exists = true;
-                break;
+        $added = 0;
+        foreach ($datesToBlock as $date) {
+            // Check if already blocked with same period
+            $exists = false;
+            foreach ($blockedDates as $bd) {
+                if ($bd['date'] === $date && $bd['period'] === $period) {
+                    $exists = true;
+                    break;
+                }
+            }
+            if (!$exists) {
+                $blockedDates[] = ['date' => $date, 'period' => $period, 'reason' => $reason];
+                $added++;
             }
         }
 
-        if (!$exists) {
-            $blockedDates[] = ['date' => $date, 'period' => $period, 'reason' => $reason];
-            $settingModel->set('blocked_dates', json_encode($blockedDates));
-        }
+        // Sort by date
+        usort($blockedDates, fn($a, $b) => strcmp($a['date'], $b['date']));
+        $settingModel->set('blocked_dates', json_encode($blockedDates));
 
         $periodLabels = ['hele_dag' => 'hele dag', 'voormiddag' => 'voormiddag', 'namiddag' => 'namiddag'];
-        Session::flash('success', "Datum {$date} ({$periodLabels[$period]}) is geblokkeerd.");
+        if ($dateStart === $dateEnd) {
+            Session::flash('success', "Datum {$dateStart} ({$periodLabels[$period]}) is geblokkeerd.");
+        } else {
+            Session::flash('success', "{$added} dagen geblokkeerd van {$dateStart} tot {$dateEnd} ({$periodLabels[$period]}).");
+        }
         $this->redirect('/admin/appointments');
     }
 
