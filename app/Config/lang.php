@@ -85,6 +85,8 @@ return [
         'featured_products' => 'Uitgelichte producten',
         'view_all_products' => 'Bekijk alle producten',
         'contact_us' => 'Neem contact op',
+        'interested' => 'Geïnteresseerd?',
+        'appointment_cta_text' => 'Neem contact op of maak een afspraak voor een persoonlijke sessie.',
         // Appointments
         'apt_title' => 'Maak een afspraak',
         'apt_subtitle' => 'Plan uw persoonlijke 3D-scan sessie in ons atelier.',
@@ -219,6 +221,8 @@ return [
         'featured_products' => 'Produits en vedette',
         'view_all_products' => 'Voir tous les produits',
         'contact_us' => 'Contactez-nous',
+        'interested' => 'Intéressé(e) ?',
+        'appointment_cta_text' => 'Contactez-nous ou prenez rendez-vous pour une séance personnelle.',
         // Appointments
         'apt_title' => 'Prendre rendez-vous',
         'apt_subtitle' => 'Planifiez votre séance de scan 3D personnelle dans notre atelier.',
