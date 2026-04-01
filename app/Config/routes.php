@@ -225,6 +225,12 @@ $router->get('/admin/pages/create', function () {
 $router->post('/admin/pages/store', function () {
     (new AdminPageController())->store();
 });
+$router->post('/admin/pages/images/delete', function () {
+    (new AdminPageController())->deleteImage();
+});
+$router->post('/admin/pages/images/reorder', function () {
+    (new AdminPageController())->reorderImages();
+});
 $router->get('/admin/pages/{id}/edit', function ($id) {
     (new AdminPageController())->edit((int)$id);
 });
@@ -233,12 +239,6 @@ $router->post('/admin/pages/{id}/update', function ($id) {
 });
 $router->post('/admin/pages/{id}/delete', function ($id) {
     (new AdminPageController())->destroy((int)$id);
-});
-$router->post('/admin/pages/images/delete', function () {
-    (new AdminPageController())->deleteImage();
-});
-$router->post('/admin/pages/images/reorder', function () {
-    (new AdminPageController())->reorderImages();
 });
 
 // Menus
