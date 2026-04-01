@@ -70,7 +70,7 @@ class Page extends Model
             $sql .= " AND lang = :lang";
             $params['lang'] = $lang;
         }
-        $sql .= " ORDER BY sort_order ASC";
+        $sql .= " ORDER BY sort_order DESC";
         return $this->query($sql, $params)->fetchAll();
     }
 
