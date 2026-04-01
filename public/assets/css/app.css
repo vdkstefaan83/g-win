@@ -63,8 +63,8 @@ html {
 .prose h2 {
     font-size: 1.75rem;
     font-weight: 700;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
     padding-bottom: 0.5rem;
     border-bottom: 2px solid rgba(212, 168, 51, 0.2);
 }
@@ -72,8 +72,8 @@ html {
 .prose h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    margin-top: 1rem;
-    margin-bottom: 0.25rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.125rem;
 }
 
 /* CTA links styled as buttons (links to /afspraken or /rendez-vous) */
