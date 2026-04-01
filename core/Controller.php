@@ -38,8 +38,8 @@ abstract class Controller
     {
         $lang = App::getLang();
 
-        // Auto-inject menus for front-end templates only (skip for admin)
-        if (!str_starts_with($template, 'admin/') && (!isset($data['header_menu']) || !isset($data['footer_menu']))) {
+        // Auto-inject menus and contact info for front-end templates only (skip for admin)
+        if (!str_starts_with($template, 'admin/')) {
             $dbSite = $this->getResolvedSite();
             if ($dbSite) {
                 $menuModel = new Menu();
@@ -49,6 +49,18 @@ abstract class Controller
                 if (!isset($data['footer_menu'])) {
                     $data['footer_menu'] = $menuModel->getByLocationAndSite('footer', $dbSite['id'], $lang);
                 }
+                if (!isset($data['services_menu'])) {
+                    $data['services_menu'] = $menuModel->getByLocationAndSite('services', $dbSite['id'], $lang);
+                }
+            }
+
+            // Auto-inject contact info from settings
+            if (!isset($data['contact_address'])) {
+                $settingModel = new \App\Models\Setting();
+                $data['contact_address'] = $settingModel->get('contact_address', $dbSite['id'] ?? null, '');
+                $data['contact_phone'] = $settingModel->get('contact_phone', $dbSite['id'] ?? null, '');
+                $data['contact_email'] = $settingModel->get('contact_email', $dbSite['id'] ?? null, '');
+                $data['site_description'] = $settingModel->get('site_description', $dbSite['id'] ?? null, '');
             }
         }
 

@@ -43,7 +43,11 @@ class Setting extends Model
     }
 
     private static array $settingMeta = [
-'appointment_max_months' => ['label' => 'Max maanden vooruit boeken', 'group' => 'Afspraken', 'description' => 'Hoeveel maanden op voorhand klanten een afspraak kunnen boeken (standaard 24).'],
+        'site_description' => ['label' => 'Site beschrijving', 'group' => 'Site', 'description' => 'Korte beschrijving voor in de footer.'],
+        'contact_address' => ['label' => 'Adres', 'group' => 'Contact', 'description' => 'Adres in de footer (bijv. Straat 1, 8000 Stad).'],
+        'contact_phone' => ['label' => 'Telefoon', 'group' => 'Contact', 'description' => 'Telefoonnummer in de footer.'],
+        'contact_email' => ['label' => 'E-mail', 'group' => 'Contact', 'description' => 'E-mailadres in de footer.'],
+        'appointment_max_months' => ['label' => 'Max maanden vooruit boeken', 'group' => 'Afspraken', 'description' => 'Hoeveel maanden op voorhand klanten een afspraak kunnen boeken (standaard 24).'],
         'appointment_deposit_amount' => ['label' => 'Voorschotbedrag (€)', 'group' => 'Afspraken - Betaling', 'description' => 'Bedrag dat de klant moet betalen als voorschot (bijv. 50.00).'],
         'appointment_payment_deadline_days' => ['label' => 'Betaaltermijn (werkdagen)', 'group' => 'Afspraken - Betaling', 'description' => 'Aantal werkdagen waarbinnen de klant moet betalen na boeking (standaard 3).'],
         'appointment_reminder_extra_days' => ['label' => 'Extra dagen na herinnering', 'group' => 'Afspraken - Betaling', 'description' => 'Aantal dagen na de herinneringsmail voordat de afspraak wordt geannuleerd (standaard 2).'],
@@ -93,7 +97,7 @@ class Setting extends Model
 
         // Sort by group then label
         usort($rows, function($a, $b) {
-            $groupOrder = ['Afspraken' => 1, 'Afspraken - Betaling' => 2, 'Overig' => 9];
+            $groupOrder = ['Site' => 0, 'Contact' => 1, 'Afspraken' => 2, 'Afspraken - Betaling' => 3, 'Overig' => 9];
             $ga = $groupOrder[$a['group']] ?? 9;
             $gb = $groupOrder[$b['group']] ?? 9;
             return $ga === $gb ? strcmp($a['label'], $b['label']) : $ga - $gb;
