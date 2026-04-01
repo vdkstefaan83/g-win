@@ -48,9 +48,32 @@ class PageController extends Controller
         $catModel = new PageCategory();
         $category = $catModel->findBySlugAndSite($slug, $site['id'], $lang);
 
+        // If not found, try the other language and redirect to the translated slug
+        if (!$category) {
+            $otherLang = $lang === 'nl' ? 'fr' : 'nl';
+            $otherCategory = $catModel->findBySlugAndSite($slug, $site['id'], $otherLang);
+            if ($otherCategory) {
+                $translated = $catModel->findLinkedTranslation($otherCategory['id']);
+                if ($translated && $translated['lang'] === $lang) {
+                    $prefix = $lang === 'nl' ? '' : '/fr';
+                    $this->redirect($prefix . '/' . $translated['slug']);
+                    return;
+                }
+            }
+        }
+
         if ($category) {
             $pageModel = new Page();
-            $pages = $pageModel->getByCategory($category['id']);
+            $pages = $pageModel->getByCategory($category['id'], $lang);
+
+            // Build alternate URL for language switcher
+            $alternateLang = $lang === 'nl' ? 'fr' : 'nl';
+            $alternateCatUrl = null;
+            $linkedCat = $catModel->findLinkedTranslation($category['id']);
+            if ($linkedCat) {
+                $prefix = $alternateLang === 'nl' ? '' : '/fr';
+                $alternateCatUrl = $prefix . '/' . $linkedCat['slug'];
+            }
 
             // If only 1 page in category, show it directly
             if (count($pages) === 1) {
@@ -64,8 +87,8 @@ class PageController extends Controller
                     'page' => $page,
                     'category' => $category,
                     'layout' => $this->site['layout'] ?? 'gwin',
-                    'alternate_url' => $alternateUrl,
-                    'alternate_lang' => $lang === 'nl' ? 'fr' : 'nl',
+                    'alternate_url' => $alternateUrl ?? $alternateCatUrl,
+                    'alternate_lang' => $alternateLang,
                 ]);
                 return;
             }
@@ -75,6 +98,8 @@ class PageController extends Controller
                 'category' => $category,
                 'pages' => $pages,
                 'layout' => $this->site['layout'] ?? 'gwin',
+                'alternate_url' => $alternateCatUrl,
+                'alternate_lang' => $alternateLang,
             ]);
             return;
         }

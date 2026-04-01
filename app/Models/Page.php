@@ -62,12 +62,16 @@ class Page extends Model
         )->fetchAll();
     }
 
-    public function getByCategory(int $categoryId): array
+    public function getByCategory(int $categoryId, ?string $lang = null): array
     {
-        return $this->query(
-            "SELECT * FROM pages WHERE page_category_id = :cat_id AND is_published = 1 ORDER BY sort_order ASC",
-            ['cat_id' => $categoryId]
-        )->fetchAll();
+        $sql = "SELECT * FROM pages WHERE page_category_id = :cat_id AND is_published = 1";
+        $params = ['cat_id' => $categoryId];
+        if ($lang) {
+            $sql .= " AND lang = :lang";
+            $params['lang'] = $lang;
+        }
+        $sql .= " ORDER BY sort_order ASC";
+        return $this->query($sql, $params)->fetchAll();
     }
 
     public function findBySlugAndCategory(string $slug, int $categoryId): array|false
