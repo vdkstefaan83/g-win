@@ -241,26 +241,30 @@
         return {
             deleteImage(id) {
                 if (!confirm('Foto verwijderen?')) return;
-                fetch('/admin/pages/images/delete', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': '{{ csrf_token }}'
-                    },
-                    body: 'image_id=' + id + '&_csrf_token={{ csrf_token }}'
-                }).then(r => {
-                    if (!r.ok) {
-                        return r.text().then(t => { throw new Error('Server: ' + r.status + ' - ' + t); });
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/admin/pages/images/delete', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token }}');
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        try {
+                            var d = JSON.parse(xhr.responseText);
+                            if (d.success) {
+                                var el = document.querySelector('[data-id="' + id + '"]');
+                                if (el) el.remove();
+                            }
+                        } catch(e) {
+                            alert('Ongeldige response: ' + xhr.responseText.substring(0, 200));
+                        }
+                    } else {
+                        alert('Fout: ' + xhr.status + ' - ' + xhr.responseText.substring(0, 200));
                     }
-                    return r.json();
-                }).then(d => {
-                    if (d.success) {
-                        document.querySelector('[data-id="' + id + '"]').remove();
-                    }
-                }).catch(e => {
-                    alert('Fout bij verwijderen: ' + e.message);
-                });
+                };
+                xhr.onerror = function() {
+                    alert('Netwerkfout bij verwijderen.');
+                };
+                xhr.send('image_id=' + id + '&_csrf_token={{ csrf_token }}');
             }
         };
     }
