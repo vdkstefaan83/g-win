@@ -177,7 +177,7 @@
 
     function imageManager(initialImages) {
         return {
-            images: initialImages.map((img, i) => ({ ...img, sort_order: i, deleted: false })),
+            images: initialImages.map((img, i) => ({ ...img, path: '/uploads/products/' + img.filename, sort_order: i, deleted: false })),
             moveLeft(index) { if (index > 0) { [this.images[index], this.images[index-1]] = [this.images[index-1], this.images[index]]; this.updateOrder(); } },
             moveRight(index) { if (index < this.images.length-1) { [this.images[index], this.images[index+1]] = [this.images[index+1], this.images[index]]; this.updateOrder(); } },
             toggleDelete(index) { this.images[index].deleted = !this.images[index].deleted; },

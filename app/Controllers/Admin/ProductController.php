@@ -162,6 +162,28 @@ class ProductController extends Controller
             }
         }
 
+        // Handle image order and deletions
+        $imageOrder = $this->input('image_order');
+        if ($imageOrder) {
+            $imageData = json_decode($imageOrder, true);
+            if (is_array($imageData)) {
+                foreach ($imageData as $index => $img) {
+                    if (!empty($img['deleted']) && !empty($img['id'])) {
+                        $existingImg = $this->imageModel->findById((int)$img['id']);
+                        if ($existingImg) {
+                            FileUpload::delete('products/' . $existingImg['filename']);
+                            $this->imageModel->delete((int)$img['id']);
+                        }
+                    } elseif (!empty($img['id'])) {
+                        $this->imageModel->update((int)$img['id'], [
+                            'sort_order' => $index,
+                            'is_primary' => $index === 0 ? 1 : 0,
+                        ]);
+                    }
+                }
+            }
+        }
+
         // Handle new image uploads (on the record being edited)
         if (!empty($_FILES['images']['name'][0])) {
             $this->handleImageUploads($id);
