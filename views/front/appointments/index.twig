@@ -265,7 +265,11 @@ function appointmentForm() {
                 const isTarget = dt.getDay() === targetDay;
                 const isFuture = dt >= tomorrow;
                 const isInRange = dt <= maxDate;
-                const isBlocked = blockedDates.includes(iso);
+                const isBlocked = blockedDates.some(function(bd) {
+                    const bdDate = typeof bd === 'string' ? bd : bd.date;
+                    const bdPeriod = typeof bd === 'string' ? 'hele_dag' : (bd.period || 'hele_dag');
+                    return bdDate === iso && bdPeriod === 'hele_dag';
+                });
                 cells.push({ key: iso, day: d, date: iso, selectable: isTarget && isFuture && isInRange && !isBlocked });
             }
             return cells;

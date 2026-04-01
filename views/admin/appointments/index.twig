@@ -53,12 +53,20 @@
         </div>
 
         <div x-show="showBlockForm" x-cloak class="mb-4 p-3 bg-gray-50 rounded-lg">
-            <form action="/admin/appointments/block-date" method="POST" class="flex items-end gap-3">
+            <form action="/admin/appointments/block-date" method="POST" class="flex items-end gap-3 flex-wrap">
                 {{ csrf_field|raw }}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Datum</label>
                     <input type="date" name="blocked_date" required
                            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Periode</label>
+                    <select name="period" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="hele_dag">Hele dag</option>
+                        <option value="voormiddag">Voormiddag</option>
+                        <option value="namiddag">Namiddag</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Reden</label>
@@ -75,12 +83,16 @@
         <div class="flex flex-wrap gap-2">
             {% for bd in blocked_dates %}
             <div class="inline-flex items-center gap-1 px-3 py-1 bg-red-50 border border-red-200 rounded-full text-sm text-red-800">
-                <span>{{ bd.blocked_date|date('d/m/Y') }}</span>
+                <span>{{ bd.date }}</span>
+                {% if bd.period != 'hele_dag' %}
+                    <span class="text-red-600 font-medium">({{ bd.period }})</span>
+                {% endif %}
                 {% if bd.reason %}
                     <span class="text-red-500">- {{ bd.reason }}</span>
                 {% endif %}
-                <form action="/admin/appointments/unblock-date/{{ bd.id }}" method="POST" class="inline">
+                <form action="/admin/appointments/unblock-date" method="POST" class="inline">
                     {{ csrf_field|raw }}
+                    <input type="hidden" name="index" value="{{ loop.index0 }}">
                     <button type="submit" class="ml-1 text-red-600 hover:text-red-800 font-bold">&times;</button>
                 </form>
             </div>

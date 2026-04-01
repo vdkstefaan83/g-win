@@ -24,6 +24,14 @@ class AppointmentController extends Controller
         $settingModel = new Setting();
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
 
+        // Migrate old format (plain strings) to new format (objects)
+        $blockedDates = array_map(function ($entry) {
+            if (is_string($entry)) {
+                return ['date' => $entry, 'period' => 'hele_dag', 'reason' => ''];
+            }
+            return $entry;
+        }, $blockedDates);
+
         $this->render('admin/appointments/index.twig', [
             'appointments' => $this->appointmentModel->getAllWithCustomers(),
             'blocked_dates' => $blockedDates,
@@ -122,33 +130,58 @@ class AppointmentController extends Controller
 
     public function blockDate(): void
     {
-        $date = $this->input('date');
+        $date = $this->input('blocked_date');
         if (!$date) {
             Session::flash('error', 'Selecteer een datum.');
             $this->redirect('/admin/appointments');
+            return;
         }
+
+        $period = $this->input('period', 'hele_dag');
+        $reason = $this->input('reason', '');
 
         $settingModel = new Setting();
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
 
-        if (!in_array($date, $blockedDates)) {
-            $blockedDates[] = $date;
+        // Migrate old format (plain strings) to new format (objects)
+        $blockedDates = array_map(function ($entry) {
+            if (is_string($entry)) {
+                return ['date' => $entry, 'period' => 'hele_dag', 'reason' => ''];
+            }
+            return $entry;
+        }, $blockedDates);
+
+        // Check if already blocked with same period
+        $exists = false;
+        foreach ($blockedDates as $bd) {
+            if ($bd['date'] === $date && $bd['period'] === $period) {
+                $exists = true;
+                break;
+            }
+        }
+
+        if (!$exists) {
+            $blockedDates[] = ['date' => $date, 'period' => $period, 'reason' => $reason];
             $settingModel->set('blocked_dates', json_encode($blockedDates));
         }
 
-        Session::flash('success', "Datum {$date} is geblokkeerd.");
+        $periodLabels = ['hele_dag' => 'hele dag', 'voormiddag' => 'voormiddag', 'namiddag' => 'namiddag'];
+        Session::flash('success', "Datum {$date} ({$periodLabels[$period]}) is geblokkeerd.");
         $this->redirect('/admin/appointments');
     }
 
     public function unblockDate(): void
     {
-        $date = $this->input('date');
+        $index = (int) $this->input('index', -1);
         $settingModel = new Setting();
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
-        $blockedDates = array_values(array_filter($blockedDates, fn($d) => $d !== $date));
-        $settingModel->set('blocked_dates', json_encode($blockedDates));
 
-        Session::flash('success', "Datum {$date} is gedeblokkeerd.");
+        if (isset($blockedDates[$index])) {
+            array_splice($blockedDates, $index, 1);
+            $settingModel->set('blocked_dates', json_encode($blockedDates));
+            Session::flash('success', 'Blokkering verwijderd.');
+        }
+
         $this->redirect('/admin/appointments');
     }
 

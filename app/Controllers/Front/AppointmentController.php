@@ -52,7 +52,21 @@ class AppointmentController extends Controller
         $settingModel = new Setting();
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
 
-        if (in_array($date, $blockedDates)) {
+        $isFullyBlocked = false;
+        $blockedPeriods = [];
+        foreach ($blockedDates as $bd) {
+            $bdDate = is_string($bd) ? $bd : ($bd['date'] ?? '');
+            $bdPeriod = is_string($bd) ? 'hele_dag' : ($bd['period'] ?? 'hele_dag');
+            if ($bdDate === $date) {
+                if ($bdPeriod === 'hele_dag') {
+                    $isFullyBlocked = true;
+                    break;
+                }
+                $blockedPeriods[] = $bdPeriod;
+            }
+        }
+
+        if ($isFullyBlocked) {
             $this->json(['slots' => [], 'message' => 'Date not available.']);
             return;
         }
@@ -70,6 +84,17 @@ class AppointmentController extends Controller
 
         $slotModel = new AppointmentSlot();
         $slots = $slotModel->getAvailableForDate($date, $type);
+
+        // Filter out slots in blocked periods
+        if (!empty($blockedPeriods)) {
+            $slots = array_filter($slots, function ($slot) use ($blockedPeriods) {
+                $hour = (int) date('H', strtotime($slot['start_time']));
+                if (in_array('voormiddag', $blockedPeriods) && $hour < 13) return false;
+                if (in_array('namiddag', $blockedPeriods) && $hour >= 13) return false;
+                return true;
+            });
+            $slots = array_values($slots);
+        }
 
         // For existing appointments on this date, mark as pending (orange)
         $appointmentModel = new Appointment();
@@ -124,7 +149,24 @@ class AppointmentController extends Controller
         // Check blocked dates
         $settingModel = new Setting();
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
-        if (in_array($date, $blockedDates)) {
+        $dateBlocked = false;
+        foreach ($blockedDates as $bd) {
+            $bdDate = is_string($bd) ? $bd : ($bd['date'] ?? '');
+            $bdPeriod = is_string($bd) ? 'hele_dag' : ($bd['period'] ?? 'hele_dag');
+            if ($bdDate === $date) {
+                if ($bdPeriod === 'hele_dag') { $dateBlocked = true; break; }
+                if ($slotId) {
+                    $slotModel = new AppointmentSlot();
+                    $slot = $slotModel->findById((int)$slotId);
+                    if ($slot) {
+                        $hour = (int) date('H', strtotime($slot['start_time']));
+                        if ($bdPeriod === 'voormiddag' && $hour < 13) { $dateBlocked = true; break; }
+                        if ($bdPeriod === 'namiddag' && $hour >= 13) { $dateBlocked = true; break; }
+                    }
+                }
+            }
+        }
+        if ($dateBlocked) {
             Session::flash('error', App::getLang() === 'fr' ? 'Cette date n\'est pas disponible.' : 'Deze datum is niet beschikbaar.');
             $this->redirect($aptUrl);
         }
