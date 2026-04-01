@@ -54,13 +54,13 @@ abstract class Controller
                 }
             }
 
-            // Auto-inject contact info from settings
+            // Auto-inject contact info from settings (global, shared across all sites)
             if (!isset($data['contact_address'])) {
                 $settingModel = new \App\Models\Setting();
-                $data['contact_address'] = $settingModel->get('contact_address', $dbSite['id'] ?? null, '');
-                $data['contact_phone'] = $settingModel->get('contact_phone', $dbSite['id'] ?? null, '');
-                $data['contact_email'] = $settingModel->get('contact_email', $dbSite['id'] ?? null, '');
-                $data['site_description'] = $settingModel->get('site_description', $dbSite['id'] ?? null, '');
+                $data['contact_address'] = $settingModel->get('contact_address', null, '');
+                $data['contact_phone'] = $settingModel->get('contact_phone', null, '');
+                $data['contact_email'] = $settingModel->get('contact_email', null, '');
+                $data['site_description'] = $settingModel->get('site_description', null, '');
             }
         }
 
