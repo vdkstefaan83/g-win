@@ -103,11 +103,11 @@ $router->get('/shop/categorie/{slug}', function ($slug) {
 $router->get('/boutique/categorie/{slug}', function ($slug) {
     (new ShopController())->category($slug);
 });
-$router->get('/shop/product/{slug}', function ($slug) {
-    (new ShopController())->show($slug);
+$router->get('/shop/product/(.*)', function ($slug) {
+    (new ShopController())->show(urldecode($slug));
 });
-$router->get('/boutique/produit/{slug}', function ($slug) {
-    (new ShopController())->show($slug);
+$router->get('/boutique/produit/(.*)', function ($slug) {
+    (new ShopController())->show(urldecode($slug));
 });
 
 // Cart (NL + FR)
