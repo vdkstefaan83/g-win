@@ -7,6 +7,7 @@ use Core\Session;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
+use App\Models\PageCategory;
 use App\Models\Site;
 
 class MenuController extends Controller
@@ -86,9 +87,13 @@ class MenuController extends Controller
         $pageModel = new Page();
         $pages = $pageModel->getAllWithSite();
 
+        $categoryModel = new PageCategory();
+        $categories = $categoryModel->getAllWithSite();
+
         $this->render('admin/menus/edit.twig', [
             'menu' => $menu,
             'pages' => $pages,
+            'categories' => $categories,
             'sites' => $this->siteModel->findAll('name', 'ASC'),
         ]);
     }
@@ -130,11 +135,19 @@ class MenuController extends Controller
 
             // Update or create items
             foreach ($items as $index => $item) {
+                // If page_id starts with "cat:", it's a category slug → store as URL
+                $pageId = $item['page_id'] ?? '';
+                $url = $item['url'] ?? null;
+                if (is_string($pageId) && str_starts_with($pageId, 'cat:')) {
+                    $url = '/' . substr($pageId, 4);
+                    $pageId = null;
+                }
+
                 $itemData = [
                     'menu_id' => $id,
                     'label' => $item['label'],
-                    'url' => $item['url'] ?? null,
-                    'page_id' => !empty($item['page_id']) ? (int)$item['page_id'] : null,
+                    'url' => $url,
+                    'page_id' => !empty($pageId) ? (int)$pageId : null,
                     'parent_id' => !empty($item['parent_id']) ? (int)$item['parent_id'] : null,
                     'sort_order' => $index,
                 ];
