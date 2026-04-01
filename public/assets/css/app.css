@@ -45,6 +45,55 @@ html {
 
 .prose h1, .prose h2, .prose h3, .prose h4 {
     font-family: 'Playfair Display', Georgia, serif;
+    line-height: 1.2;
+}
+
+.prose h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+.prose h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(212, 168, 51, 0.2);
+}
+
+.prose h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+}
+
+/* CTA links styled as buttons (links to /afspraken or /rendez-vous) */
+.prose a[href*="/afspraken"],
+.prose a[href*="/rendez-vous"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: #2d2118 !important;
+    background: linear-gradient(135deg, #e8be2e, #d4a833);
+    box-shadow: 0 4px 15px rgba(212, 168, 51, 0.25);
+    transition: all 0.3s ease;
+    text-decoration: none !important;
+}
+
+.prose a[href*="/afspraken"]:hover,
+.prose a[href*="/rendez-vous"]:hover {
+    background: linear-gradient(135deg, #efd05a, #e8be2e);
+    box-shadow: 0 6px 20px rgba(212, 168, 51, 0.4);
+    transform: translateY(-2px);
+    color: #2d2118 !important;
 }
 
 /* Radio/checkbox card selection styling */
