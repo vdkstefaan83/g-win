@@ -243,12 +243,23 @@
                 if (!confirm('Foto verwijderen?')) return;
                 fetch('/admin/pages/images/delete', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': '{{ csrf_token }}'
+                    },
                     body: 'image_id=' + id + '&_csrf_token={{ csrf_token }}'
-                }).then(r => r.json()).then(d => {
+                }).then(r => {
+                    if (!r.ok) {
+                        return r.text().then(t => { throw new Error('Server: ' + r.status + ' - ' + t); });
+                    }
+                    return r.json();
+                }).then(d => {
                     if (d.success) {
                         document.querySelector('[data-id="' + id + '"]').remove();
                     }
+                }).catch(e => {
+                    alert('Fout bij verwijderen: ' + e.message);
                 });
             }
         };
