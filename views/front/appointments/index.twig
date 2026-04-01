@@ -99,8 +99,8 @@
                                 @click="cell.selectable && selectDate(cell.date)"
                                 class="aspect-square rounded-lg text-sm font-medium flex items-center justify-center transition-all"
                                 :class="{
-                                    'bg-krijgers-gold-500 text-krijgers-900 font-bold shadow': form.date === cell.date,
-                                    'bg-krijgers-50 text-krijgers-800 hover:bg-krijgers-gold-100 hover:text-krijgers-900 cursor-pointer': cell.selectable && form.date !== cell.date,
+                                    'bg-[#d69b4b] text-white font-bold shadow': form.date === cell.date,
+                                    'bg-[#d69b4b]/20 text-[#d69b4b] font-semibold hover:bg-[#d69b4b]/40 cursor-pointer': cell.selectable && form.date !== cell.date,
                                     'text-krijgers-200 cursor-default': !cell.selectable && cell.day,
                                     '': !cell.day
                                 }"
