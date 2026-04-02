@@ -82,7 +82,24 @@ class MenuController extends Controller
             $this->redirect('/admin/menus');
         }
 
+        // If this is a FR menu, redirect to the NL master
+        if ($menu['lang'] === 'fr') {
+            $nlMenu = $this->menuModel->findLinkedTranslation($id);
+            if ($nlMenu) {
+                $this->redirect("/admin/menus/{$nlMenu['id']}/edit");
+                return;
+            }
+        }
+
         $menu['site_ids'] = $this->menuModel->getSiteIds($id);
+
+        // Find linked FR menu
+        $frMenu = $this->menuModel->findLinkedTranslation($id);
+        $frItems = [];
+        if ($frMenu) {
+            $frWithItems = $this->menuModel->getWithItems($frMenu['id']);
+            $frItems = $frWithItems ? $frWithItems['items'] : [];
+        }
 
         $pageModel = new Page();
         $pages = $pageModel->getAllWithSite();
@@ -92,6 +109,8 @@ class MenuController extends Controller
 
         $this->render('admin/menus/edit.twig', [
             'menu' => $menu,
+            'fr_menu' => $frMenu,
+            'fr_items' => $frItems,
             'pages' => $pages,
             'categories' => $categories,
             'sites' => $this->siteModel->findAll('name', 'ASC'),
@@ -112,7 +131,7 @@ class MenuController extends Controller
 
         $siteIds = $_POST['site_ids'] ?? [];
         $data = $validation['data'];
-        $data['lang'] = $this->input('lang', 'nl');
+        $data['lang'] = 'nl';
         if (!empty($siteIds)) {
             $data['site_id'] = (int) $siteIds[0];
         }
@@ -121,47 +140,88 @@ class MenuController extends Controller
             $this->menuModel->syncSites($id, $siteIds);
         }
 
-        // Update menu items
-        $items = json_decode($this->input('items', '[]'), true);
-        if (is_array($items)) {
-            // Delete removed items
-            $existingItems = $this->menuItemModel->getByMenu($id);
-            $newItemIds = array_column($items, 'id');
-            foreach ($existingItems as $existing) {
-                if (!in_array($existing['id'], $newItemIds)) {
-                    $this->menuItemModel->delete($existing['id']);
-                }
-            }
+        // Update NL menu items
+        $this->syncMenuItems($id, json_decode($this->input('items', '[]'), true));
 
-            // Update or create items
-            foreach ($items as $index => $item) {
-                // If page_id starts with "cat:", it's a category slug → store as URL
-                $pageId = $item['page_id'] ?? '';
-                $url = $item['url'] ?? null;
-                if (is_string($pageId) && str_starts_with($pageId, 'cat:')) {
-                    $url = '/' . substr($pageId, 4);
-                    $pageId = null;
-                }
-
-                $itemData = [
-                    'menu_id' => $id,
-                    'label' => $item['label'],
-                    'url' => $url,
-                    'page_id' => !empty($pageId) ? (int)$pageId : null,
-                    'parent_id' => !empty($item['parent_id']) ? (int)$item['parent_id'] : null,
-                    'sort_order' => $index,
-                ];
-
-                if (!empty($item['id']) && is_numeric($item['id'])) {
-                    $this->menuItemModel->update((int)$item['id'], $itemData);
-                } else {
-                    $this->menuItemModel->create($itemData);
+        // Handle FR menu items
+        $frItems = json_decode($this->input('fr_items', '[]'), true);
+        $hasFrContent = false;
+        if (is_array($frItems)) {
+            foreach ($frItems as $fi) {
+                if (!empty(trim($fi['label'] ?? ''))) {
+                    $hasFrContent = true;
+                    break;
                 }
             }
         }
 
+        if ($hasFrContent) {
+            // Find or create FR menu
+            $frMenu = $this->menuModel->findLinkedTranslation($id);
+            if (!$frMenu) {
+                $frMenuId = $this->menuModel->create([
+                    'name' => $data['name'] . ' (FR)',
+                    'location' => $data['location'],
+                    'lang' => 'fr',
+                    'site_id' => $data['site_id'] ?? null,
+                ]);
+                if (!empty($siteIds)) {
+                    $this->menuModel->syncSites($frMenuId, $siteIds);
+                }
+            } else {
+                $frMenuId = $frMenu['id'];
+                $this->menuModel->update($frMenuId, [
+                    'name' => $data['name'] . ' (FR)',
+                    'location' => $data['location'],
+                ]);
+                if (!empty($siteIds)) {
+                    $this->menuModel->syncSites($frMenuId, $siteIds);
+                }
+            }
+            $this->syncMenuItems($frMenuId, $frItems);
+        }
+
         Session::flash('success', 'Menu bijgewerkt.');
         $this->redirect("/admin/menus/{$id}/edit");
+    }
+
+    private function syncMenuItems(int $menuId, ?array $items): void
+    {
+        if (!is_array($items)) return;
+
+        // Delete removed items
+        $existingItems = $this->menuItemModel->getByMenu($menuId);
+        $newItemIds = array_column($items, 'id');
+        foreach ($existingItems as $existing) {
+            if (!in_array($existing['id'], $newItemIds)) {
+                $this->menuItemModel->delete($existing['id']);
+            }
+        }
+
+        // Update or create items
+        foreach ($items as $index => $item) {
+            $pageId = $item['page_id'] ?? '';
+            $url = $item['url'] ?? null;
+            if (is_string($pageId) && str_starts_with($pageId, 'cat:')) {
+                $url = '/' . substr($pageId, 4);
+                $pageId = null;
+            }
+
+            $itemData = [
+                'menu_id' => $menuId,
+                'label' => $item['label'],
+                'url' => $url,
+                'page_id' => !empty($pageId) ? (int)$pageId : null,
+                'parent_id' => !empty($item['parent_id']) ? (int)$item['parent_id'] : null,
+                'sort_order' => $index,
+            ];
+
+            if (!empty($item['id']) && is_numeric($item['id'])) {
+                $this->menuItemModel->update((int)$item['id'], $itemData);
+            } else {
+                $this->menuItemModel->create($itemData);
+            }
+        }
     }
 
     public function destroy(int $id): void

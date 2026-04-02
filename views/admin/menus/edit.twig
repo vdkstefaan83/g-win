@@ -9,30 +9,19 @@
 
 <h2 class="text-2xl font-bold text-gray-800 mb-6">Menu bewerken: {{ menu.name }}</h2>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Menu instellingen</h3>
-        <form action="/admin/menus/{{ menu.id }}/update" method="POST" id="menuForm">
-            {{ csrf_field|raw }}
+<div class="bg-white rounded-lg shadow p-6 max-w-4xl mb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Menu instellingen</h3>
+    <form action="/admin/menus/{{ menu.id }}/update" method="POST" id="menuForm">
+        {{ csrf_field|raw }}
 
-            <div class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Naam</label>
-                        <input type="text" name="name" id="name" required
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                               value="{{ menu.name }}">
-                    </div>
-                    <div>
-                        <label for="lang" class="block text-sm font-medium text-gray-700 mb-1">Taal</label>
-                        <select name="lang" id="lang"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="nl" {{ menu.lang == 'nl' ? 'selected' : '' }}>Nederlands</option>
-                            <option value="fr" {{ menu.lang == 'fr' ? 'selected' : '' }}>Frans</option>
-                        </select>
-                    </div>
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Naam</label>
+                    <input type="text" name="name" id="name" required
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           value="{{ menu.name }}">
                 </div>
-
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Sites</label>
                     <div class="space-y-1">
@@ -46,7 +35,6 @@
                         {% endfor %}
                     </div>
                 </div>
-
                 <div>
                     <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Locatie</label>
                     <select name="location" id="location" required
@@ -56,97 +44,61 @@
                         <option value="services" {{ menu.location == 'services' ? 'selected' : '' }}>Diensten (footer)</option>
                     </select>
                 </div>
-
-                <input type="hidden" name="items" id="menuItemsField" value="">
             </div>
 
-            <div class="mt-6 flex gap-3">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">
-                    Bijwerken
+            <input type="hidden" name="items" id="menuItemsField" value="">
+            <input type="hidden" name="fr_items" id="frMenuItemsField" value="">
+        </div>
+
+        {# ── NL / FR Tabs ── #}
+        <div x-data="{ tab: 'nl' }" class="mt-6">
+            <div class="flex border-b border-gray-200 mb-4">
+                <button type="button" @click="tab = 'nl'"
+                        class="px-5 py-2.5 text-sm font-medium border-b-2 transition-colors"
+                        :class="tab === 'nl' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                    NL - Nederlands
+                    <span class="ml-1 text-green-500 text-xs">&#10003;</span>
                 </button>
-                <a href="/admin/menus" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium transition">
-                    Annuleren
-                </a>
+                <button type="button" @click="tab = 'fr'"
+                        class="px-5 py-2.5 text-sm font-medium border-b-2 transition-colors"
+                        :class="tab === 'fr' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                    FR - Frans
+                    {% if fr_items|length > 0 %}<span class="ml-1 text-green-500 text-xs">&#10003;</span>{% endif %}
+                </button>
             </div>
-        </form>
-    </div>
 
-    <div class="bg-white rounded-lg shadow p-6" x-data="menuItemsEditor()">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Menu items</h3>
+            {# ── NL Items ── #}
+            <div x-show="tab === 'nl'" x-data="menuItemsEditor('nl', {{ menu.items|json_encode|raw ?: '[]' }})">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">NL Menu items</h3>
+                {% include 'admin/menus/_items_editor.twig' with { 'fieldId': 'menuItemsField', 'lang': 'nl' } %}
+            </div>
 
-        <div class="space-y-2 mb-4">
-            <template x-for="(item, index) in items" :key="index">
-                <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <div class="flex flex-col gap-1">
-                        <button type="button" @click="moveUp(index)" :disabled="index === 0"
-                                class="text-gray-400 hover:text-gray-600 disabled:opacity-30 text-xs leading-none">&#9650;</button>
-                        <button type="button" @click="moveDown(index)" :disabled="index === items.length - 1"
-                                class="text-gray-400 hover:text-gray-600 disabled:opacity-30 text-xs leading-none">&#9660;</button>
-                    </div>
-                    <div class="flex-1 space-y-2">
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" x-model="item.label" placeholder="Label"
-                                   class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <select @change="selectRoute($event, item)" class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">-- Kies type --</option>
-                                <optgroup label="Interne routes">
-                                    <option value="/|Home">Home</option>
-                                    <option value="/shop|Shop">Shop</option>
-                                    <option value="/afspraken|Afspraken">Afspraken</option>
-                                    <option value="/winkelwagen|Winkelwagen">Winkelwagen</option>
-                                    <option value="/contact|Contact">Contact</option>
-                                    <option value="/over-ons|Over ons">Over ons</option>
-                                </optgroup>
-                                <optgroup label="Overig">
-                                    <option value="custom">Aangepaste URL</option>
-                                    <option value="page">CMS Pagina</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" x-model="item.url" placeholder="/url (optioneel)"
-                                   class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <select x-model="item.page_id" class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Geen pagina</option>
-                                {% if categories|length > 0 %}
-                                <optgroup label="Categorieën">
-                                    {% for cat in categories %}
-                                        <option value="cat:{{ cat.slug }}">{{ cat.name }}</option>
-                                    {% endfor %}
-                                </optgroup>
-                                {% endif %}
-                                <optgroup label="Pagina's">
-                                    {% for page in pages %}
-                                        <option value="{{ page.id }}">{{ page.title }}{% if page.category_name %} ({{ page.category_name }}){% endif %}</option>
-                                    {% endfor %}
-                                </optgroup>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="button" @click="removeItem(index)" class="text-red-500 hover:text-red-700 text-sm font-medium px-2">
-                        &times;
-                    </button>
-                </div>
-            </template>
+            {# ── FR Items ── #}
+            <div x-show="tab === 'fr'" x-data="menuItemsEditor('fr', {{ fr_items|json_encode|raw ?: '[]' }})">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">FR Menu items</h3>
+                <p class="text-xs text-gray-500 mb-3">Tip: voeg dezelfde items toe als bij NL maar dan met Franse labels en URLs.</p>
+                {% include 'admin/menus/_items_editor.twig' with { 'fieldId': 'frMenuItemsField', 'lang': 'fr' } %}
+            </div>
         </div>
 
-        <div x-show="items.length === 0" class="text-gray-500 text-sm text-center py-4 mb-4">
-            Nog geen menu items. Klik hieronder om een item toe te voegen.
+        <div class="mt-6 flex gap-3">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">
+                Bijwerken
+            </button>
+            <a href="/admin/menus" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium transition">
+                Annuleren
+            </a>
         </div>
-
-        <button type="button" @click="addItem()"
-                class="w-full border-2 border-dashed border-gray-300 rounded-lg py-2 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
-            + Item toevoegen
-        </button>
-    </div>
+    </form>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    function menuItemsEditor() {
+    function menuItemsEditor(lang, initialItems) {
         return {
-            items: {{ menu.items|json_encode|raw ?: '[]' }},
+            items: initialItems || [],
+            lang: lang,
 
             addItem() {
                 this.items.push({ label: '', url: '', page_id: '', sort_order: this.items.length });
@@ -190,11 +142,12 @@
             },
 
             init() {
-                this.$watch('items', () => {
-                    document.getElementById('menuItemsField').value = JSON.stringify(this.items);
+                var fieldId = this.lang === 'fr' ? 'frMenuItemsField' : 'menuItemsField';
+                var self = this;
+                this.$watch('items', function() {
+                    document.getElementById(fieldId).value = JSON.stringify(self.items);
                 }, { deep: true });
-
-                document.getElementById('menuItemsField').value = JSON.stringify(this.items);
+                document.getElementById(fieldId).value = JSON.stringify(this.items);
             }
         };
     }

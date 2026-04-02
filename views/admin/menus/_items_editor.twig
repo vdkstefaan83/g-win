@@ -1,0 +1,64 @@
+<div class="space-y-2 mb-4">
+    <template x-for="(item, index) in items" :key="index">
+        <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div class="flex flex-col gap-1">
+                <button type="button" @click="moveUp(index)" :disabled="index === 0"
+                        class="text-gray-400 hover:text-gray-600 disabled:opacity-30 text-xs leading-none">&#9650;</button>
+                <button type="button" @click="moveDown(index)" :disabled="index === items.length - 1"
+                        class="text-gray-400 hover:text-gray-600 disabled:opacity-30 text-xs leading-none">&#9660;</button>
+            </div>
+            <div class="flex-1 space-y-2">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" x-model="item.label" placeholder="Label"
+                           class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select @change="selectRoute($event, item)" class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">-- Kies type --</option>
+                        <optgroup label="Interne routes">
+                            <option value="/|Home">Home</option>
+                            <option value="/shop|Shop">Shop</option>
+                            <option value="/afspraken|Afspraken">Afspraken</option>
+                            <option value="/winkelwagen|Winkelwagen">Winkelwagen</option>
+                            <option value="/contact|Contact">Contact</option>
+                            <option value="/over-ons|Over ons">Over ons</option>
+                        </optgroup>
+                        <optgroup label="Overig">
+                            <option value="custom">Aangepaste URL</option>
+                            <option value="page">CMS Pagina</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" x-model="item.url" placeholder="/url (optioneel)"
+                           class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select x-model="item.page_id" class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Geen pagina</option>
+                        {% if categories|length > 0 %}
+                        <optgroup label="Categorieën">
+                            {% for cat in categories %}
+                                <option value="cat:{{ cat.slug }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </optgroup>
+                        {% endif %}
+                        <optgroup label="Pagina's">
+                            {% for page in pages %}
+                                <option value="{{ page.id }}">{{ page.title }}{% if page.category_name %} ({{ page.category_name }}){% endif %}</option>
+                            {% endfor %}
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            <button type="button" @click="removeItem(index)" class="text-red-500 hover:text-red-700 text-sm font-medium px-2">
+                &times;
+            </button>
+        </div>
+    </template>
+</div>
+
+<div x-show="items.length === 0" class="text-gray-500 text-sm text-center py-4 mb-4">
+    Nog geen menu items. Klik hieronder om een item toe te voegen.
+</div>
+
+<button type="button" @click="addItem()"
+        class="w-full border-2 border-dashed border-gray-300 rounded-lg py-2 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
+    + Item toevoegen
+</button>

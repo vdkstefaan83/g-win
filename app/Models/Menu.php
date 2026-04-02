@@ -115,6 +115,26 @@ class Menu extends Model
         return $menu;
     }
 
+    public function findLinkedTranslation(int $menuId): array|false
+    {
+        $menu = $this->findById($menuId);
+        if (!$menu) return false;
+
+        $otherLang = $menu['lang'] === 'nl' ? 'fr' : 'nl';
+
+        // Find menu with same location linked to same sites
+        $result = $this->query(
+            "SELECT m.* FROM menus m
+             INNER JOIN menu_sites ms ON ms.menu_id = m.id
+             WHERE m.lang = :lang AND m.location = :location
+             AND ms.site_id IN (SELECT site_id FROM menu_sites WHERE menu_id = :menu_id)
+             LIMIT 1",
+            ['lang' => $otherLang, 'location' => $menu['location'], 'menu_id' => $menuId]
+        )->fetch();
+
+        return $result ?: false;
+    }
+
     public function getSiteIds(int $menuId): array
     {
         return array_column(
