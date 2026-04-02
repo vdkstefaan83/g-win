@@ -68,13 +68,13 @@
             </div>
 
             {# ── NL Items ── #}
-            <div x-show="tab === 'nl'" x-data="menuItemsEditor('nl', {{ menu.items|json_encode|raw ?: '[]' }})">
+            <div x-show="tab === 'nl'" x-data="menuItemsEditor('nl', _nlItems)">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">NL Menu items</h3>
                 {% include 'admin/menus/_items_editor.twig' with { 'fieldId': 'menuItemsField', 'lang': 'nl' } %}
             </div>
 
             {# ── FR Items ── #}
-            <div x-show="tab === 'fr'" x-data="menuItemsEditor('fr', {{ fr_items|json_encode|raw ?: '[]' }})">
+            <div x-show="tab === 'fr'" x-data="menuItemsEditor('fr', _frItems)">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">FR Menu items</h3>
                 <p class="text-xs text-gray-500 mb-3">Tip: voeg dezelfde items toe als bij NL maar dan met Franse labels en URLs.</p>
                 {% include 'admin/menus/_items_editor.twig' with { 'fieldId': 'frMenuItemsField', 'lang': 'fr' } %}
@@ -95,6 +95,9 @@
 
 {% block scripts %}
 <script>
+    var _nlItems = [{% for item in menu.items %}{"id":{{ item.id }},"label":"{{ item.label|e('js') }}","url":"{{ item.url|e('js') }}","page_id":"{{ item.page_id }}","parent_id":"{{ item.parent_id }}","sort_order":{{ item.sort_order }}}{{ not loop.last ? ',' : '' }}{% endfor %}];
+    var _frItems = [{% for item in fr_items %}{"id":{{ item.id }},"label":"{{ item.label|e('js') }}","url":"{{ item.url|e('js') }}","page_id":"{{ item.page_id }}","parent_id":"{{ item.parent_id }}","sort_order":{{ item.sort_order }}}{{ not loop.last ? ',' : '' }}{% endfor %}];
+
     function menuItemsEditor(lang, initialItems) {
         return {
             items: initialItems || [],
