@@ -11,7 +11,7 @@ class ProductImage extends Model
     public function getByProduct(int $productId): array
     {
         return $this->query(
-            "SELECT * FROM product_images WHERE product_id = :product_id ORDER BY sort_order ASC",
+            "SELECT * FROM product_images WHERE product_id = :product_id ORDER BY sort_order DESC",
             ['product_id' => $productId]
         )->fetchAll();
     }

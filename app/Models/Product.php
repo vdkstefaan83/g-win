@@ -19,7 +19,7 @@ class Product extends Model
         if (!$product) return false;
 
         $product['images'] = $this->query(
-            "SELECT * FROM product_images WHERE product_id = :id ORDER BY sort_order ASC",
+            "SELECT * FROM product_images WHERE product_id = :id ORDER BY sort_order DESC",
             ['id' => $id]
         )->fetchAll();
 
@@ -32,7 +32,7 @@ class Product extends Model
         if (!$product) return false;
 
         $product['images'] = $this->query(
-            "SELECT * FROM product_images WHERE product_id = :id ORDER BY sort_order ASC",
+            "SELECT * FROM product_images WHERE product_id = :id ORDER BY sort_order DESC",
             ['id' => $product['id']]
         )->fetchAll();
 
