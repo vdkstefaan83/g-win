@@ -32,7 +32,7 @@ class ShopController extends Controller
         $categoryModel = new Category();
 
         $this->render('front/shop/index.twig', array_merge($this->getSiteMenus(), [
-            'products' => $productModel->getActive($lang),
+            'products' => $productModel->getActive($lang, 'name', 'ASC'),
             'categories' => $categoryModel->getActive($lang),
         ]));
     }
