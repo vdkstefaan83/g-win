@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="{{ lang|default('nl') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}{{ site.name }}{% endblock %}</title>
+    {% block meta %}{% endblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Playfair Display', 'Georgia', 'serif'],
+                    },
+                    colors: {
+                        'krijgers': {
+                            50: '#f0f0f0',
+                            100: '#e0e0e0',
+                            200: '#B0B0B0',
+                            300: '#8a8a8a',
+                            400: '#666666',
+                            500: '#4d4d4d',
+                            600: '#3d3d3d',
+                            700: '#333333',
+                            800: '#2a2a2a',
+                            900: '#1a1a1a',
+                        },
+                        'krijgers-gold': {
+                            50: '#fff5eb',
+                            100: '#ffe8d1',
+                            200: '#ffcfa3',
+                            300: '#ff9f4d',
+                            400: '#FF6B00',
+                            500: '#FF6B00',
+                            600: '#e55f00',
+                            700: '#cc5500',
+                            800: '#994000',
+                            900: '#662b00',
+                        },
+                        'krijgers-blue': {
+                            400: '#1a75bb',
+                            500: '#16669f',
+                            600: '#125584',
+                        },
+                        'krijgers-teal': {
+                            400: '#14b8a6',
+                            500: '#0d9488',
+                            600: '#0f766e',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out',
+                        'slide-in': 'slideIn 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideIn: {
+                            '0%': { opacity: '0', transform: 'translateX(-20px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body class="bg-krijgers-50 min-h-screen flex flex-col font-sans antialiased text-krijgers-900">
+    {% include 'layouts/3dscan/header.twig' %}
+
+    {% include 'components/flash-messages.twig' %}
+
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'layouts/3dscan/footer.twig' %}
+
+    <script src="/assets/js/app.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
