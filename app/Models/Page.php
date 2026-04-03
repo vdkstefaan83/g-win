@@ -83,13 +83,16 @@ class Page extends Model
         }
 
         $placeholders = implode(',', array_map('intval', $catIds));
-        $sql = "SELECT * FROM pages WHERE page_category_id IN ({$placeholders}) AND is_published = 1";
+        $sql = "SELECT p.*, COALESCE(p.intro_image, master.intro_image) AS intro_image
+                FROM pages p
+                LEFT JOIN pages master ON p.translation_of = master.id
+                WHERE p.page_category_id IN ({$placeholders}) AND p.is_published = 1";
         $params = [];
         if ($lang) {
-            $sql .= " AND lang = :lang";
+            $sql .= " AND p.lang = :lang";
             $params['lang'] = $lang;
         }
-        $sql .= " ORDER BY sort_order DESC";
+        $sql .= " ORDER BY p.sort_order DESC";
         return $this->query($sql, $params)->fetchAll();
     }
 
