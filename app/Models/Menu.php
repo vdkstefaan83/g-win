@@ -87,6 +87,9 @@ class Menu extends Model
 
         if (!$menu) return false;
 
+        // Determine if we need to translate slugs (NL menu used as FR fallback)
+        $needsTranslation = ($lang !== 'nl' && $menu['lang'] === 'nl');
+
         // Single query for all items (parents + children)
         $allItems = $this->query(
             "SELECT mi.*, p.slug as page_slug FROM menu_items mi
@@ -95,6 +98,37 @@ class Menu extends Model
              ORDER BY mi.sort_order ASC",
             ['menu_id' => $menu['id']]
         )->fetchAll();
+
+        // Translate slugs if using NL menu for FR
+        if ($needsTranslation) {
+            foreach ($allItems as &$item) {
+                // Translate page slug
+                if ($item['page_id'] && $item['page_slug']) {
+                    $translated = $this->query(
+                        "SELECT slug FROM pages WHERE translation_of = :id AND lang = :lang LIMIT 1",
+                        ['id' => $item['page_id'], 'lang' => $lang]
+                    )->fetch();
+                    if ($translated) {
+                        $item['page_slug'] = $translated['slug'];
+                    }
+                }
+                // Translate category URL (e.g. /3d-scannen → /numerisation-3d)
+                if ($item['url'] && preg_match('#^/([a-z0-9-]+)$#i', $item['url'], $m)) {
+                    $catSlug = $m[1];
+                    $translated = $this->query(
+                        "SELECT pc2.slug FROM page_categories pc1
+                         JOIN page_categories pc2 ON pc2.translation_of = pc1.id AND pc2.lang = :lang
+                         WHERE pc1.slug = :slug AND pc1.lang = 'nl'
+                         LIMIT 1",
+                        ['slug' => $catSlug, 'lang' => $lang]
+                    )->fetch();
+                    if ($translated) {
+                        $item['url'] = '/' . $translated['slug'];
+                    }
+                }
+            }
+            unset($item);
+        }
 
         // Build tree in PHP instead of N+1 queries
         $parents = [];
