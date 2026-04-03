@@ -1,0 +1,240 @@
+{% extends 'layouts/admin/base.twig' %}
+
+{% block title %}Afspraaktype bewerken{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="/admin/appointment-types" class="text-blue-600 hover:text-blue-800 text-sm">&larr; Terug naar types</a>
+</div>
+
+<h2 class="text-2xl font-bold text-gray-800 mb-6">Type bewerken: {{ type.name_nl }}</h2>
+
+<div class="bg-white rounded-lg shadow p-6 max-w-4xl mb-6">
+    <form action="/admin/appointment-types/{{ type.id }}/update" method="POST" id="typeForm">
+        {{ csrf_field|raw }}
+
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                    <input type="text" value="{{ type.slug }}" readonly
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Icoon</label>
+                    <input type="text" name="icon" value="{{ type.icon }}" placeholder="pregnancy, child, pickup..."
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Volgorde</label>
+                    <input type="number" name="sort_order" value="{{ type.sort_order }}"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-end pb-1">
+                    <label class="inline-flex items-center gap-2">
+                        <input type="checkbox" name="is_active" value="1" {{ type.is_active ? 'checked' : '' }}
+                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Actief</span>
+                    </label>
+                </div>
+            </div>
+
+            <div x-data="{ tab: 'nl' }">
+                <div class="flex border-b border-gray-200 mb-4">
+                    <button type="button" @click="tab = 'nl'"
+                            class="px-5 py-2.5 text-sm font-medium border-b-2 transition-colors"
+                            :class="tab === 'nl' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500'">
+                        NL
+                    </button>
+                    <button type="button" @click="tab = 'fr'"
+                            class="px-5 py-2.5 text-sm font-medium border-b-2 transition-colors"
+                            :class="tab === 'fr' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500'">
+                        FR
+                    </button>
+                </div>
+
+                <div x-show="tab === 'nl'" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Naam (NL) *</label>
+                        <input type="text" name="name_nl" required value="{{ type.name_nl }}"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Beschrijving (NL)</label>
+                        <textarea name="description_nl" rows="3"
+                                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ type.description_nl }}</textarea>
+                    </div>
+                </div>
+
+                <div x-show="tab === 'fr'" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Naam (FR)</label>
+                        <input type="text" name="name_fr" value="{{ type.name_fr }}"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Beschrijving (FR)</label>
+                        <textarea name="description_fr" rows="3"
+                                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ type.description_fr }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ── Flow Builder ── #}
+        <div class="mt-8 border-t pt-6" x-data="flowBuilder()">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Flow stappen</h3>
+            <p class="text-sm text-gray-500 mb-4">Definieer de stappen die een klant doorloopt bij dit afspraaktype.</p>
+
+            <input type="hidden" name="flow_steps" id="flowStepsField" :value="JSON.stringify(steps)">
+
+            <div class="space-y-3 mb-4">
+                <template x-for="(step, index) in steps" :key="index">
+                    <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="flex flex-col gap-1 pt-1">
+                            <button type="button" @click="moveUp(index)" :disabled="index === 0"
+                                    class="text-gray-400 hover:text-gray-600 disabled:opacity-30 text-xs">&#9650;</button>
+                            <button type="button" @click="moveDown(index)" :disabled="index === steps.length - 1"
+                                    class="text-gray-400 hover:text-gray-600 disabled:opacity-30 text-xs">&#9660;</button>
+                        </div>
+                        <div class="flex-1 space-y-2">
+                            <div class="flex items-center gap-3">
+                                <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800 font-mono" x-text="step.step_type"></span>
+                                <input type="text" x-model="step.label_nl" placeholder="Label (NL)"
+                                       class="flex-1 border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <input type="text" x-model="step.label_fr" placeholder="Label (FR)"
+                                       class="flex-1 border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <!-- Config per step type -->
+                            <template x-if="step.step_type === 'date_picker'">
+                                <div class="flex items-center gap-3 text-sm">
+                                    <label class="text-gray-600">Dag van de week:</label>
+                                    <select x-model="step.config.day_of_week" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                                        <option value="">Alle dagen</option>
+                                        <option value="0">Zondag</option>
+                                        <option value="1">Maandag</option>
+                                        <option value="2">Dinsdag</option>
+                                        <option value="3">Woensdag</option>
+                                        <option value="4">Donderdag</option>
+                                        <option value="5">Vrijdag</option>
+                                        <option value="6">Zaterdag</option>
+                                    </select>
+                                </div>
+                            </template>
+
+                            <template x-if="step.step_type === 'date_proposals'">
+                                <div class="flex items-center gap-3 text-sm">
+                                    <label class="text-gray-600">Aantal voorstellen:</label>
+                                    <input type="number" x-model="step.config.num_proposals" min="1" max="5" value="3"
+                                           class="w-20 border border-gray-300 rounded px-2 py-1 text-sm">
+                                </div>
+                            </template>
+
+                            <template x-if="step.step_type === 'send_email'">
+                                <div class="flex items-center gap-3 text-sm">
+                                    <label class="text-gray-600">Template slug:</label>
+                                    <input type="text" x-model="step.config.template_slug" placeholder="payment_request"
+                                           class="flex-1 border border-gray-300 rounded px-2 py-1 text-sm">
+                                    <label class="text-gray-600">Trigger:</label>
+                                    <select x-model="step.config.trigger" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                                        <option value="on_submit">Bij indiening</option>
+                                        <option value="on_confirm">Bij bevestiging</option>
+                                    </select>
+                                </div>
+                            </template>
+                        </div>
+                        <button type="button" @click="removeStep(index)" class="text-red-500 hover:text-red-700 text-lg font-bold px-2">&times;</button>
+                    </div>
+                </template>
+            </div>
+
+            <div x-show="steps.length === 0" class="text-gray-500 text-sm text-center py-4 mb-4">
+                Nog geen stappen. Voeg stappen toe om de flow te definiëren.
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+                <button type="button" @click="addStep('date_picker')" class="px-3 py-1.5 text-sm bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 transition">+ Datum kiezen</button>
+                <button type="button" @click="addStep('time_picker')" class="px-3 py-1.5 text-sm bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 transition">+ Tijdstip kiezen</button>
+                <button type="button" @click="addStep('date_proposals')" class="px-3 py-1.5 text-sm bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 transition">+ Datums voorstellen</button>
+                <button type="button" @click="addStep('details_form')" class="px-3 py-1.5 text-sm bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 transition">+ Gegevens</button>
+                <button type="button" @click="addStep('send_email')" class="px-3 py-1.5 text-sm bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition">+ Mail sturen</button>
+                <button type="button" @click="addStep('payment')" class="px-3 py-1.5 text-sm bg-purple-50 text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-100 transition">+ Betaling</button>
+            </div>
+        </div>
+
+        <div class="mt-6 flex gap-3">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">Bijwerken</button>
+            <a href="/admin/appointment-types" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium transition">Annuleren</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var _initialSteps = [{% for step in type.flow_steps %}{
+        "id": {{ step.id }},
+        "step_type": "{{ step.step_type }}",
+        "label_nl": "{{ step.label_nl|e('js') }}",
+        "label_fr": "{{ step.label_fr|e('js') }}",
+        "config": {{ step.config ?: '{}' }},
+        "sort_order": {{ step.sort_order }}
+    }{{ not loop.last ? ',' : '' }}{% endfor %}];
+
+    var _defaultLabels = {
+        'date_picker': { nl: 'Datum kiezen', fr: 'Choisir une date' },
+        'time_picker': { nl: 'Tijdstip kiezen', fr: 'Choisir un créneau' },
+        'date_proposals': { nl: 'Datums voorstellen', fr: 'Proposer des dates' },
+        'details_form': { nl: 'Uw gegevens', fr: 'Vos coordonnées' },
+        'send_email': { nl: 'Mail sturen', fr: 'Envoyer un mail' },
+        'payment': { nl: 'Betaling', fr: 'Paiement' }
+    };
+
+    function flowBuilder() {
+        return {
+            steps: _initialSteps,
+
+            addStep(type) {
+                var labels = _defaultLabels[type] || { nl: '', fr: '' };
+                var config = {};
+                if (type === 'date_picker') config = { day_of_week: '' };
+                if (type === 'date_proposals') config = { num_proposals: 3 };
+                if (type === 'send_email') config = { template_slug: '', trigger: 'on_submit' };
+
+                this.steps.push({
+                    id: null,
+                    step_type: type,
+                    label_nl: labels.nl,
+                    label_fr: labels.fr,
+                    config: config,
+                    sort_order: this.steps.length
+                });
+            },
+
+            removeStep(index) {
+                this.steps.splice(index, 1);
+                this.steps.forEach(function(s, i) { s.sort_order = i; });
+            },
+
+            moveUp(index) {
+                if (index > 0) {
+                    var temp = this.steps[index];
+                    this.steps[index] = this.steps[index - 1];
+                    this.steps[index - 1] = temp;
+                    this.steps.forEach(function(s, i) { s.sort_order = i; });
+                }
+            },
+
+            moveDown(index) {
+                if (index < this.steps.length - 1) {
+                    var temp = this.steps[index];
+                    this.steps[index] = this.steps[index + 1];
+                    this.steps[index + 1] = temp;
+                    this.steps.forEach(function(s, i) { s.sort_order = i; });
+                }
+            }
+        };
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'layouts/admin/base.twig' %}
+
+{% block title %}Afspraaktype aanmaken{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="/admin/appointment-types" class="text-blue-600 hover:text-blue-800 text-sm">&larr; Terug naar types</a>
+</div>
+
+<h2 class="text-2xl font-bold text-gray-800 mb-6">Nieuw afspraaktype</h2>
+
+<div class="bg-white rounded-lg shadow p-6 max-w-3xl">
+    <form action="/admin/appointment-types/store" method="POST">
+        {{ csrf_field|raw }}
+
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="slug" class="block text-sm font-medium text-gray-700 mb-1">Slug *</label>
+                    <input type="text" name="slug" id="slug" required
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="afhalen">
+                </div>
+                <div>
+                    <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-1">Volgorde</label>
+                    <input type="number" name="sort_order" id="sort_order" value="0"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-end pb-1">
+                    <label class="inline-flex items-center gap-2">
+                        <input type="checkbox" name="is_active" value="1" checked
+                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Actief</span>
+                    </label>
+                </div>
+            </div>
+
+            <div x-data="{ tab: 'nl' }">
+                <div class="flex border-b border-gray-200 mb-4">
+                    <button type="button" @click="tab = 'nl'"
+                            class="px-5 py-2.5 text-sm font-medium border-b-2 transition-colors"
+                            :class="tab === 'nl' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500'">
+                        NL
+                    </button>
+                    <button type="button" @click="tab = 'fr'"
+                            class="px-5 py-2.5 text-sm font-medium border-b-2 transition-colors"
+                            :class="tab === 'fr' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500'">
+                        FR
+                    </button>
+                </div>
+
+                <div x-show="tab === 'nl'" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Naam (NL) *</label>
+                        <input type="text" name="name_nl" required
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Beschrijving (NL)</label>
+                        <textarea name="description_nl" rows="3"
+                                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <div x-show="tab === 'fr'" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Naam (FR)</label>
+                        <input type="text" name="name_fr"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Beschrijving (FR)</label>
+                        <textarea name="description_fr" rows="3"
+                                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex gap-3">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">Opslaan</button>
+            <a href="/admin/appointment-types" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium transition">Annuleren</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -24,6 +24,7 @@ use App\Controllers\Admin\GoogleCalendarController;
 use App\Controllers\Admin\PageCategoryController;
 use App\Controllers\Admin\AuthController as AdminAuthController;
 use App\Controllers\Admin\MailTemplateController;
+use App\Controllers\Admin\AppointmentTypeController;
 
 /** @var \Bramus\Router\Router $router */
 
@@ -283,6 +284,26 @@ $router->post('/admin/blocks/{id}/update', function ($id) {
 });
 $router->post('/admin/blocks/{id}/delete', function ($id) {
     (new BlockController())->destroy((int)$id);
+});
+
+// Appointment Types
+$router->get('/admin/appointment-types', function () {
+    (new AppointmentTypeController())->index();
+});
+$router->get('/admin/appointment-types/create', function () {
+    (new AppointmentTypeController())->create();
+});
+$router->post('/admin/appointment-types/store', function () {
+    (new AppointmentTypeController())->store();
+});
+$router->get('/admin/appointment-types/{id}/edit', function ($id) {
+    (new AppointmentTypeController())->edit((int)$id);
+});
+$router->post('/admin/appointment-types/{id}/update', function ($id) {
+    (new AppointmentTypeController())->update((int)$id);
+});
+$router->post('/admin/appointment-types/{id}/delete', function ($id) {
+    (new AppointmentTypeController())->destroy((int)$id);
 });
 
 // Mail Templates
