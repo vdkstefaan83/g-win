@@ -112,18 +112,55 @@ class Menu extends Model
                         $item['page_slug'] = $translated['slug'];
                     }
                 }
-                // Translate category URL (e.g. /3d-scannen → /numerisation-3d)
-                if ($item['url'] && preg_match('#^/([a-z0-9-]+)$#i', $item['url'], $m)) {
-                    $catSlug = $m[1];
+                // Translate URL slugs (categories and standalone pages)
+                if ($item['url'] && preg_match('#^/([^/]+)$#', $item['url'], $m)) {
+                    $slug = $m[1];
+                    // Try page_categories first
                     $translated = $this->query(
+                        "SELECT pc2.slug FROM page_categories pc1
+                         JOIN page_categories pc2 ON pc2.translation_of = pc1.id AND pc2.lang = :lang
+                         WHERE pc1.slug = :slug AND pc1.lang = 'nl'
+                         LIMIT 1",
+                        ['slug' => $slug, 'lang' => $lang]
+                    )->fetch();
+                    if (!$translated) {
+                        // Try pages
+                        $translated = $this->query(
+                            "SELECT p2.slug FROM pages p1
+                             JOIN pages p2 ON p2.translation_of = p1.id AND p2.lang = :lang
+                             WHERE p1.slug = :slug AND p1.lang = 'nl'
+                             LIMIT 1",
+                            ['slug' => $slug, 'lang' => $lang]
+                        )->fetch();
+                    }
+                    if ($translated) {
+                        $item['url'] = '/' . $translated['slug'];
+                    }
+                }
+                // Translate nested URLs (e.g. /category/page)
+                if ($item['url'] && preg_match('#^/([^/]+)/([^/]+)$#', $item['url'], $m)) {
+                    $catSlug = $m[1];
+                    $pageSlug = $m[2];
+                    // Translate category part
+                    $translatedCat = $this->query(
                         "SELECT pc2.slug FROM page_categories pc1
                          JOIN page_categories pc2 ON pc2.translation_of = pc1.id AND pc2.lang = :lang
                          WHERE pc1.slug = :slug AND pc1.lang = 'nl'
                          LIMIT 1",
                         ['slug' => $catSlug, 'lang' => $lang]
                     )->fetch();
-                    if ($translated) {
-                        $item['url'] = '/' . $translated['slug'];
+                    // Translate page part
+                    $translatedPage = $this->query(
+                        "SELECT p2.slug FROM pages p1
+                         JOIN pages p2 ON p2.translation_of = p1.id AND p2.lang = :lang
+                         WHERE p1.slug = :slug AND p1.lang = 'nl'
+                         LIMIT 1",
+                        ['slug' => $pageSlug, 'lang' => $lang]
+                    )->fetch();
+                    $newCat = $translatedCat ? $translatedCat['slug'] : $catSlug;
+                    $newPage = $translatedPage ? $translatedPage['slug'] : $pageSlug;
+                    if ($translatedCat || $translatedPage) {
+                        $item['url'] = '/' . $newCat . '/' . $newPage;
                     }
                 }
             }
