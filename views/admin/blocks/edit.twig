@@ -105,7 +105,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-show="blockType !== 'youtube' && blockType !== 'vimeo'">
                 <div>
                     <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Afbeelding uploaden</label>
                     {% if block.image %}
@@ -159,10 +159,15 @@
                                value="{{ nl.subtitle }}" placeholder="Optionele ondertitel of label">
                     </div>
                 </div>
-                <div>
+                <div x-show="blockType !== 'youtube' && blockType !== 'vimeo'">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Inhoud</label>
                     <div id="nl_editor" class="bg-white" style="min-height: 250px;">{{ nl.content|raw }}</div>
                     <textarea name="nl_content" id="nl_content" class="hidden">{{ nl.content }}</textarea>
+                </div>
+                <div x-show="blockType === 'youtube' || blockType === 'vimeo'">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Beschrijving (optioneel, onder video)</label>
+                    <textarea name="nl_content_plain" rows="2"
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ nl.content|striptags }}</textarea>
                 </div>
             </div>
 
@@ -182,10 +187,15 @@
                                value="{{ fr.subtitle }}" placeholder="Sous-titre optionnel">
                     </div>
                 </div>
-                <div>
+                <div x-show="blockType !== 'youtube' && blockType !== 'vimeo'">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Contenu</label>
                     <div id="fr_editor" class="bg-white" style="min-height: 250px;">{{ fr.content|raw }}</div>
                     <textarea name="fr_content" id="fr_content" class="hidden">{{ fr.content }}</textarea>
+                </div>
+                <div x-show="blockType === 'youtube' || blockType === 'vimeo'">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description (optionnel, sous la vidéo)</label>
+                    <textarea name="fr_content_plain" rows="2"
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ fr.content|striptags }}</textarea>
                 </div>
             </div>
         </div>

@@ -233,11 +233,16 @@ class BlockController extends Controller
             $nlId = $translation ? $translation['id'] : null;
         }
 
+        // For video types, use plain text content field
+        $nlContent = in_array($type, ['youtube', 'vimeo'])
+            ? $this->input('nl_content_plain', '')
+            : $this->input('nl_content', '');
+
         // Update NL
         $nlData = array_merge($shared, [
             'title' => $nlTitle,
             'subtitle' => $this->input('nl_subtitle', ''),
-            'content' => $this->input('nl_content', ''),
+            'content' => $nlContent,
             'lang' => 'nl',
             'translation_of' => null,
         ]);
@@ -253,10 +258,14 @@ class BlockController extends Controller
         // Update FR (only if title filled)
         $frTitle = trim($this->input('fr_title', ''));
         if (!empty($frTitle)) {
+            $frContent = in_array($type, ['youtube', 'vimeo'])
+                ? $this->input('fr_content_plain', '')
+                : $this->input('fr_content', '');
+
             $frData = array_merge($shared, [
                 'title' => $frTitle,
                 'subtitle' => $this->input('fr_subtitle', ''),
-                'content' => $this->input('fr_content', ''),
+                'content' => $frContent,
                 'lang' => 'fr',
                 'translation_of' => $nlId,
             ]);
