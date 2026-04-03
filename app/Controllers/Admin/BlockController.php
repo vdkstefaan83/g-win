@@ -203,6 +203,12 @@ class BlockController extends Controller
                 'show_appointment_btn' => (bool) $this->input('opt_appointment_btn'),
                 'show_shop_btn' => (bool) $this->input('opt_shop_btn'),
             ]);
+        } elseif (in_array($type, ['youtube', 'vimeo'])) {
+            $shared['options'] = json_encode([
+                'autoplay' => (bool) $this->input('opt_autoplay'),
+                'muted' => (bool) $this->input('opt_muted'),
+                'loop' => (bool) $this->input('opt_loop'),
+            ]);
         }
 
         // Handle image (shared) — file upload takes priority over URL
