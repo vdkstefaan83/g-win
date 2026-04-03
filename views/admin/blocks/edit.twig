@@ -68,14 +68,12 @@
                     <input type="number" name="sort_order" id="sort_order" value="{{ block.sort_order }}"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
-                <div>
-                    <label for="link_url" class="block text-sm font-medium text-gray-700 mb-1"
-                           x-text="blockType === 'youtube' ? 'YouTube URL *' : blockType === 'vimeo' ? 'Vimeo URL *' : 'Link URL'"></label>
-                    <input type="text" name="link_url" id="link_url"
+                <div x-show="blockType !== 'youtube' && blockType !== 'vimeo'">
+                    <label for="link_url" class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
+                    <input type="text" name="link_url" id="link_url_regular"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           value="{{ block.link_url }}"
-                           :placeholder="blockType === 'youtube' ? 'https://www.youtube.com/watch?v=...' : blockType === 'vimeo' ? 'https://vimeo.com/...' : '/pagina-slug of https://...'"
-                           >
+                           value="{{ block.link_url }}" placeholder="/pagina-slug of https://..."
+                           :disabled="blockType === 'youtube' || blockType === 'vimeo'">
                 </div>
                 <div class="flex items-end pb-1">
                     <label class="inline-flex items-center gap-2">
@@ -84,6 +82,16 @@
                         <span class="text-sm font-medium text-gray-700">Actief</span>
                     </label>
                 </div>
+            </div>
+
+            <div x-show="blockType === 'youtube' || blockType === 'vimeo'" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                       x-text="blockType === 'youtube' ? 'YouTube URL *' : 'Vimeo URL *'"></label>
+                <input type="text" name="link_url" id="link_url"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                       value="{{ block.link_url }}"
+                       :placeholder="blockType === 'youtube' ? 'https://www.youtube.com/watch?v=...' : 'https://vimeo.com/...'">
+                <p class="text-xs text-gray-500 mt-1" x-text="blockType === 'youtube' ? 'Plak de volledige YouTube URL (bijv. https://www.youtube.com/watch?v=abc123)' : 'Plak de volledige Vimeo URL (bijv. https://vimeo.com/123456)'"></p>
             </div>
 
             {% set opts = block.options ?? {} %}
