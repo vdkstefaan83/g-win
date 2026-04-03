@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use Core\Controller;
 use Core\Session;
 use App\Models\Appointment;
+use App\Models\AppointmentDateProposal;
 use App\Models\Setting;
 use App\Services\AppointmentPaymentService;
 use App\Services\AppointmentNotificationService;
@@ -44,10 +45,23 @@ class AppointmentController extends Controller
         if (!$appointment) {
             Session::flash('error', 'Afspraak niet gevonden.');
             $this->redirect('/admin/appointments');
+            return;
         }
+
+        // Load type name
+        $db = \Core\Database::getInstance();
+        $typeRow = $db->prepare("SELECT name_nl FROM appointment_types WHERE slug = :slug LIMIT 1");
+        $typeRow->execute(['slug' => $appointment['type']]);
+        $typeResult = $typeRow->fetch();
+        $appointment['type_name'] = $typeResult ? $typeResult['name_nl'] : $appointment['type'];
+
+        // Load date proposals
+        $proposalModel = new AppointmentDateProposal();
+        $proposals = $proposalModel->getByAppointmentId($id);
 
         $this->render('admin/appointments/show.twig', [
             'appointment' => $appointment,
+            'proposals' => $proposals,
         ]);
     }
 
@@ -87,10 +101,24 @@ class AppointmentController extends Controller
             $this->redirect('/admin/appointments');
         }
 
-        // For child appointments, admin sets the date and time during confirmation
+        // Handle date/time - either from proposal selection or manual input
         $data = [];
+        $proposalId = $this->input('proposal_id');
 
-        if ($appointment['type'] === 'child') {
+        if ($proposalId) {
+            // Admin selected a proposed date
+            $proposalModel = new AppointmentDateProposal();
+            $proposalModel->selectProposal((int)$proposalId, $id);
+
+            // Set appointment date/time from proposal
+            $proposal = $proposalModel->findById((int)$proposalId);
+            if ($proposal) {
+                $data['date'] = $proposal['proposed_date'];
+                $data['start_time'] = $proposal['proposed_time'];
+                $data['end_time'] = date('H:i:s', strtotime($proposal['proposed_time']) + 3600); // +1 hour
+            }
+        } else {
+            // Manual date/time input (child appointments or other types)
             $date = $this->input('date');
             $startTime = $this->input('start_time');
             $endTime = $this->input('end_time');

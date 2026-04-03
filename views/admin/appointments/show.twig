@@ -39,7 +39,7 @@
             </div>
             <div class="flex justify-between">
                 <dt class="text-sm text-gray-500">Type</dt>
-                <dd class="text-sm text-gray-900">{{ appointment.type == 'pregnancy' ? 'Zwangerschap' : 'Kind' }}</dd>
+                <dd class="text-sm text-gray-900">{{ appointment.type_name ?? (appointment.type == 'pregnancy' ? 'Zwangerschap' : (appointment.type == 'child' ? 'Kind' : appointment.type)) }}</dd>
             </div>
             <div class="flex justify-between">
                 <dt class="text-sm text-gray-500">Datum</dt>
@@ -83,6 +83,37 @@
 
     <!-- Actions -->
     <div class="space-y-6">
+        {% if proposals is defined and proposals|length > 0 %}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Voorgestelde datums</h3>
+            <p class="text-sm text-gray-500 mb-4">De klant heeft onderstaande datums voorgesteld. Selecteer een datum om de afspraak te bevestigen.</p>
+            <div class="space-y-3">
+                {% for proposal in proposals %}
+                <div class="flex items-center justify-between p-3 rounded-lg border {{ proposal.is_selected ? 'border-green-300 bg-green-50' : 'border-gray-200' }}">
+                    <div>
+                        <span class="font-medium text-gray-900">{{ proposal.proposed_date|date('d/m/Y') }}</span>
+                        <span class="text-gray-500 ml-2">{{ proposal.proposed_time[:5] }}</span>
+                        {% if proposal.is_selected %}
+                            <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800">Geselecteerd</span>
+                        {% endif %}
+                    </div>
+                    {% if appointment.status == 'pending' and not proposal.is_selected %}
+                    <form action="/admin/appointments/{{ appointment.id }}/confirm" method="POST">
+                        {{ csrf_field|raw }}
+                        <input type="hidden" name="proposal_id" value="{{ proposal.id }}">
+                        <input type="hidden" name="date" value="{{ proposal.proposed_date|date('Y-m-d') }}">
+                        <input type="hidden" name="start_time" value="{{ proposal.proposed_time[:5] }}">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
+                            Selecteer
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         {% if appointment.status == 'pending' %}
         <div class="bg-white rounded-lg shadow p-6" x-data="confirmHandler()">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Bevestigen</h3>
@@ -90,7 +121,7 @@
             <form action="/admin/appointments/{{ appointment.id }}/confirm" method="POST">
                 {{ csrf_field|raw }}
 
-                {% if appointment.type == 'child' %}
+                {% if appointment.type == 'child' or (appointment.start_time is defined and appointment.start_time == '00:00:00') %}
                 <div class="space-y-4 mb-4">
                     <p class="text-sm text-gray-600">
                         Dit is een afspraak voor een kindsessie. Selecteer een datum en tijd voor de afspraak.
