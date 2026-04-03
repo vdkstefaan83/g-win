@@ -84,9 +84,13 @@ class PageController extends Controller
 
                 $alternateUrl = $this->getAlternateUrl($page, $pageModel, $lang);
 
+                $blockModel = new Block();
+                $pageBlocks = $blockModel->getActiveByPage($page['id'], $lang);
+
                 $this->render('front/pages/detail.twig', [
                     'page' => $page,
                     'category' => $category,
+                    'blocks' => $pageBlocks,
                     'layout' => $this->site['layout'] ?? 'gwin',
                     'alternate_url' => $alternateUrl ?? $alternateCatUrl,
                     'alternate_lang' => $alternateLang,
@@ -170,9 +174,13 @@ class PageController extends Controller
 
         $alternateUrl = $this->getAlternateUrl($page, $pageModel, $lang);
 
+        $blockModel = new Block();
+        $pageBlocks = $blockModel->getActiveByPage($page['id'], $lang);
+
         $this->render('front/pages/detail.twig', [
             'page' => $page,
             'category' => $category,
+            'blocks' => $pageBlocks,
             'layout' => $this->site['layout'] ?? 'gwin',
             'alternate_url' => $alternateUrl,
             'alternate_lang' => $lang === 'nl' ? 'fr' : 'nl',
