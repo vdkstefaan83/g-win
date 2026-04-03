@@ -75,7 +75,34 @@ class MailService
         $body = "<h2>Bestelbevestiging</h2>";
         $body .= "<p>Beste {$customer['first_name']},</p>";
         $body .= "<p>Bedankt voor uw bestelling <strong>#{$order['order_number']}</strong>.</p>";
-        $body .= "<p>Totaalbedrag: <strong>€" . number_format((float)$order['total'], 2, ',', '.') . "</strong></p>";
+
+        // Order items
+        if (!empty($order['items'])) {
+            $body .= "<table style='width:100%;border-collapse:collapse;margin:16px 0;'>";
+            $body .= "<tr style='border-bottom:2px solid #eee;'><th style='text-align:left;padding:8px;'>Product</th><th style='text-align:center;padding:8px;'>Aantal</th><th style='text-align:right;padding:8px;'>Prijs</th></tr>";
+            foreach ($order['items'] as $item) {
+                $lineTotal = number_format((float)$item['price'] * (int)$item['quantity'], 2, ',', '.');
+                $body .= "<tr style='border-bottom:1px solid #f0f0f0;'>";
+                $body .= "<td style='padding:8px;'>{$item['product_name']}</td>";
+                $body .= "<td style='text-align:center;padding:8px;'>{$item['quantity']}</td>";
+                $body .= "<td style='text-align:right;padding:8px;'>€{$lineTotal}</td>";
+                $body .= "</tr>";
+            }
+            $body .= "<tr><td colspan='2' style='padding:8px;text-align:right;font-weight:bold;'>Totaal:</td>";
+            $body .= "<td style='padding:8px;text-align:right;font-weight:bold;'>€" . number_format((float)$order['total'], 2, ',', '.') . "</td></tr>";
+            $body .= "</table>";
+        } else {
+            $body .= "<p>Totaalbedrag: <strong>€" . number_format((float)$order['total'], 2, ',', '.') . "</strong></p>";
+        }
+
+        // Shipping address
+        if (!empty($customer['address'])) {
+            $body .= "<p><strong>Verzendadres:</strong><br>";
+            $body .= "{$customer['first_name']} {$customer['last_name']}<br>";
+            $body .= "{$customer['address']}<br>";
+            $body .= "{$customer['postal_code']} {$customer['city']}</p>";
+        }
+
         $body .= "<p>Met vriendelijke groet,<br>G-Win</p>";
 
         return self::send($customer['email'], "Bestelbevestiging #{$order['order_number']}", $body);

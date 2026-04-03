@@ -5,6 +5,7 @@ namespace App\Services;
 use Mollie\Api\MollieApiClient;
 use App\Models\Payment;
 use App\Models\Order;
+use App\Services\MailService;
 
 class PaymentService
 {
@@ -75,6 +76,12 @@ class PaymentService
             if ($molliePayment->isPaid()) {
                 $updateData['paid_at'] = date('Y-m-d H:i:s');
                 $this->orderModel->update($payment['order_id'], ['status' => 'paid']);
+
+                // Send order confirmation email
+                $order = $this->orderModel->getWithItems($payment['order_id']);
+                if ($order && !empty($order['customer'])) {
+                    MailService::sendOrderConfirmation($order, $order['customer']);
+                }
             } elseif ($molliePayment->isFailed() || $molliePayment->isCanceled()) {
                 $this->orderModel->update($payment['order_id'], ['status' => 'cancelled']);
             }
