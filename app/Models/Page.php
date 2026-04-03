@@ -95,9 +95,27 @@ class Page extends Model
 
     public function findBySlugAndCategory(string $slug, int $categoryId): array|false
     {
+        // Include linked NL/FR category IDs
+        $catIds = [$categoryId];
+        $masterCat = $this->query(
+            "SELECT translation_of FROM page_categories WHERE id = :id AND translation_of IS NOT NULL LIMIT 1",
+            ['id' => $categoryId]
+        )->fetch();
+        if ($masterCat) {
+            $catIds[] = (int)$masterCat['translation_of'];
+        }
+        $frCat = $this->query(
+            "SELECT id FROM page_categories WHERE translation_of = :id LIMIT 1",
+            ['id' => $categoryId]
+        )->fetch();
+        if ($frCat) {
+            $catIds[] = (int)$frCat['id'];
+        }
+
+        $placeholders = implode(',', array_map('intval', $catIds));
         return $this->query(
-            "SELECT * FROM pages WHERE slug = :slug AND page_category_id = :cat_id AND is_published = 1 LIMIT 1",
-            ['slug' => $slug, 'cat_id' => $categoryId]
+            "SELECT * FROM pages WHERE slug = :slug AND page_category_id IN ({$placeholders}) AND is_published = 1 LIMIT 1",
+            ['slug' => $slug]
         )->fetch();
     }
 
