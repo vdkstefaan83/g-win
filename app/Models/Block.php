@@ -13,7 +13,7 @@ class Block extends Model
         return $this->query(
             "SELECT b.* FROM blocks b
              INNER JOIN block_sites bs ON bs.block_id = b.id
-             WHERE bs.site_id = :site_id AND b.lang = :lang AND b.is_active = 1 ORDER BY b.sort_order ASC",
+             WHERE bs.site_id = :site_id AND b.lang = :lang AND b.is_active = 1 AND b.page_id IS NULL ORDER BY b.sort_order ASC",
             ['site_id' => $siteId, 'lang' => $lang]
         )->fetchAll();
     }
@@ -21,11 +21,13 @@ class Block extends Model
     public function getAllWithSite(): array
     {
         return $this->query(
-            "SELECT b.*, GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS site_names,
+            "SELECT b.*, GROUP_CONCAT(DISTINCT s.name ORDER BY s.name SEPARATOR ', ') AS site_names,
+                    p.title AS page_title,
                     (SELECT COUNT(*) FROM blocks b2 WHERE b2.translation_of = b.id) > 0 AS has_fr
              FROM blocks b
              LEFT JOIN block_sites bs ON bs.block_id = b.id
              LEFT JOIN sites s ON s.id = bs.site_id
+             LEFT JOIN pages p ON b.page_id = p.id
              WHERE b.translation_of IS NULL
              GROUP BY b.id
              ORDER BY b.sort_order ASC"
@@ -35,16 +37,28 @@ class Block extends Model
     public function getBySite(int $siteId): array
     {
         return $this->query(
-            "SELECT b.*, GROUP_CONCAT(s2.name ORDER BY s2.name SEPARATOR ', ') AS site_names,
+            "SELECT b.*, GROUP_CONCAT(DISTINCT s2.name ORDER BY s2.name SEPARATOR ', ') AS site_names,
+                    p.title AS page_title,
                     (SELECT COUNT(*) FROM blocks b2 WHERE b2.translation_of = b.id) > 0 AS has_fr
              FROM blocks b
              INNER JOIN block_sites bs ON bs.block_id = b.id
              LEFT JOIN block_sites bs2 ON bs2.block_id = b.id
              LEFT JOIN sites s2 ON s2.id = bs2.site_id
+             LEFT JOIN pages p ON b.page_id = p.id
              WHERE bs.site_id = :site_id AND b.translation_of IS NULL
              GROUP BY b.id
              ORDER BY b.sort_order ASC",
             ['site_id' => $siteId]
+        )->fetchAll();
+    }
+
+    public function getActiveByPage(int $pageId, string $lang = 'nl'): array
+    {
+        return $this->query(
+            "SELECT b.* FROM blocks b
+             WHERE b.page_id = :page_id AND b.lang = :lang AND b.is_active = 1
+             ORDER BY b.sort_order ASC",
+            ['page_id' => $pageId, 'lang' => $lang]
         )->fetchAll();
     }
 

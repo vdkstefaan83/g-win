@@ -41,6 +41,23 @@
                     </div>
                 </div>
                 <div>
+                    <label for="page_id" class="block text-sm font-medium text-gray-700 mb-1">Pagina</label>
+                    <select name="page_id" id="page_id"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Homepage</option>
+                        {% for page in pages %}
+                            <option value="{{ page.id }}" {{ block.page_id == page.id ? 'selected' : '' }}>{{ page.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-1">Volgorde</label>
+                    <input type="number" name="sort_order" id="sort_order" value="{{ block.sort_order }}"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
                     <label for="link_url" class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
                     <input type="text" name="link_url" id="link_url"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

@@ -4,6 +4,7 @@ namespace App\Controllers\Front;
 
 use Core\App;
 use Core\Controller;
+use App\Models\Block;
 use App\Models\Page;
 use App\Models\PageCategory;
 use App\Models\PageImage;
@@ -119,8 +120,13 @@ class PageController extends Controller
 
         $alternateUrl = $this->getAlternateUrl($page, $pageModel, $lang);
 
+        // Load page blocks
+        $blockModel = new Block();
+        $pageBlocks = $blockModel->getActiveByPage($page['id'], $lang);
+
         $this->render('front/pages/show.twig', [
             'page' => $page,
+            'blocks' => $pageBlocks,
             'layout' => $this->site['layout'] ?? 'gwin',
             'alternate_url' => $alternateUrl,
             'alternate_lang' => $lang === 'nl' ? 'fr' : 'nl',

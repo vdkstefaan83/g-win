@@ -6,6 +6,7 @@ use Core\Controller;
 use Core\Session;
 use Core\Helpers\FileUpload;
 use App\Models\Block;
+use App\Models\Page;
 use App\Models\Site;
 
 class BlockController extends Controller
@@ -122,11 +123,14 @@ class BlockController extends Controller
             $nl = $translation ?: [];
         }
 
+        $pageModel = new Page();
+
         $this->render('admin/blocks/edit.twig', [
             'block' => $block,
             'nl' => $nl,
             'fr' => $fr,
             'sites' => $this->siteModel->findAll('name', 'ASC'),
+            'pages' => $pageModel->getAllWithSite(),
         ]);
     }
 
@@ -149,6 +153,7 @@ class BlockController extends Controller
         $shared = [
             'site_id' => (int) $siteIds[0],
             'type' => $type,
+            'page_id' => $this->input('page_id') ?: null,
             'sort_order' => (int) $this->input('sort_order', 0),
             'is_active' => $this->input('is_active') ? 1 : 0,
             'link_url' => $this->input('link_url', ''),
