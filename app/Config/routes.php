@@ -23,6 +23,7 @@ use App\Controllers\Admin\SettingController;
 use App\Controllers\Admin\GoogleCalendarController;
 use App\Controllers\Admin\PageCategoryController;
 use App\Controllers\Admin\AuthController as AdminAuthController;
+use App\Controllers\Admin\MailTemplateController;
 
 /** @var \Bramus\Router\Router $router */
 
@@ -282,6 +283,26 @@ $router->post('/admin/blocks/{id}/update', function ($id) {
 });
 $router->post('/admin/blocks/{id}/delete', function ($id) {
     (new BlockController())->destroy((int)$id);
+});
+
+// Mail Templates
+$router->get('/admin/mail-templates', function () {
+    (new MailTemplateController())->index();
+});
+$router->get('/admin/mail-templates/create', function () {
+    (new MailTemplateController())->create();
+});
+$router->post('/admin/mail-templates/store', function () {
+    (new MailTemplateController())->store();
+});
+$router->get('/admin/mail-templates/{id}/edit', function ($id) {
+    (new MailTemplateController())->edit((int)$id);
+});
+$router->post('/admin/mail-templates/{id}/update', function ($id) {
+    (new MailTemplateController())->update((int)$id);
+});
+$router->post('/admin/mail-templates/{id}/delete', function ($id) {
+    (new MailTemplateController())->destroy((int)$id);
 });
 
 // Appointments

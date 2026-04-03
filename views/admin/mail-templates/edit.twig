@@ -1,0 +1,131 @@
+{% extends 'layouts/admin/base.twig' %}
+
+{% block title %}Mail template bewerken{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="/admin/mail-templates" class="text-blue-600 hover:text-blue-800 text-sm">&larr; Terug naar templates</a>
+</div>
+
+<h2 class="text-2xl font-bold text-gray-800 mb-6">Template bewerken: {{ template.name }}</h2>
+
+<div class="bg-white rounded-lg shadow p-6 max-w-4xl">
+    <form action="/admin/mail-templates/{{ template.id }}/update" method="POST" id="templateForm">
+        {{ csrf_field|raw }}
+
+        <div class="space-y-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Naam *</label>
+                    <input type="text" name="name" id="name" required
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           value="{{ template.name }}">
+                </div>
+                <div>
+                    <label for="slug" class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                    <input type="text" name="slug" id="slug"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+                           value="{{ template.slug }}" readonly>
+                </div>
+                <div class="flex items-end pb-1">
+                    <label class="inline-flex items-center gap-2">
+                        <input type="checkbox" name="is_active" value="1" {{ template.is_active ? 'checked' : '' }}
+                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Actief</span>
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Beschikbare variabelen</label>
+                <input type="text" name="available_variables"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                       value="{{ template.available_variables }}">
+                <p class="text-xs text-gray-500 mt-1">Komma-gescheiden lijst. Gebruik in de body als {voornaam}, {datum}, etc.</p>
+            </div>
+        </div>
+
+        <div x-data="{ tab: 'nl' }" class="mb-6">
+            <div class="flex border-b border-gray-200 mb-4">
+                <button type="button" @click="tab = 'nl'"
+                        class="px-5 py-2.5 text-sm font-medium border-b-2 transition-colors"
+                        :class="tab === 'nl' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                    NL - Nederlands
+                </button>
+                <button type="button" @click="tab = 'fr'"
+                        class="px-5 py-2.5 text-sm font-medium border-b-2 transition-colors"
+                        :class="tab === 'fr' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                    FR - Frans
+                </button>
+            </div>
+
+            <div x-show="tab === 'nl'" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Onderwerp (NL) *</label>
+                    <input type="text" name="subject_nl" required
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           value="{{ template.subject_nl }}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Body (NL)</label>
+                    <div id="nl_editor" class="bg-white" style="min-height: 300px;">{{ template.body_nl|raw }}</div>
+                    <textarea name="body_nl" id="body_nl" class="hidden">{{ template.body_nl }}</textarea>
+                </div>
+            </div>
+
+            <div x-show="tab === 'fr'" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Onderwerp (FR)</label>
+                    <input type="text" name="subject_fr"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           value="{{ template.subject_fr }}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Body (FR)</label>
+                    <div id="fr_editor" class="bg-white" style="min-height: 300px;">{{ template.body_fr|raw }}</div>
+                    <textarea name="body_fr" id="body_fr" class="hidden">{{ template.body_fr }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">Bijwerken</button>
+            <a href="/admin/mail-templates" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium transition">Annuleren</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var nlQuill = new Quill('#nl_editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['link'],
+                ['clean']
+            ]
+        }
+    });
+    var frQuill = new Quill('#fr_editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['link'],
+                ['clean']
+            ]
+        }
+    });
+
+    document.getElementById('templateForm').addEventListener('submit', function() {
+        document.getElementById('body_nl').value = nlQuill.root.innerHTML;
+        document.getElementById('body_fr').value = frQuill.root.innerHTML;
+    });
+</script>
+{% endblock %}
