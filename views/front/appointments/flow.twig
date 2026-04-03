@@ -114,17 +114,55 @@
         <template x-if="steps[currentStep] && steps[currentStep].step_type === 'date_proposals'">
             <div>
                 <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2" x-text="steps[currentStep].label"></h2>
-                <p class="text-krijgers-500 mb-6" x-text="currentLang === 'fr' ? 'Proposez ' + (steps[currentStep].config.num_proposals || 3) + ' dates et heures.' : 'Stel ' + (steps[currentStep].config.num_proposals || 3) + ' datums en tijdstippen voor.'"></p>
+                <p class="text-krijgers-500 mb-6" x-text="currentLang === 'fr' ? 'Proposez ' + (steps[currentStep].config.num_proposals || 3) + ' dates et heures qui vous conviennent.' : 'Stel ' + (steps[currentStep].config.num_proposals || 3) + ' datums en tijdstippen voor die u passen.'"></p>
 
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <template x-for="(proposal, pi) in form.proposals" :key="pi">
-                        <div class="bg-white rounded-xl shadow-sm p-4">
-                            <div class="text-sm font-medium text-krijgers-600 mb-2" x-text="(currentLang === 'fr' ? 'Proposition ' : 'Voorstel ') + (pi + 1)"></div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <input type="date" x-model="proposal.date" :min="tomorrow"
-                                       class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <input type="time" x-model="proposal.time"
-                                       class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <div class="bg-white rounded-xl shadow-sm p-5 border border-krijgers-100">
+                            <div class="text-sm font-semibold text-krijgers-700 mb-3" x-text="(currentLang === 'fr' ? 'Proposition ' : 'Voorstel ') + (pi + 1)"></div>
+
+                            <!-- Mini calendar for this proposal -->
+                            <div class="mb-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <button type="button" @click="proposalCalMonths[pi] > 0 ? proposalCalMonths[pi]-- : (proposalCalMonths[pi] = 11, proposalCalYears[pi]--)" class="p-1 hover:bg-krijgers-50 rounded">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                                    </button>
+                                    <span class="text-sm font-medium text-krijgers-700" x-text="new Date(proposalCalYears[pi], proposalCalMonths[pi]).toLocaleString(currentLang === 'fr' ? 'fr-BE' : 'nl-BE', { month: 'long', year: 'numeric' })"></span>
+                                    <button type="button" @click="proposalCalMonths[pi] < 11 ? proposalCalMonths[pi]++ : (proposalCalMonths[pi] = 0, proposalCalYears[pi]++)" class="p-1 hover:bg-krijgers-50 rounded">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-7 gap-0.5 mb-1 text-center text-xs text-krijgers-400">
+                                    <span>Ma</span><span>Di</span><span>Wo</span><span>Do</span><span>Vr</span><span>Za</span><span>Zo</span>
+                                </div>
+                                <div class="grid grid-cols-7 gap-0.5">
+                                    <template x-for="cell in proposalCalDays(pi)" :key="cell.key">
+                                        <button type="button" @click="cell.selectable && (proposal.date = cell.date)"
+                                                class="aspect-square rounded text-xs font-medium flex items-center justify-center transition-all"
+                                                :class="{
+                                                    'bg-[#d69b4b] text-white font-bold': proposal.date === cell.date,
+                                                    'bg-[#d69b4b]/15 text-[#d69b4b] hover:bg-[#d69b4b]/30 cursor-pointer': cell.selectable && proposal.date !== cell.date,
+                                                    'text-krijgers-200 cursor-default': !cell.selectable && cell.day,
+                                                    '': !cell.day
+                                                }"
+                                                :disabled="!cell.selectable" x-text="cell.day || ''">
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Selected date + time -->
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1">
+                                    <div class="text-xs text-krijgers-500 mb-1" x-text="currentLang === 'fr' ? 'Date choisie' : 'Gekozen datum'"></div>
+                                    <div class="text-sm font-medium text-krijgers-800 bg-krijgers-50 rounded-lg px-3 py-2"
+                                         x-text="proposal.date ? new Date(proposal.date + 'T00:00:00').toLocaleDateString(currentLang === 'fr' ? 'fr-BE' : 'nl-BE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '-'"></div>
+                                </div>
+                                <div class="w-32">
+                                    <div class="text-xs text-krijgers-500 mb-1" x-text="currentLang === 'fr' ? 'Heure' : 'Uur'"></div>
+                                    <input type="time" x-model="proposal.time"
+                                           class="w-full border border-krijgers-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500">
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -215,8 +253,12 @@ function appointmentFlow() {
         }
     });
     var proposals = [];
+    var proposalCalMonths = [];
+    var proposalCalYears = [];
     for (var i = 0; i < numProposals; i++) {
         proposals.push({ date: '', time: '' });
+        proposalCalMonths.push(today.getMonth());
+        proposalCalYears.push(today.getFullYear());
     }
 
     return {
@@ -224,6 +266,8 @@ function appointmentFlow() {
         currentStep: 0,
         calMonth: today.getMonth(),
         calYear: today.getFullYear(),
+        proposalCalMonths: proposalCalMonths,
+        proposalCalYears: proposalCalYears,
         availableSlots: [],
         loadingSlots: false,
         tomorrow: tomorrow.toISOString().split('T')[0],
@@ -270,6 +314,32 @@ function appointmentFlow() {
                     return bdDate === iso && bdPeriod === 'hele_dag';
                 });
                 cells.push({ key: iso, day: d, date: iso, selectable: isTarget && isFuture && isInRange && !isBlocked });
+            }
+            return cells;
+        },
+
+        proposalCalDays(pi) {
+            var month = this.proposalCalMonths[pi];
+            var year = this.proposalCalYears[pi];
+            var first = new Date(year, month, 1);
+            var lastDay = new Date(year, month + 1, 0).getDate();
+            var startOffset = (first.getDay() + 6) % 7;
+            var cells = [];
+
+            for (var i = 0; i < startOffset; i++) { cells.push({ key: 'pe' + pi + '_' + i, day: null, date: null, selectable: false }); }
+
+            for (var d = 1; d <= lastDay; d++) {
+                var dt = new Date(year, month, d);
+                var iso = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+                var isFuture = dt >= tomorrow;
+                var isInRange = dt <= maxDate;
+                var isBlocked = _blockedDates.some(function(bd) {
+                    var bdDate = typeof bd === 'string' ? bd : bd.date;
+                    var bdPeriod = typeof bd === 'string' ? 'hele_dag' : (bd.period || 'hele_dag');
+                    return bdDate === iso && bdPeriod === 'hele_dag';
+                });
+                // Weekends on Sunday are not selectable for pickup (only weekdays + Saturday)
+                cells.push({ key: 'p' + pi + '_' + iso, day: d, date: iso, selectable: isFuture && isInRange && !isBlocked });
             }
             return cells;
         },
