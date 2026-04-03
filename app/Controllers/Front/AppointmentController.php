@@ -67,7 +67,11 @@ class AppointmentController extends Controller
         $type['description'] = ($lang === 'fr' && !empty($type['description_fr'])) ? $type['description_fr'] : $type['description_nl'];
 
         $flowStepModel = new AppointmentFlowStep();
-        $flowSteps = $flowStepModel->getByTypeId($type['id']);
+        $allSteps = $flowStepModel->getByTypeId($type['id']);
+
+        // Only pass client-facing steps to the front-end
+        $clientStepTypes = ['date_picker', 'time_picker', 'date_proposals', 'details_form'];
+        $flowSteps = array_values(array_filter($allSteps, fn($s) => in_array($s['step_type'], $clientStepTypes)));
 
         $settingModel = new Setting();
         $maxBookingMonths = (int) $settingModel->get('appointment_max_months', null, '24');
