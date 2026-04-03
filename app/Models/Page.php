@@ -64,8 +64,27 @@ class Page extends Model
 
     public function getByCategory(int $categoryId, ?string $lang = null): array
     {
-        $sql = "SELECT * FROM pages WHERE page_category_id = :cat_id AND is_published = 1";
-        $params = ['cat_id' => $categoryId];
+        // Also include the NL master category if this is a FR translation
+        $catIds = [$categoryId];
+        $masterCat = $this->query(
+            "SELECT translation_of FROM page_categories WHERE id = :id AND translation_of IS NOT NULL LIMIT 1",
+            ['id' => $categoryId]
+        )->fetch();
+        if ($masterCat) {
+            $catIds[] = (int)$masterCat['translation_of'];
+        }
+        // Also include FR category if this is the NL master
+        $frCat = $this->query(
+            "SELECT id FROM page_categories WHERE translation_of = :id LIMIT 1",
+            ['id' => $categoryId]
+        )->fetch();
+        if ($frCat) {
+            $catIds[] = (int)$frCat['id'];
+        }
+
+        $placeholders = implode(',', array_map('intval', $catIds));
+        $sql = "SELECT * FROM pages WHERE page_category_id IN ({$placeholders}) AND is_published = 1";
+        $params = [];
         if ($lang) {
             $sql .= " AND lang = :lang";
             $params['lang'] = $lang;
