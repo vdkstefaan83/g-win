@@ -87,8 +87,8 @@ class Menu extends Model
 
         if (!$menu) return false;
 
-        // Determine if we need to translate slugs (NL menu used as FR fallback)
-        $needsTranslation = ($lang !== 'nl' && $menu['lang'] === 'nl');
+        // Translate slugs for non-NL languages (both fallback and own FR menus)
+        $needsTranslation = ($lang !== 'nl');
 
         // Single query for all items (parents + children)
         $allItems = $this->query(
@@ -102,14 +102,21 @@ class Menu extends Model
         // Translate slugs if using NL menu for FR
         if ($needsTranslation) {
             foreach ($allItems as &$item) {
-                // Translate page slug
+                // Translate page slug — check if page_id points to NL page
                 if ($item['page_id'] && $item['page_slug']) {
-                    $translated = $this->query(
-                        "SELECT slug FROM pages WHERE translation_of = :id AND lang = :lang LIMIT 1",
-                        ['id' => $item['page_id'], 'lang' => $lang]
+                    $page = $this->query(
+                        "SELECT id, lang, translation_of FROM pages WHERE id = :id LIMIT 1",
+                        ['id' => $item['page_id']]
                     )->fetch();
-                    if ($translated) {
-                        $item['page_slug'] = $translated['slug'];
+                    if ($page && $page['lang'] !== $lang) {
+                        // page_id is NL, find FR translation
+                        $translated = $this->query(
+                            "SELECT slug FROM pages WHERE translation_of = :id AND lang = :lang LIMIT 1",
+                            ['id' => $item['page_id'], 'lang' => $lang]
+                        )->fetch();
+                        if ($translated) {
+                            $item['page_slug'] = $translated['slug'];
+                        }
                     }
                 }
                 // Translate URL slugs (categories and standalone pages)
