@@ -197,6 +197,13 @@
             </div>
         </div>
     </section>
+
+    {# ========== VIDEO ========== #}
+    {% elseif section.type == 'youtube' or section.type == 'vimeo' %}
+    {% for block in section.blocks %}
+        {% include 'components/block-video.twig' with { 'block': block } %}
+    {% endfor %}
+
     {% endif %}
 
 {% endfor %}

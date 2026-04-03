@@ -149,6 +149,8 @@
             </div>
         </div>
     </section>
+    {% elseif block.type == 'youtube' or block.type == 'vimeo' %}
+    {% include 'components/block-video.twig' with { 'block': block } %}
     {% elseif block.type == 'gallery' %}
     <section class="py-16 bg-krijgers-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
