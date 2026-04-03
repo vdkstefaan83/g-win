@@ -62,6 +62,16 @@ class Block extends Model
         )->fetchAll();
     }
 
+    public function getActiveByCategory(int $categoryId, string $lang = 'nl'): array
+    {
+        return $this->query(
+            "SELECT b.* FROM blocks b
+             WHERE b.page_category_id = :cat_id AND b.lang = :lang AND b.is_active = 1
+             ORDER BY b.sort_order ASC",
+            ['cat_id' => $categoryId, 'lang' => $lang]
+        )->fetchAll();
+    }
+
     public function getSiteIds(int $blockId): array
     {
         return array_column(

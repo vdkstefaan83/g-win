@@ -99,9 +99,13 @@ class PageController extends Controller
             }
 
             // Multiple pages: show overview
+            $blockModel = new Block();
+            $categoryBlocks = $blockModel->getActiveByCategory($category['id'], $lang);
+
             $this->render('front/pages/category.twig', [
                 'category' => $category,
                 'pages' => $pages,
+                'blocks' => $categoryBlocks,
                 'layout' => $this->site['layout'] ?? 'gwin',
                 'alternate_url' => $alternateCatUrl,
                 'alternate_lang' => $alternateLang,

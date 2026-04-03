@@ -7,6 +7,7 @@ use Core\Session;
 use Core\Helpers\FileUpload;
 use App\Models\Block;
 use App\Models\Page;
+use App\Models\PageCategory;
 use App\Models\Site;
 
 class BlockController extends Controller
@@ -149,6 +150,7 @@ class BlockController extends Controller
         }
 
         $pageModel = new Page();
+        $catModel = new PageCategory();
 
         $this->render('admin/blocks/edit.twig', [
             'block' => $block,
@@ -156,6 +158,7 @@ class BlockController extends Controller
             'fr' => $fr,
             'sites' => $this->siteModel->findAll('name', 'ASC'),
             'pages' => $pageModel->getAllWithSite(),
+            'page_categories' => $catModel->getAllWithSite(),
         ]);
     }
 
@@ -174,11 +177,22 @@ class BlockController extends Controller
             $this->redirect("/admin/blocks/{$id}/edit");
         }
 
+        // Parse page target (page:123 or cat:456 or empty=homepage)
+        $pageTarget = $this->input('page_target', '');
+        $pageId = null;
+        $pageCategoryId = null;
+        if (str_starts_with($pageTarget, 'page:')) {
+            $pageId = (int) substr($pageTarget, 5);
+        } elseif (str_starts_with($pageTarget, 'cat:')) {
+            $pageCategoryId = (int) substr($pageTarget, 4);
+        }
+
         // Shared fields
         $shared = [
             'site_id' => (int) $siteIds[0],
             'type' => $type,
-            'page_id' => $this->input('page_id') ?: null,
+            'page_id' => $pageId,
+            'page_category_id' => $pageCategoryId,
             'sort_order' => (int) $this->input('sort_order', 0),
             'is_active' => $this->input('is_active') ? 1 : 0,
             'link_url' => $this->input('link_url', ''),
