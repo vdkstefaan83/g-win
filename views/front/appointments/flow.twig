@@ -194,11 +194,10 @@
 var _flowSteps = [{% for step in flow_steps %}{
     "step_type": "{{ step.step_type }}",
     "label": "{{ (lang == 'fr' and step.label_fr) ? step.label_fr|e('js') : step.label_nl|e('js') }}",
-    "config": {{ step.config ?: '{}' }}
+    "config": {% autoescape false %}{{ step.config ?: '{}' }}{% endautoescape %}
 }{{ not loop.last ? ',' : '' }}{% endfor %}];
 
-console.log('Flow steps:', _flowSteps);
-var _blockedDates = {{ blocked_dates|json_encode|raw }};
+var _blockedDates = [{% for bd in blocked_dates %}{"date":"{{ bd.date }}","period":"{{ bd.period }}","reason":"{{ bd.reason|e('js') }}"}{{ not loop.last ? ',' : '' }}{% endfor %}];
 var _typeSlug = "{{ appointment_type.slug }}";
 var _maxMonths = {{ max_booking_months ?? 24 }};
 var currentLang = "{{ lang }}";
