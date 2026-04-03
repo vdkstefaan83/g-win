@@ -14,11 +14,11 @@
         {{ csrf_field|raw }}
 
         {# ── Shared fields ── #}
-        <div class="space-y-4 mb-6">
+        <div class="space-y-4 mb-6" x-data="{ blockType: '{{ block.type }}' }">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                    <select name="type" id="type" required
+                    <select name="type" id="type" required x-model="blockType"
                             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="hero" {{ block.type == 'hero' ? 'selected' : '' }}>Hero (hoofdbanner)</option>
                         <option value="feature" {{ block.type == 'feature' ? 'selected' : '' }}>Feature (dienst-kaart)</option>
@@ -69,10 +69,13 @@
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
-                    <label for="link_url" class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
+                    <label for="link_url" class="block text-sm font-medium text-gray-700 mb-1"
+                           x-text="blockType === 'youtube' ? 'YouTube URL *' : blockType === 'vimeo' ? 'Vimeo URL *' : 'Link URL'"></label>
                     <input type="text" name="link_url" id="link_url"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           value="{{ block.link_url }}" placeholder="/pagina-slug of https://...">
+                           value="{{ block.link_url }}"
+                           :placeholder="blockType === 'youtube' ? 'https://www.youtube.com/watch?v=...' : blockType === 'vimeo' ? 'https://vimeo.com/...' : '/pagina-slug of https://...'"
+                           >
                 </div>
                 <div class="flex items-end pb-1">
                     <label class="inline-flex items-center gap-2">
