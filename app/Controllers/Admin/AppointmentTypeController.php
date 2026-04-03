@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use Core\Controller;
 use Core\Session;
 use App\Models\AppointmentType;
+use App\Models\MailTemplate;
 
 class AppointmentTypeController extends Controller
 {
@@ -64,8 +65,11 @@ class AppointmentTypeController extends Controller
             return;
         }
 
+        $templateModel = new MailTemplate();
+
         $this->render('admin/appointment-types/edit.twig', [
             'type' => $type,
+            'mail_templates' => $templateModel->findAll('name', 'ASC'),
         ]);
     }
 

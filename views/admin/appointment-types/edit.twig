@@ -132,14 +132,18 @@
                             </template>
 
                             <template x-if="step.step_type === 'send_email'">
-                                <div class="flex items-center gap-3 text-sm">
-                                    <label class="text-gray-600">Template slug:</label>
-                                    <input type="text" x-model="step.config.template_slug" placeholder="payment_request"
-                                           class="flex-1 border border-gray-300 rounded px-2 py-1 text-sm">
-                                    <label class="text-gray-600">Trigger:</label>
+                                <div class="flex items-center gap-3 text-sm flex-wrap">
+                                    <label class="text-gray-600">Mail template:</label>
+                                    <select x-model="step.config.template_slug" class="flex-1 border border-gray-300 rounded px-2 py-1 text-sm">
+                                        <option value="">-- Kies template --</option>
+                                        {% for mt in mail_templates %}
+                                            <option value="{{ mt.slug }}">{{ mt.name }} ({{ mt.slug }})</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label class="text-gray-600">Wanneer versturen:</label>
                                     <select x-model="step.config.trigger" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                                        <option value="on_submit">Bij indiening</option>
-                                        <option value="on_confirm">Bij bevestiging</option>
+                                        <option value="on_submit">Bij indiening (klant verstuurt formulier)</option>
+                                        <option value="on_confirm">Bij bevestiging (admin bevestigt afspraak)</option>
                                     </select>
                                 </div>
                             </template>
