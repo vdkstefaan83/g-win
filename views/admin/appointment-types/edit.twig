@@ -182,7 +182,7 @@
         "step_type": "{{ step.step_type }}",
         "label_nl": "{{ step.label_nl|e('js') }}",
         "label_fr": "{{ step.label_fr|e('js') }}",
-        "config": {{ step.config ?: '{}' }},
+        "config": {% autoescape false %}{{ step.config ?: '{}' }}{% endautoescape %},
         "sort_order": {{ step.sort_order }}
     }{{ not loop.last ? ',' : '' }}{% endfor %}];
 
@@ -194,6 +194,8 @@
         'send_email': { nl: 'Mail sturen', fr: 'Envoyer un mail' },
         'payment': { nl: 'Betaling', fr: 'Paiement' }
     };
+
+    console.log('Initial steps:', JSON.stringify(_initialSteps));
 
     function flowBuilder() {
         return {
