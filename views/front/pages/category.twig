@@ -80,7 +80,14 @@
             {% endfor %}
         </div>
 
-        <!-- CTA -->
+        <!-- Default CTA (if no CTA block) -->
+        {% set hasCta = false %}
+        {% if blocks is defined %}
+            {% for b in blocks %}
+                {% if b.type == 'cta' %}{% set hasCta = true %}{% endif %}
+            {% endfor %}
+        {% endif %}
+        {% if not hasCta %}
         <div class="text-center mt-16">
             <h3 class="text-2xl font-display font-bold text-krijgers-800 mb-4">{{ t('interested') }}</h3>
             <p class="text-krijgers-600 mb-6 max-w-xl mx-auto">{{ t('appointment_cta_text') }}</p>
@@ -89,6 +96,75 @@
                 <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
             </a>
         </div>
+        {% endif %}
     </div>
 </section>
+
+{# ========== Additional blocks (non-hero) ========== #}
+{% if blocks is defined %}
+{% for block in blocks %}
+    {% if block.type == 'cta' %}
+    <section class="relative py-20 overflow-hidden">
+        <div class="absolute inset-0">
+            {% if block.image %}<img src="{{ _self.img(block.image) }}" alt="" class="w-full h-full object-cover">{% endif %}
+            <div class="absolute inset-0 bg-krijgers-800/90"></div>
+        </div>
+        <div class="relative max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-6">{{ block.title }}</h2>
+            {% if block.content %}<p class="text-lg text-krijgers-200 mb-8 max-w-2xl mx-auto">{{ block.content|striptags }}</p>{% endif %}
+            {% if block.link_url %}
+            <a href="{{ lang_url(block.link_url) }}" class="inline-flex items-center justify-center bg-krijgers-gold-500 text-krijgers-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-krijgers-gold-400 transition-all shadow-lg shadow-krijgers-gold-500/25 hover:-translate-y-0.5">
+                {{ block.title }}
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+            {% endif %}
+        </div>
+    </section>
+    {% elseif block.type == 'feature' %}
+    <section class="py-16 bg-krijgers-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="group relative bg-white rounded-2xl overflow-hidden shadow-sm">
+                {% if block.image %}
+                <div class="aspect-[21/9] overflow-hidden">
+                    <img src="{{ _self.img(block.image) }}" alt="{{ block.title }}" class="w-full h-full object-cover">
+                </div>
+                {% endif %}
+                <div class="p-8">
+                    <h3 class="text-2xl font-display font-bold text-krijgers-800 mb-3">{{ block.title }}</h3>
+                    <div class="text-krijgers-600 leading-relaxed prose">{{ block.content|raw }}</div>
+                    {% if block.link_url %}
+                    <a href="{{ lang_url(block.link_url) }}" class="inline-flex items-center text-krijgers-gold-700 font-semibold mt-4">
+                        {{ t('more_info') }}
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% elseif block.type == 'text' %}
+    <section class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-krijgers-800">
+                {% if block.title %}<h2>{{ block.title }}</h2>{% endif %}
+                {{ block.content|raw }}
+            </div>
+        </div>
+    </section>
+    {% elseif block.type == 'gallery' %}
+    <section class="py-16 bg-krijgers-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {% if block.title %}
+            <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6 text-center">{{ block.title }}</h2>
+            {% endif %}
+            {% if block.image %}
+            <div class="rounded-2xl overflow-hidden shadow-lg">
+                <img src="{{ _self.img(block.image) }}" alt="{{ block.title }}" class="w-full h-auto">
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+{% endfor %}
+{% endif %}
 {% endblock %}
