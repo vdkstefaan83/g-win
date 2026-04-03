@@ -11,23 +11,31 @@
 </div>
 
 <div class="bg-white rounded-lg shadow p-4 mb-6">
-    <form method="GET" action="/admin/blocks" class="flex items-center gap-4">
-        <label for="site_id" class="text-sm font-medium text-gray-700">Filter op site:</label>
-        <select name="site_id" id="site_id" onchange="this.form.submit()"
+    <form method="GET" action="/admin/blocks" class="flex items-center gap-4 flex-wrap">
+        <label class="text-sm font-medium text-gray-700">Filter:</label>
+        <select name="site_id" onchange="this.form.submit()"
                 class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <option value="">Alle sites</option>
             {% for s in sites %}
                 <option value="{{ s.id }}" {{ selected_site_id == s.id ? 'selected' : '' }}>{{ s.name }}</option>
             {% endfor %}
         </select>
+        <select name="page_filter" onchange="this.form.submit()"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="">Alle pagina's</option>
+            <option value="homepage" {{ selected_page_filter == 'homepage' ? 'selected' : '' }}>Homepage</option>
+            {% for p in pages %}
+                <option value="{{ p.id }}" {{ selected_page_filter == p.id ? 'selected' : '' }}>{{ p.title }}</option>
+            {% endfor %}
+        </select>
     </form>
 </div>
 
 <div class="bg-white rounded-lg shadow overflow-hidden">
-    <table class="w-full">
+    <table class="w-full" id="blocksTable">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">#</th>
+                <th class="px-2 py-3 w-8"></th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titel</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taal</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
@@ -37,10 +45,12 @@
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200">
+        <tbody class="divide-y divide-gray-200" id="blocksSortable">
             {% for block in blocks %}
-            <tr class="hover:bg-gray-50">
-                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-400">{{ block.sort_order }}</td>
+            <tr class="hover:bg-gray-50 cursor-move" data-id="{{ block.id }}">
+                <td class="px-2 py-4 text-center text-gray-300">
+                    <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
+                </td>
                 <td class="px-4 py-4 whitespace-nowrap font-medium text-gray-900">{{ block.title }}</td>
                 <td class="px-4 py-4 whitespace-nowrap space-x-1">
                     <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">NL</span>
@@ -78,4 +88,29 @@
         </tbody>
     </table>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+    var sortable = new Sortable(document.getElementById('blocksSortable'), {
+        animation: 150,
+        handle: 'tr',
+        ghostClass: 'bg-blue-50',
+        onEnd: function() {
+            var rows = document.querySelectorAll('#blocksSortable tr[data-id]');
+            var order = [];
+            rows.forEach(function(row) {
+                order.push(parseInt(row.dataset.id));
+            });
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/admin/blocks/reorder', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token }}');
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.send(JSON.stringify(order));
+        }
+    });
+</script>
 {% endblock %}

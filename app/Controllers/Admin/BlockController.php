@@ -24,15 +24,40 @@ class BlockController extends Controller
     public function index(): void
     {
         $siteId = $this->input('site_id');
+        $pageFilter = $this->input('page_filter');
+
         $blocks = $siteId
             ? $this->blockModel->getBySite((int)$siteId)
             : $this->blockModel->getAllWithSite();
 
+        // Filter by page
+        if ($pageFilter === 'homepage') {
+            $blocks = array_filter($blocks, fn($b) => empty($b['page_id']));
+        } elseif ($pageFilter && is_numeric($pageFilter)) {
+            $blocks = array_filter($blocks, fn($b) => (int)($b['page_id'] ?? 0) === (int)$pageFilter);
+        }
+        $blocks = array_values($blocks);
+
+        $pageModel = new Page();
+
         $this->render('admin/blocks/index.twig', [
             'blocks' => $blocks,
             'sites' => $this->siteModel->findAll('name', 'ASC'),
+            'pages' => $pageModel->getAllWithSite(),
             'selected_site_id' => $siteId,
+            'selected_page_filter' => $pageFilter,
         ]);
+    }
+
+    public function reorder(): void
+    {
+        $items = json_decode(file_get_contents('php://input'), true);
+        if (is_array($items)) {
+            foreach ($items as $index => $blockId) {
+                $this->blockModel->update((int)$blockId, ['sort_order' => $index]);
+            }
+        }
+        $this->json(['success' => true]);
     }
 
     public function create(): void

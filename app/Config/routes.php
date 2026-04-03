@@ -290,6 +290,9 @@ $router->get('/admin/blocks/create', function () {
 $router->post('/admin/blocks/store', function () {
     (new BlockController())->store();
 });
+$router->post('/admin/blocks/reorder', function () {
+    (new BlockController())->reorder();
+});
 $router->get('/admin/blocks/{id}/edit', function ($id) {
     (new BlockController())->edit((int)$id);
 });
