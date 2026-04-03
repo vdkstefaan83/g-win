@@ -47,26 +47,42 @@
             <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2">{{ t('apt_choose_type') }}</h2>
             <p class="text-krijgers-500 mb-8">{{ t('apt_choose_type_sub') }}</p>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button @click="form.type = 'pregnancy'; nextStep()"
-                        class="group text-left p-6 rounded-2xl border-2 transition-all hover:border-krijgers-gold-500 hover:shadow-lg"
-                        :class="form.type === 'pregnancy' ? 'border-krijgers-gold-500 bg-krijgers-gold-500/5' : 'border-krijgers-100'">
-                    <div class="w-14 h-14 bg-krijgers-gold-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-krijgers-gold-500/20 transition-colors">
-                        <svg class="w-7 h-7 text-krijgers-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-                    </div>
-                    <h3 class="text-lg font-display font-bold text-krijgers-800 mb-1">{{ t('apt_pregnancy') }}</h3>
-                    <p class="text-sm text-krijgers-500">{{ t('apt_pregnancy_desc') }}</p>
-                </button>
+            <div class="grid grid-cols-1 md:grid-cols-{{ appointment_types is defined and appointment_types|length > 2 ? '3' : '2' }} gap-4">
+                {% if appointment_types is defined and appointment_types|length > 0 %}
+                    {% for apt_type in appointment_types %}
+                    <a href="{{ lang_url('/afspraken/' ~ apt_type.slug) }}"
+                       class="group text-left p-6 rounded-2xl border-2 border-krijgers-100 transition-all hover:border-krijgers-gold-500 hover:shadow-lg block">
+                        <div class="w-14 h-14 bg-krijgers-gold-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-krijgers-gold-500/20 transition-colors">
+                            <svg class="w-7 h-7 text-krijgers-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        <h3 class="text-lg font-display font-bold text-krijgers-800 mb-1">{{ apt_type.name }}</h3>
+                        {% if apt_type.description %}
+                            <p class="text-sm text-krijgers-500">{{ apt_type.description }}</p>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    {# Fallback: hardcoded types #}
+                    <button @click="form.type = 'pregnancy'; nextStep()"
+                            class="group text-left p-6 rounded-2xl border-2 transition-all hover:border-krijgers-gold-500 hover:shadow-lg"
+                            :class="form.type === 'pregnancy' ? 'border-krijgers-gold-500 bg-krijgers-gold-500/5' : 'border-krijgers-100'">
+                        <div class="w-14 h-14 bg-krijgers-gold-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-krijgers-gold-500/20 transition-colors">
+                            <svg class="w-7 h-7 text-krijgers-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                        </div>
+                        <h3 class="text-lg font-display font-bold text-krijgers-800 mb-1">{{ t('apt_pregnancy') }}</h3>
+                        <p class="text-sm text-krijgers-500">{{ t('apt_pregnancy_desc') }}</p>
+                    </button>
 
-                <button @click="form.type = 'child'; nextStep()"
-                        class="group text-left p-6 rounded-2xl border-2 transition-all hover:border-krijgers-gold-500 hover:shadow-lg"
-                        :class="form.type === 'child' ? 'border-krijgers-gold-500 bg-krijgers-gold-500/5' : 'border-krijgers-100'">
-                    <div class="w-14 h-14 bg-krijgers-gold-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-krijgers-gold-500/20 transition-colors">
-                        <svg class="w-7 h-7 text-krijgers-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </div>
-                    <h3 class="text-lg font-display font-bold text-krijgers-800 mb-1">{{ t('apt_child') }}</h3>
-                    <p class="text-sm text-krijgers-500">{{ t('apt_child_desc') }}</p>
-                </button>
+                    <button @click="form.type = 'child'; nextStep()"
+                            class="group text-left p-6 rounded-2xl border-2 transition-all hover:border-krijgers-gold-500 hover:shadow-lg"
+                            :class="form.type === 'child' ? 'border-krijgers-gold-500 bg-krijgers-gold-500/5' : 'border-krijgers-100'">
+                        <div class="w-14 h-14 bg-krijgers-gold-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-krijgers-gold-500/20 transition-colors">
+                            <svg class="w-7 h-7 text-krijgers-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <h3 class="text-lg font-display font-bold text-krijgers-800 mb-1">{{ t('apt_child') }}</h3>
+                        <p class="text-sm text-krijgers-500">{{ t('apt_child_desc') }}</p>
+                    </button>
+                {% endif %}
             </div>
         </div>
 

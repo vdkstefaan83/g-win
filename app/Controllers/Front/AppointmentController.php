@@ -11,37 +11,170 @@ use App\Models\Customer;
 use App\Models\Setting;
 use App\Models\Site;
 use App\Models\Menu;
+use App\Models\AppointmentType;
+use App\Models\AppointmentFlowStep;
+use App\Models\AppointmentDateProposal;
 use App\Services\AppointmentPaymentService;
 
 class AppointmentController extends Controller
 {
-    public function index(): void
+    private function getBlockedDates(): array
     {
-        $siteModel = new Site();
-        $site = $siteModel->findBySlug($this->site['slug']);
-
-        $lang = App::getLang();
-        $menuModel = new Menu();
-        $headerMenu = $site ? $menuModel->getByLocationAndSite('header', $site['id'], $lang) : false;
-        $footerMenu = $site ? $menuModel->getByLocationAndSite('footer', $site['id'], $lang) : false;
-
         $settingModel = new Setting();
         $blockedDates = json_decode($settingModel->get('blocked_dates', null, '[]'), true);
-        $blockedDates = array_map(function ($entry) {
+        return array_map(function ($entry) {
             if (is_string($entry)) {
                 return ['date' => $entry, 'period' => 'hele_dag', 'reason' => ''];
             }
             return $entry;
         }, $blockedDates);
+    }
+
+    public function index(): void
+    {
+        $lang = App::getLang();
+        $typeModel = new AppointmentType();
+        $types = $typeModel->getAllActive($lang);
+
+        $settingModel = new Setting();
         $maxBookingMonths = (int) $settingModel->get('appointment_max_months', null, '24');
 
         $this->render('front/appointments/index.twig', [
-            'blocked_dates' => $blockedDates,
+            'appointment_types' => $types,
+            'blocked_dates' => $this->getBlockedDates(),
             'max_booking_months' => $maxBookingMonths,
-            'header_menu' => $headerMenu,
-            'footer_menu' => $footerMenu,
             'layout' => $this->site['layout'] ?? 'gwin',
         ]);
+    }
+
+    /**
+     * Dynamic flow for a specific appointment type.
+     */
+    public function flow(string $slug): void
+    {
+        $lang = App::getLang();
+        $typeModel = new AppointmentType();
+        $type = $typeModel->findBySlug($slug);
+
+        if (!$type || !$type['is_active']) {
+            http_response_code(404);
+            $this->render('errors/404.twig');
+            return;
+        }
+
+        // Localize
+        $type['name'] = ($lang === 'fr' && !empty($type['name_fr'])) ? $type['name_fr'] : $type['name_nl'];
+        $type['description'] = ($lang === 'fr' && !empty($type['description_fr'])) ? $type['description_fr'] : $type['description_nl'];
+
+        $flowStepModel = new AppointmentFlowStep();
+        $flowSteps = $flowStepModel->getByTypeId($type['id']);
+
+        $settingModel = new Setting();
+        $maxBookingMonths = (int) $settingModel->get('appointment_max_months', null, '24');
+
+        $this->render('front/appointments/flow.twig', [
+            'appointment_type' => $type,
+            'flow_steps' => $flowSteps,
+            'blocked_dates' => $this->getBlockedDates(),
+            'max_booking_months' => $maxBookingMonths,
+            'layout' => $this->site['layout'] ?? 'gwin',
+        ]);
+    }
+
+    /**
+     * Handle form submission from the dynamic flow.
+     */
+    public function storeFlow(string $slug): void
+    {
+        $lang = App::getLang();
+        $aptUrl = $lang === 'fr' ? "/fr/rendez-vous/{$slug}" : "/afspraken/{$slug}";
+
+        $typeModel = new AppointmentType();
+        $type = $typeModel->findBySlug($slug);
+        if (!$type) {
+            Session::flash('error', 'Ongeldig afspraaktype.');
+            $this->redirect($lang === 'fr' ? '/fr/rendez-vous' : '/afspraken');
+            return;
+        }
+
+        // Validate required fields
+        $firstName = trim($this->input('first_name', ''));
+        $lastName = trim($this->input('last_name', ''));
+        $email = trim($this->input('email', ''));
+        $phone = trim($this->input('phone', ''));
+
+        if (empty($firstName) || empty($lastName) || empty($email) || empty($phone)) {
+            Session::flash('error', $lang === 'fr' ? 'Tous les champs obligatoires doivent être remplis.' : 'Alle verplichte velden moeten ingevuld zijn.');
+            $this->redirect($aptUrl);
+            return;
+        }
+
+        $date = $this->input('date', '');
+        $slotId = $this->input('slot_id', '');
+
+        // Find or create customer
+        $customerModel = new Customer();
+        $customer = $customerModel->findBy('email', $email);
+        if (!$customer) {
+            $customerId = $customerModel->create([
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'email' => $email,
+                'phone' => $phone,
+            ]);
+        } else {
+            $customerId = $customer['id'];
+            if ($phone && $phone !== ($customer['phone'] ?? '')) {
+                $customerModel->update($customerId, ['phone' => $phone]);
+            }
+        }
+
+        // Build appointment data
+        $appointmentData = [
+            'customer_id' => $customerId,
+            'type' => $slug,
+            'appointment_type_id' => $type['id'],
+            'date' => $date ?: null,
+            'slot_id' => !empty($slotId) ? (int)$slotId : 0,
+            'start_time' => '00:00:00',
+            'end_time' => '00:00:00',
+            'status' => 'pending',
+            'payment_status' => 'none',
+            'lang' => $lang,
+            'notes' => $this->input('notes', ''),
+        ];
+
+        // If slot selected, get times from slot
+        if (!empty($slotId)) {
+            $slotModel = new AppointmentSlot();
+            $slot = $slotModel->findById((int)$slotId);
+            if ($slot) {
+                $appointmentData['start_time'] = $slot['start_time'];
+                $appointmentData['end_time'] = $slot['end_time'];
+            }
+        }
+
+        $appointmentModel = new Appointment();
+        $appointmentId = $appointmentModel->create($appointmentData);
+
+        // Store date proposals if any
+        $proposals = $_POST['proposals'] ?? [];
+        if (!empty($proposals) && is_array($proposals)) {
+            $proposalModel = new AppointmentDateProposal();
+            foreach ($proposals as $index => $proposal) {
+                if (!empty($proposal['date']) && !empty($proposal['time'])) {
+                    $proposalModel->create([
+                        'appointment_id' => $appointmentId,
+                        'proposed_date' => $proposal['date'],
+                        'proposed_time' => $proposal['time'],
+                        'sort_order' => (int)$index,
+                    ]);
+                }
+            }
+        }
+
+        $confirmUrl = $lang === 'fr' ? "/fr/rendez-vous/confirmation/{$appointmentId}" : "/afspraken/bevestiging/{$appointmentId}";
+        $this->redirect($confirmUrl);
     }
 
     public function getAvailableSlots(): void

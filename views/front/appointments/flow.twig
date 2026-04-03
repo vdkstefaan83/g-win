@@ -1,0 +1,340 @@
+{% extends 'layouts/' ~ (layout ?? 'gwin') ~ '/base.twig' %}
+
+{% block title %}{{ appointment_type.name }} - {{ site.name }}{% endblock %}
+
+{% block content %}
+<section class="relative bg-krijgers-800 py-20 -mt-20 pt-32 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-krijgers-900/50 to-krijgers-800/80"></div>
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-4">{{ appointment_type.name }}</h1>
+        {% if appointment_type.description %}
+            <p class="text-xl text-krijgers-100/80 max-w-2xl mx-auto">{{ appointment_type.description }}</p>
+        {% endif %}
+    </div>
+</section>
+
+<section class="py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8" x-data="appointmentFlow()">
+
+        <!-- Progress bar -->
+        <div class="flex items-center justify-center gap-2 mb-10">
+            <template x-for="(step, i) in steps" :key="i">
+                <div class="flex items-center">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold transition-all"
+                         :class="currentStep > i ? 'bg-krijgers-gold-500 text-krijgers-900' : currentStep === i ? 'bg-krijgers-800 text-white' : 'bg-krijgers-100 text-krijgers-400'"
+                         x-text="i + 1"></div>
+                    <span class="hidden sm:inline ml-2 text-sm" :class="currentStep === i ? 'text-krijgers-800 font-semibold' : 'text-krijgers-400'" x-text="step.label"></span>
+                    <template x-if="i < steps.length - 1">
+                        <div class="w-8 sm:w-12 h-0.5 mx-2" :class="currentStep > i ? 'bg-krijgers-gold-500' : 'bg-krijgers-200'"></div>
+                    </template>
+                </div>
+            </template>
+        </div>
+
+        <!-- Step: date_picker -->
+        <template x-if="steps[currentStep] && steps[currentStep].step_type === 'date_picker'">
+            <div>
+                <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6" x-text="steps[currentStep].label"></h2>
+
+                <div class="bg-white rounded-2xl shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <button @click="calMonth > 0 ? calMonth-- : (calMonth = 11, calYear--)" class="p-2 hover:bg-krijgers-50 rounded-lg">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                        <span class="font-semibold text-krijgers-800" x-text="new Date(calYear, calMonth).toLocaleString(currentLang === 'fr' ? 'fr-BE' : 'nl-BE', { month: 'long', year: 'numeric' })"></span>
+                        <button @click="calMonth < 11 ? calMonth++ : (calMonth = 0, calYear++)" class="p-2 hover:bg-krijgers-50 rounded-lg">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 mb-2 text-center text-xs font-medium text-krijgers-400">
+                        <span>Ma</span><span>Di</span><span>Wo</span><span>Do</span><span>Vr</span><span>Za</span><span>Zo</span>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1">
+                        <template x-for="cell in calDays()" :key="cell.key">
+                            <button type="button" @click="cell.selectable && (form.date = cell.date)"
+                                    class="aspect-square rounded-lg text-sm font-medium flex items-center justify-center transition-all"
+                                    :class="{
+                                        'bg-[#d69b4b] text-white font-bold shadow': form.date === cell.date,
+                                        'bg-[#d69b4b]/20 text-[#d69b4b] font-semibold hover:bg-[#d69b4b]/40 cursor-pointer': cell.selectable && form.date !== cell.date,
+                                        'text-krijgers-200 cursor-default': !cell.selectable && cell.day,
+                                        '': !cell.day
+                                    }"
+                                    :disabled="!cell.selectable" x-text="cell.day || ''">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <a :href="backUrl" class="text-krijgers-600 hover:text-krijgers-800 font-medium">{{ t('back') }}</a>
+                    <button @click="form.date && currentStep++" :disabled="!form.date"
+                            class="bg-krijgers-800 text-white px-8 py-3 rounded-xl font-semibold hover:bg-krijgers-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                        {{ t('next') }}
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <!-- Step: time_picker -->
+        <template x-if="steps[currentStep] && steps[currentStep].step_type === 'time_picker'">
+            <div>
+                <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6" x-text="steps[currentStep].label"></h2>
+
+                <div x-show="loadingSlots" class="text-center py-8 text-krijgers-500">Laden...</div>
+                <div x-show="!loadingSlots && availableSlots.length === 0" class="text-center py-8 text-krijgers-500">Geen beschikbare tijdsloten.</div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3" x-show="!loadingSlots && availableSlots.length > 0">
+                    <template x-for="slot in availableSlots" :key="slot.id">
+                        <button type="button" @click="slot.status === 'available' && (form.slot_id = slot.id, form.start_time = slot.start_time, form.end_time = slot.end_time)"
+                                :disabled="slot.status !== 'available'"
+                                class="p-4 rounded-xl border-2 text-center transition-all"
+                                :class="form.slot_id === slot.id ? 'border-krijgers-gold-500 bg-krijgers-gold-500/5' : slot.status === 'available' ? 'border-krijgers-100 hover:border-krijgers-gold-500' : 'border-krijgers-100 opacity-40'">
+                            <span class="block text-lg font-semibold text-krijgers-800" x-text="slot.start_time.substring(0,5) + ' - ' + slot.end_time.substring(0,5)"></span>
+                        </button>
+                    </template>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button @click="currentStep--" class="text-krijgers-600 hover:text-krijgers-800 font-medium">{{ t('previous') }}</button>
+                    <button @click="form.slot_id && currentStep++" :disabled="!form.slot_id"
+                            class="bg-krijgers-800 text-white px-8 py-3 rounded-xl font-semibold hover:bg-krijgers-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                        {{ t('next') }}
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <!-- Step: date_proposals -->
+        <template x-if="steps[currentStep] && steps[currentStep].step_type === 'date_proposals'">
+            <div>
+                <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-2" x-text="steps[currentStep].label"></h2>
+                <p class="text-krijgers-500 mb-6" x-text="currentLang === 'fr' ? 'Proposez ' + (steps[currentStep].config.num_proposals || 3) + ' dates et heures.' : 'Stel ' + (steps[currentStep].config.num_proposals || 3) + ' datums en tijdstippen voor.'"></p>
+
+                <div class="space-y-4">
+                    <template x-for="(proposal, pi) in form.proposals" :key="pi">
+                        <div class="bg-white rounded-xl shadow-sm p-4">
+                            <div class="text-sm font-medium text-krijgers-600 mb-2" x-text="(currentLang === 'fr' ? 'Proposition ' : 'Voorstel ') + (pi + 1)"></div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <input type="date" x-model="proposal.date" :min="tomorrow"
+                                       class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <input type="time" x-model="proposal.time"
+                                       class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button @click="currentStep--" class="text-krijgers-600 hover:text-krijgers-800 font-medium">{{ t('previous') }}</button>
+                    <button @click="proposalsValid() && currentStep++" :disabled="!proposalsValid()"
+                            class="bg-krijgers-800 text-white px-8 py-3 rounded-xl font-semibold hover:bg-krijgers-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                        {{ t('next') }}
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <!-- Step: details_form -->
+        <template x-if="steps[currentStep] && steps[currentStep].step_type === 'details_form'">
+            <div>
+                <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6" x-text="steps[currentStep].label"></h2>
+
+                <div class="bg-white rounded-2xl shadow-sm p-6 space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('first_name') }} *</label>
+                            <input type="text" x-model="form.first_name" required
+                                   class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('last_name') }} *</label>
+                            <input type="text" x-model="form.last_name" required
+                                   class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('email_address') }} *</label>
+                        <input type="email" x-model="form.email" required
+                               class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('phone') }} *</label>
+                        <input type="tel" x-model="form.phone" required
+                               class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('notes_optional') }}</label>
+                        <textarea x-model="form.notes" rows="3"
+                                  class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button @click="currentStep--" class="text-krijgers-600 hover:text-krijgers-800 font-medium">{{ t('previous') }}</button>
+                    <button @click="submitAppointment()" :disabled="!detailsValid()"
+                            class="bg-krijgers-gold-500 text-krijgers-900 px-8 py-3 rounded-xl font-semibold hover:bg-krijgers-gold-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg">
+                        {{ t('apt_confirm_btn') }}
+                    </button>
+                </div>
+            </div>
+        </template>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var _flowSteps = [{% for step in flow_steps %}{
+    "step_type": "{{ step.step_type }}",
+    "label": "{{ (lang == 'fr' and step.label_fr) ? step.label_fr|e('js') : step.label_nl|e('js') }}",
+    "config": {{ step.config ?: '{}' }}
+}{{ not loop.last ? ',' : '' }}{% endfor %}];
+
+var _blockedDates = {{ blocked_dates|json_encode|raw }};
+var _typeSlug = "{{ appointment_type.slug }}";
+var _maxMonths = {{ max_booking_months ?? 24 }};
+var currentLang = "{{ lang }}";
+
+function appointmentFlow() {
+    var today = new Date(); today.setHours(0,0,0,0);
+    var tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
+    var maxDate = new Date(today); maxDate.setMonth(maxDate.getMonth() + _maxMonths);
+
+    // Initialize proposals based on date_proposals step config
+    var numProposals = 3;
+    _flowSteps.forEach(function(s) {
+        if (s.step_type === 'date_proposals' && s.config.num_proposals) {
+            numProposals = parseInt(s.config.num_proposals) || 3;
+        }
+    });
+    var proposals = [];
+    for (var i = 0; i < numProposals; i++) {
+        proposals.push({ date: '', time: '' });
+    }
+
+    return {
+        steps: _flowSteps,
+        currentStep: 0,
+        calMonth: today.getMonth(),
+        calYear: today.getFullYear(),
+        availableSlots: [],
+        loadingSlots: false,
+        tomorrow: tomorrow.toISOString().split('T')[0],
+        backUrl: currentLang === 'fr' ? '/fr/rendez-vous' : '/afspraken',
+
+        form: {
+            type: _typeSlug,
+            date: '',
+            slot_id: null,
+            start_time: '',
+            end_time: '',
+            first_name: '',
+            last_name: '',
+            email: '',
+            phone: '',
+            notes: '',
+            proposals: proposals
+        },
+
+        calDays() {
+            var first = new Date(this.calYear, this.calMonth, 1);
+            var lastDay = new Date(this.calYear, this.calMonth + 1, 0).getDate();
+            var startOffset = (first.getDay() + 6) % 7;
+            var cells = [];
+
+            // Get day_of_week config from current date_picker step
+            var targetDay = null;
+            var currentStepData = this.steps[this.currentStep];
+            if (currentStepData && currentStepData.config && currentStepData.config.day_of_week !== '' && currentStepData.config.day_of_week !== null && currentStepData.config.day_of_week !== undefined) {
+                targetDay = parseInt(currentStepData.config.day_of_week);
+            }
+
+            for (var i = 0; i < startOffset; i++) { cells.push({ key: 'e' + i, day: null, date: null, selectable: false }); }
+
+            for (var d = 1; d <= lastDay; d++) {
+                var dt = new Date(this.calYear, this.calMonth, d);
+                var iso = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+                var isTarget = targetDay === null || dt.getDay() === targetDay;
+                var isFuture = dt >= tomorrow;
+                var isInRange = dt <= maxDate;
+                var isBlocked = _blockedDates.some(function(bd) {
+                    var bdDate = typeof bd === 'string' ? bd : bd.date;
+                    var bdPeriod = typeof bd === 'string' ? 'hele_dag' : (bd.period || 'hele_dag');
+                    return bdDate === iso && bdPeriod === 'hele_dag';
+                });
+                cells.push({ key: iso, day: d, date: iso, selectable: isTarget && isFuture && isInRange && !isBlocked });
+            }
+            return cells;
+        },
+
+        proposalsValid() {
+            return this.form.proposals.every(function(p) { return p.date && p.time; });
+        },
+
+        detailsValid() {
+            return this.form.first_name && this.form.last_name && this.form.email && this.form.phone;
+        },
+
+        submitAppointment() {
+            if (!this.detailsValid()) return;
+
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = currentLang === 'fr' ? '/fr/rendez-vous/' + _typeSlug : '/afspraken/' + _typeSlug;
+
+            var fields = {
+                '_csrf_token': '{{ csrf_token }}',
+                'type': this.form.type,
+                'date': this.form.date,
+                'slot_id': this.form.slot_id || '',
+                'first_name': this.form.first_name,
+                'last_name': this.form.last_name,
+                'email': this.form.email,
+                'phone': this.form.phone,
+                'notes': this.form.notes
+            };
+
+            for (var key in fields) {
+                var input = document.createElement('input');
+                input.type = 'hidden'; input.name = key; input.value = fields[key];
+                form.appendChild(input);
+            }
+
+            // Add proposals if any
+            this.form.proposals.forEach(function(p, idx) {
+                if (p.date && p.time) {
+                    var d = document.createElement('input');
+                    d.type = 'hidden'; d.name = 'proposals[' + idx + '][date]'; d.value = p.date;
+                    form.appendChild(d);
+                    var t = document.createElement('input');
+                    t.type = 'hidden'; t.name = 'proposals[' + idx + '][time]'; t.value = p.time;
+                    form.appendChild(t);
+                }
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        },
+
+        init() {
+            var self = this;
+            this.$watch('currentStep', function(newStep) {
+                // If entering time_picker step, load slots
+                if (self.steps[newStep] && self.steps[newStep].step_type === 'time_picker' && self.form.date) {
+                    self.loadingSlots = true;
+                    self.form.slot_id = null;
+                    fetch('/api/appointment-slots?type=' + _typeSlug + '&date=' + self.form.date)
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            self.availableSlots = data.slots || [];
+                            self.loadingSlots = false;
+                        })
+                        .catch(function() { self.loadingSlots = false; });
+                }
+            });
+        }
+    };
+}
+</script>
+{% endblock %}

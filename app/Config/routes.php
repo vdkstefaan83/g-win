@@ -92,6 +92,20 @@ $router->get('/api/appointment-slots', function () {
     (new AppointmentController())->getAvailableSlots();
 });
 
+// Dynamic appointment type flows (must be after specific routes)
+$router->get('/afspraken/{slug}', function ($slug) {
+    (new AppointmentController())->flow($slug);
+});
+$router->get('/rendez-vous/{slug}', function ($slug) {
+    (new AppointmentController())->flow($slug);
+});
+$router->post('/afspraken/{slug}', function ($slug) {
+    (new AppointmentController())->storeFlow($slug);
+});
+$router->post('/rendez-vous/{slug}', function ($slug) {
+    (new AppointmentController())->storeFlow($slug);
+});
+
 // Shop (NL + FR)
 $router->get('/shop', function () {
     (new ShopController())->index();
