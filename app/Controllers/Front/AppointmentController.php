@@ -75,12 +75,16 @@ class AppointmentController extends Controller
 
         $settingModel = new Setting();
         $maxBookingMonths = (int) $settingModel->get('appointment_max_months', null, '24');
+        $proposalsStartHour = (int) $settingModel->get('appointment_proposals_start_hour', null, '10');
+        $proposalsEndHour = (int) $settingModel->get('appointment_proposals_end_hour', null, '22');
 
         $this->render('front/appointments/flow.twig', [
             'appointment_type' => $type,
             'flow_steps' => $flowSteps,
             'blocked_dates' => $this->getBlockedDates(),
             'max_booking_months' => $maxBookingMonths,
+            'proposals_start_hour' => $proposalsStartHour,
+            'proposals_end_hour' => $proposalsEndHour,
             'layout' => $this->site['layout'] ?? 'gwin',
         ]);
     }
