@@ -98,7 +98,7 @@
                     {% endif %}
                     <div class="p-8">
                         <h3 class="text-xl font-display font-bold text-krijgers-800 mb-3">{{ block.title }}</h3>
-                        <p class="text-krijgers-600 text-sm leading-relaxed mb-4">{{ block.content|striptags }}</p>
+                        <p class="text-gray-600 text-sm leading-relaxed mb-4">{{ block.content|striptags }}</p>
                         {% if block.link_url %}
                         <a href="{{ block.link_url }}" class="inline-flex items-center text-krijgers-gold-700 font-semibold text-sm group-hover:text-krijgers-gold-600">
                             {{ t('more_info') }}
@@ -160,7 +160,7 @@
                         <span class="text-krijgers-gold-600 text-sm font-semibold tracking-[0.2em] uppercase">{{ aboutBlock.subtitle }}</span>
                     {% endif %}
                     <h2 class="text-4xl font-display font-bold text-krijgers-800 mt-3 mb-6">{{ aboutBlock.title }}</h2>
-                    <div class="text-krijgers-600 leading-relaxed mb-6 prose">
+                    <div class="text-gray-600 leading-relaxed mb-6 prose">
                         {{ aboutBlock.content|raw }}
                     </div>
                     {% if aboutBlock.link_url %}
