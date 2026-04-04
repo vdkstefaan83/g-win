@@ -138,10 +138,11 @@
                                 <div class="grid grid-cols-7 gap-0.5">
                                     <template x-for="cell in proposalCalDays(pi)" :key="cell.key">
                                         <button type="button" @click="cell.selectable && (proposal.date = cell.date)"
-                                                class="aspect-square rounded text-xs font-medium flex items-center justify-center transition-all"
+                                                class="aspect-square rounded text-xs font-medium flex items-center justify-center transition-all relative"
                                                 :class="{
                                                     'bg-[#d69b4b] text-white font-bold': proposal.date === cell.date,
-                                                    'bg-[#d69b4b]/15 text-[#d69b4b] hover:bg-[#d69b4b]/30 cursor-pointer': cell.selectable && proposal.date !== cell.date,
+                                                    'bg-[#d69b4b]/15 text-[#d69b4b] hover:bg-[#d69b4b]/30 cursor-pointer': cell.selectable && proposal.date !== cell.date && !cell.partial,
+                                                    'bg-orange-100 text-orange-600 hover:bg-orange-200 cursor-pointer': cell.selectable && proposal.date !== cell.date && cell.partial,
                                                     'text-krijgers-200 cursor-default': !cell.selectable && cell.day,
                                                     '': !cell.day
                                                 }"
@@ -163,27 +164,9 @@
                                     <select x-model="proposal.time"
                                             class="w-full border border-krijgers-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500">
                                         <option value="">--:--</option>
-                                        <option value="08:00">08:00</option>
-                                        <option value="08:30">08:30</option>
-                                        <option value="09:00">09:00</option>
-                                        <option value="09:30">09:30</option>
-                                        <option value="10:00">10:00</option>
-                                        <option value="10:30">10:30</option>
-                                        <option value="11:00">11:00</option>
-                                        <option value="11:30">11:30</option>
-                                        <option value="12:00">12:00</option>
-                                        <option value="12:30">12:30</option>
-                                        <option value="13:00">13:00</option>
-                                        <option value="13:30">13:30</option>
-                                        <option value="14:00">14:00</option>
-                                        <option value="14:30">14:30</option>
-                                        <option value="15:00">15:00</option>
-                                        <option value="15:30">15:30</option>
-                                        <option value="16:00">16:00</option>
-                                        <option value="16:30">16:30</option>
-                                        <option value="17:00">17:00</option>
-                                        <option value="17:30">17:30</option>
-                                        <option value="18:00">18:00</option>
+                                        <template x-for="t in getAvailableTimes(proposal.date)" :key="t">
+                                            <option :value="t" x-text="t"></option>
+                                        </template>
                                     </select>
                                 </div>
                             </div>
@@ -356,15 +339,45 @@ function appointmentFlow() {
                 var iso = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
                 var isFuture = dt >= tomorrow;
                 var isInRange = dt <= maxDate;
-                var isBlocked = _blockedDates.some(function(bd) {
+                var isFullBlocked = _blockedDates.some(function(bd) {
                     var bdDate = typeof bd === 'string' ? bd : bd.date;
                     var bdPeriod = typeof bd === 'string' ? 'hele_dag' : (bd.period || 'hele_dag');
                     return bdDate === iso && bdPeriod === 'hele_dag';
                 });
-                // Weekends on Sunday are not selectable for pickup (only weekdays + Saturday)
-                cells.push({ key: 'p' + pi + '_' + iso, day: d, date: iso, selectable: isFuture && isInRange && !isBlocked });
+                var isPartialBlocked = !isFullBlocked && _blockedDates.some(function(bd) {
+                    var bdDate = typeof bd === 'string' ? bd : bd.date;
+                    return bdDate === iso;
+                });
+                cells.push({ key: 'p' + pi + '_' + iso, day: d, date: iso, selectable: isFuture && isInRange && !isFullBlocked, partial: isPartialBlocked });
             }
             return cells;
+        },
+
+        getAvailableTimes(date) {
+            var allTimes = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00'];
+            if (!date) return allTimes;
+
+            // Find blocked periods for this date
+            var blockedPeriods = [];
+            _blockedDates.forEach(function(bd) {
+                var bdDate = typeof bd === 'string' ? bd : bd.date;
+                var bdPeriod = typeof bd === 'string' ? 'hele_dag' : (bd.period || 'hele_dag');
+                if (bdDate === date) {
+                    blockedPeriods.push(bdPeriod);
+                }
+            });
+
+            if (blockedPeriods.length === 0) return allTimes;
+
+            return allTimes.filter(function(t) {
+                var hour = parseInt(t.split(':')[0]);
+                for (var i = 0; i < blockedPeriods.length; i++) {
+                    if (blockedPeriods[i] === 'hele_dag') return false;
+                    if (blockedPeriods[i] === 'voormiddag' && hour < 13) return false;
+                    if (blockedPeriods[i] === 'namiddag' && hour >= 13) return false;
+                }
+                return true;
+            });
         },
 
         proposalsValid() {
