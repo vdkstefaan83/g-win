@@ -61,6 +61,16 @@ class AppointmentNotificationService
         return MailService::send($toEmail, $fallbackSubject, $fallbackBody);
     }
 
+    /**
+     * Send SMS using template text. Falls back to provided text if template not found.
+     */
+    private function sendTemplatedSms(string $slug, string $lang, array $variables, string $phone, string $fallbackText): bool
+    {
+        $rendered = MailTemplate::renderTemplate($slug, $lang, $variables);
+        $smsText = ($rendered && !empty($rendered['sms'])) ? $rendered['sms'] : $fallbackText;
+        return $this->sms->send($phone, $smsText);
+    }
+
     public function sendPaymentRequest(array $appointment, string $paymentUrl): void
     {
         $lang = $appointment['lang'] ?? 'nl';
@@ -83,10 +93,10 @@ class AppointmentNotificationService
         $this->logNotification($appointment['id'], 'payment_request', 'email', $emailSent);
 
         if (!empty($appointment['phone'])) {
-            $smsText = $lang === 'fr'
+            $fallbackSms = $lang === 'fr'
                 ? "G-Win: Payez votre acompte de €{$amount} avant le {$deadline}. {$paymentUrl}"
                 : "G-Win: Betaal uw voorschot van €{$amount} vóór {$deadline}. {$paymentUrl}";
-            $smsSent = $this->sms->send($appointment['phone'], $smsText);
+            $smsSent = $this->sendTemplatedSms('payment_request', $lang, $vars, $appointment['phone'], $fallbackSms);
             $this->logNotification($appointment['id'], 'payment_request', 'sms', $smsSent);
         }
     }
@@ -110,10 +120,10 @@ class AppointmentNotificationService
         $this->logNotification($appointment['id'], 'payment_reminder', 'email', $emailSent);
 
         if (!empty($appointment['phone'])) {
-            $smsText = $lang === 'fr'
+            $fallbackSms = $lang === 'fr'
                 ? "G-Win: Rappel! Payez avant le {$deadline} ou votre rendez-vous sera annulé. {$paymentUrl}"
                 : "G-Win: Herinnering! Betaal vóór {$deadline} of uw afspraak wordt geannuleerd. {$paymentUrl}";
-            $smsSent = $this->sms->send($appointment['phone'], $smsText);
+            $smsSent = $this->sendTemplatedSms('payment_reminder', $lang, $vars, $appointment['phone'], $fallbackSms);
             $this->logNotification($appointment['id'], 'payment_reminder', 'sms', $smsSent);
         }
     }
@@ -143,6 +153,14 @@ class AppointmentNotificationService
             'text/calendar'
         );
         $this->logNotification($appointment['id'], 'payment_confirmed', 'email', $emailSent);
+
+        if (!empty($appointment['phone'])) {
+            $fallbackSms = $lang === 'fr'
+                ? "G-Win: Votre rendez-vous est confirmé. Adresse: Duivenstuk 4, Bavikhove."
+                : "G-Win: Uw afspraak is bevestigd. Adres: Duivenstuk 4, Bavikhove.";
+            $smsSent = $this->sendTemplatedSms('payment_confirmed', $lang, $vars, $appointment['phone'], $fallbackSms);
+            $this->logNotification($appointment['id'], 'payment_confirmed', 'sms', $smsSent);
+        }
     }
 
     public function sendCancellationNotice(array $appointment): void
@@ -159,11 +177,10 @@ class AppointmentNotificationService
         $this->logNotification($appointment['id'], 'cancellation', 'email', $emailSent);
 
         if (!empty($appointment['phone'])) {
-            $date = date('d/m/Y', strtotime($appointment['date']));
-            $smsText = $lang === 'fr'
-                ? "G-Win: Votre rendez-vous du {$date} a été annulé (paiement non reçu)."
-                : "G-Win: Uw afspraak van {$date} is geannuleerd (betaling niet ontvangen).";
-            $smsSent = $this->sms->send($appointment['phone'], $smsText);
+            $fallbackSms = $lang === 'fr'
+                ? "G-Win: Votre rendez-vous a été annulé (paiement non reçu)."
+                : "G-Win: Uw afspraak is geannuleerd (betaling niet ontvangen).";
+            $smsSent = $this->sendTemplatedSms('cancellation', $lang, $vars, $appointment['phone'], $fallbackSms);
             $this->logNotification($appointment['id'], 'cancellation', 'sms', $smsSent);
         }
     }
@@ -182,12 +199,10 @@ class AppointmentNotificationService
         $this->logNotification($appointment['id'], 'pre_appointment_reminder', 'email', $emailSent);
 
         if (!empty($appointment['phone'])) {
-            $date = date('d/m/Y', strtotime($appointment['date']));
-            $time = substr($appointment['start_time'] ?? '00:00', 0, 5);
-            $smsText = $lang === 'fr'
-                ? "G-Win: Rappel! Votre rendez-vous est prévu le {$date}" . ($time !== '00:00' ? " à {$time}" : '') . ". Adresse: Duivenstuk 4, Bavikhove."
-                : "G-Win: Herinnering! Uw afspraak is op {$date}" . ($time !== '00:00' ? " om {$time}" : '') . ". Adres: Duivenstuk 4, Bavikhove.";
-            $smsSent = $this->sms->send($appointment['phone'], $smsText);
+            $fallbackSms = $lang === 'fr'
+                ? "G-Win: Rappel! Votre rendez-vous approche. Adresse: Duivenstuk 4, Bavikhove."
+                : "G-Win: Herinnering! Uw afspraak nadert. Adres: Duivenstuk 4, Bavikhove.";
+            $smsSent = $this->sendTemplatedSms('pre_appointment_reminder', $lang, $vars, $appointment['phone'], $fallbackSms);
             $this->logNotification($appointment['id'], 'pre_appointment_reminder', 'sms', $smsSent);
         }
     }

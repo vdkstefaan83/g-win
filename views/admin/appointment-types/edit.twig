@@ -149,6 +149,11 @@
                                         <option value="on_overdue">Bij te laat betalen (herinnering betaling)</option>
                                         <option value="on_cancel">Bij annulering</option>
                                     </select>
+                                    <label class="inline-flex items-center gap-1 text-gray-600">
+                                        <input type="checkbox" x-model="step.config.send_sms" :true-value="true" :false-value="false"
+                                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        Ook SMS versturen
+                                    </label>
                                 </div>
                             </template>
                         </div>

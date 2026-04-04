@@ -48,6 +48,16 @@ class MailTemplate extends Model
         $subject = preg_replace('/\{[a-z_]+\}/', '', $subject);
         $body = preg_replace('/\{[a-z_]+\}/', '', $body);
 
-        return ['subject' => $subject, 'body' => $body];
+        // SMS text
+        $sms = $lang === 'fr' && !empty($template['sms_fr'])
+            ? $template['sms_fr']
+            : ($template['sms_nl'] ?? '');
+
+        foreach ($variables as $key => $value) {
+            $sms = str_replace('{' . $key . '}', (string)$value, $sms);
+        }
+        $sms = preg_replace('/\{[a-z_]+\}/', '', $sms);
+
+        return ['subject' => $subject, 'body' => $body, 'sms' => $sms];
     }
 }

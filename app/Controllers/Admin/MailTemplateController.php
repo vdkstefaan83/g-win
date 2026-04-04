@@ -85,6 +85,8 @@ class MailTemplateController extends Controller
             'subject_fr' => $this->input('subject_fr', ''),
             'body_nl' => $this->input('body_nl', ''),
             'body_fr' => $this->input('body_fr', ''),
+            'sms_nl' => $this->input('sms_nl', ''),
+            'sms_fr' => $this->input('sms_fr', ''),
             'available_variables' => $this->input('available_variables', ''),
             'is_active' => $this->input('is_active') ? 1 : 0,
         ];
