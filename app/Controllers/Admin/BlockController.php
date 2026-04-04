@@ -89,7 +89,9 @@ class BlockController extends Controller
         $data = $validation['data'];
         $data['site_id'] = (int) $siteIds[0];
         $data['lang'] = $this->input('lang', 'nl');
-        $data['content'] = $this->input('content', '');
+        $data['content'] = in_array($data['type'], ['youtube', 'vimeo'])
+            ? $this->input('content_plain', '')
+            : $this->input('content', '');
         $data['sort_order'] = (int) $this->input('sort_order', 0);
         $data['is_active'] = $this->input('is_active') ? 1 : 0;
 
