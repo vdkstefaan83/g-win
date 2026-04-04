@@ -41,6 +41,91 @@ class MailService
         }
     }
 
+    /**
+     * Send email with a string attachment (e.g. ICS file).
+     */
+    public static function sendWithAttachment(string $to, string $subject, string $body, string $attachmentContent, string $attachmentName, string $attachmentType = 'text/calendar'): bool
+    {
+        $mail = new PHPMailer(true);
+
+        try {
+            $mail->isSMTP();
+            $mail->Host = $_ENV['MAIL_HOST'] ?? 'localhost';
+            $mail->Port = (int) ($_ENV['MAIL_PORT'] ?? 587);
+            $mail->SMTPSecure = $mail->Port === 465 ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+
+            $username = $_ENV['MAIL_USER'] ?? '';
+            if (!empty($username)) {
+                $mail->SMTPAuth = true;
+                $mail->Username = $username;
+                $mail->Password = $_ENV['MAIL_PASS'] ?? '';
+            }
+
+            $from = $_ENV['MAIL_FROM'] ?? 'noreply@g-win.be';
+            $mail->setFrom($from, 'G-Win');
+            $mail->addAddress($to);
+
+            $mail->isHTML(true);
+            $mail->CharSet = 'UTF-8';
+            $mail->Subject = $subject;
+            $mail->Body = $body;
+
+            $mail->addStringAttachment($attachmentContent, $attachmentName, 'base64', $attachmentType);
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log('Mail send failed: ' . $mail->ErrorInfo);
+            return false;
+        }
+    }
+
+    /**
+     * Generate an ICS calendar event.
+     */
+    public static function generateIcs(array $appointment): string
+    {
+        $date = $appointment['date'];
+        $startTime = $appointment['start_time'] ?? '00:00:00';
+        $endTime = $appointment['end_time'] ?? '00:00:00';
+
+        // Build datetime strings (format: 20260404T100000)
+        $dtStart = date('Ymd\THis', strtotime("{$date} {$startTime}"));
+        if ($endTime && $endTime !== '00:00:00') {
+            $dtEnd = date('Ymd\THis', strtotime("{$date} {$endTime}"));
+        } else {
+            // Default 1.5 hour duration
+            $dtEnd = date('Ymd\THis', strtotime("{$date} {$startTime}") + 5400);
+        }
+
+        $now = gmdate('Ymd\THis\Z');
+        $uid = uniqid('gwin-apt-') . '@g-win.be';
+
+        $typeName = $appointment['type_name'] ?? $appointment['type'] ?? 'Afspraak';
+        $summary = "G-Win - {$typeName}";
+        $description = "Afspraak bij G-Win\\nType: {$typeName}";
+        $location = 'Duivenstuk 4, 8531 Bavikhove, België';
+
+        $ics = "BEGIN:VCALENDAR\r\n";
+        $ics .= "VERSION:2.0\r\n";
+        $ics .= "PRODID:-//G-Win//Appointment//NL\r\n";
+        $ics .= "CALSCALE:GREGORIAN\r\n";
+        $ics .= "METHOD:REQUEST\r\n";
+        $ics .= "BEGIN:VEVENT\r\n";
+        $ics .= "UID:{$uid}\r\n";
+        $ics .= "DTSTAMP:{$now}\r\n";
+        $ics .= "DTSTART:{$dtStart}\r\n";
+        $ics .= "DTEND:{$dtEnd}\r\n";
+        $ics .= "SUMMARY:{$summary}\r\n";
+        $ics .= "DESCRIPTION:{$description}\r\n";
+        $ics .= "LOCATION:{$location}\r\n";
+        $ics .= "STATUS:CONFIRMED\r\n";
+        $ics .= "END:VEVENT\r\n";
+        $ics .= "END:VCALENDAR\r\n";
+
+        return $ics;
+    }
+
     public static function sendAppointmentConfirmation(array $appointment, array $customer): bool
     {
         $typeLabel = $appointment['type'] === 'pregnancy' ? 'Zwangerschapsbeeldje' : 'Beeldje met kind';

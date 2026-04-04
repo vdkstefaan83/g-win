@@ -128,7 +128,20 @@ class AppointmentNotificationService
             ? "<h2>Confirmé</h2><p>Cher(e) {$vars['voornaam']},</p><p>Votre rendez-vous est confirmé.</p>"
             : "<h2>Bevestigd</h2><p>Beste {$vars['voornaam']},</p><p>Uw afspraak is bevestigd.</p>";
 
-        $emailSent = $this->sendTemplatedEmail('payment_confirmed', $lang, $vars, $appointment['email'], $fallbackSubject, $fallbackBody);
+        // Send with ICS calendar attachment
+        $rendered = \App\Models\MailTemplate::renderTemplate('payment_confirmed', $lang, $vars);
+        $subject = $rendered ? $rendered['subject'] : $fallbackSubject;
+        $body = $rendered ? $rendered['body'] : $fallbackBody;
+
+        $ics = MailService::generateIcs($appointment);
+        $emailSent = MailService::sendWithAttachment(
+            $appointment['email'],
+            $subject,
+            $body,
+            $ics,
+            'afspraak-gwin.ics',
+            'text/calendar'
+        );
         $this->logNotification($appointment['id'], 'payment_confirmed', 'email', $emailSent);
     }
 
