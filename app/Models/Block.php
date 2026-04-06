@@ -64,59 +64,74 @@ class Block extends Model
 
     public function getActiveByPage(int $pageId, string $lang = 'nl'): array
     {
-        // Also check NL master page_id if this is a FR page
+        // Collect all related page IDs (current, NL master, FR translation)
         $pageIds = [$pageId];
+        // Check if this is a FR page → add NL master
         $master = $this->query("SELECT translation_of FROM pages WHERE id = :id AND translation_of IS NOT NULL LIMIT 1", ['id' => $pageId])->fetch();
         if ($master) {
             $pageIds[] = (int)$master['translation_of'];
         }
+        // Check if this is a NL page → add FR translation
+        $frPage = $this->query("SELECT id FROM pages WHERE translation_of = :id LIMIT 1", ['id' => $pageId])->fetch();
+        if ($frPage) {
+            $pageIds[] = (int)$frPage['id'];
+        }
 
-        $placeholders = implode(',', array_map('intval', $pageIds));
-        // Try requested lang first, fallback to any lang
+        $placeholders = implode(',', array_map('intval', array_unique($pageIds)));
+        // Get all blocks for any of these page IDs, prefer matching lang
         $results = $this->query(
             "SELECT b.* FROM blocks b
-             WHERE b.page_id IN ({$placeholders}) AND b.lang = :lang AND b.is_active = 1
-             ORDER BY b.sort_order ASC",
+             WHERE b.page_id IN ({$placeholders}) AND b.is_active = 1
+             ORDER BY FIELD(b.lang, :lang, 'nl', 'fr'), b.sort_order ASC",
             ['lang' => $lang]
         )->fetchAll();
 
-        if (empty($results)) {
-            $results = $this->query(
-                "SELECT b.* FROM blocks b
-                 WHERE b.page_id IN ({$placeholders}) AND b.is_active = 1
-                 ORDER BY b.sort_order ASC"
-            )->fetchAll();
+        // Deduplicate by sort_order (keep first = preferred lang)
+        $seen = [];
+        $filtered = [];
+        foreach ($results as $block) {
+            $key = $block['sort_order'] . '_' . $block['type'];
+            if (!isset($seen[$key])) {
+                $seen[$key] = true;
+                $filtered[] = $block;
+            }
         }
 
-        return $this->decodeOptions($results);
+        return $this->decodeOptions($filtered);
     }
 
     public function getActiveByCategory(int $categoryId, string $lang = 'nl'): array
     {
-        // Also check NL master category_id
+        // Collect all related category IDs
         $catIds = [$categoryId];
         $master = $this->query("SELECT translation_of FROM page_categories WHERE id = :id AND translation_of IS NOT NULL LIMIT 1", ['id' => $categoryId])->fetch();
         if ($master) {
             $catIds[] = (int)$master['translation_of'];
         }
+        $frCat = $this->query("SELECT id FROM page_categories WHERE translation_of = :id LIMIT 1", ['id' => $categoryId])->fetch();
+        if ($frCat) {
+            $catIds[] = (int)$frCat['id'];
+        }
 
-        $placeholders = implode(',', array_map('intval', $catIds));
+        $placeholders = implode(',', array_map('intval', array_unique($catIds)));
         $results = $this->query(
             "SELECT b.* FROM blocks b
-             WHERE b.page_category_id IN ({$placeholders}) AND b.lang = :lang AND b.is_active = 1
-             ORDER BY b.sort_order ASC",
+             WHERE b.page_category_id IN ({$placeholders}) AND b.is_active = 1
+             ORDER BY FIELD(b.lang, :lang, 'nl', 'fr'), b.sort_order ASC",
             ['lang' => $lang]
         )->fetchAll();
 
-        if (empty($results)) {
-            $results = $this->query(
-                "SELECT b.* FROM blocks b
-                 WHERE b.page_category_id IN ({$placeholders}) AND b.is_active = 1
-                 ORDER BY b.sort_order ASC"
-            )->fetchAll();
+        $seen = [];
+        $filtered = [];
+        foreach ($results as $block) {
+            $key = $block['sort_order'] . '_' . $block['type'];
+            if (!isset($seen[$key])) {
+                $seen[$key] = true;
+                $filtered[] = $block;
+            }
         }
 
-        return $this->decodeOptions($results);
+        return $this->decodeOptions($filtered);
     }
 
     public function getSiteIds(int $blockId): array
