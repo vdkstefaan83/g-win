@@ -52,8 +52,8 @@
 
                 <!-- Language switcher -->
                 <div class="ml-3 flex items-center gap-1 text-xs">
-                    <a href="{{ base_url }}" class="px-2 py-1 rounded {{ lang == 'nl' ? 'bg-zw-accent-300 text-white font-bold' : 'text-white/70 hover:text-white' }}">NL</a>
-                    <a href="/fr{{ base_url == '/' ? '' : base_url }}" class="px-2 py-1 rounded {{ lang == 'fr' ? 'bg-zw-accent-300 text-white font-bold' : 'text-white/70 hover:text-white' }}">FR</a>
+                    <a href="{{ nl_url }}" class="px-2 py-1 rounded {{ lang == 'nl' ? 'bg-zw-accent-300 text-white font-bold' : 'text-white/70 hover:text-white' }}">NL</a>
+                    <a href="{{ fr_url }}" class="px-2 py-1 rounded {{ lang == 'fr' ? 'bg-zw-accent-300 text-white font-bold' : 'text-white/70 hover:text-white' }}">FR</a>
                 </div>
             </div>
 
@@ -83,8 +83,8 @@
             </a>
             {% endif %}
             <div class="flex items-center gap-2 px-4 py-3 border-t border-white/10 mt-2 pt-4">
-                <a href="{{ base_url }}" class="px-3 py-1 rounded text-sm {{ lang == 'nl' ? 'bg-zw-accent-300 text-white font-bold' : 'text-white/70 hover:text-white' }}">NL</a>
-                <a href="/fr{{ base_url == '/' ? '' : base_url }}" class="px-3 py-1 rounded text-sm {{ lang == 'fr' ? 'bg-zw-accent-300 text-white font-bold' : 'text-white/70 hover:text-white' }}">FR</a>
+                <a href="{{ nl_url }}" class="px-3 py-1 rounded text-sm {{ lang == 'nl' ? 'bg-zw-accent-300 text-white font-bold' : 'text-white/70 hover:text-white' }}">NL</a>
+                <a href="{{ fr_url }}" class="px-3 py-1 rounded text-sm {{ lang == 'fr' ? 'bg-zw-accent-300 text-white font-bold' : 'text-white/70 hover:text-white' }}">FR</a>
             </div>
         </div>
     </nav>

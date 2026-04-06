@@ -80,6 +80,23 @@ abstract class Controller
         $dbSiteForLayout = $this->getResolvedSite();
         $layout = $dbSiteForLayout['layout'] ?? $this->site['layout'] ?? 'gwin';
 
+        $baseUrl = preg_replace('#^/fr(/|$)#', '/', $_SERVER['REQUEST_URI'] ?? '/');
+
+        // Build language switch URLs
+        if (!isset($data['alternate_url'])) {
+            // Try to auto-translate the current URL slug
+            $data['alternate_url'] = $this->resolveAlternateUrl($baseUrl, $lang);
+        }
+
+        $altLang = $lang === 'nl' ? 'fr' : 'nl';
+        if ($data['alternate_url']) {
+            $nlUrl = $lang === 'nl' ? $baseUrl : $data['alternate_url'];
+            $frUrl = $lang === 'fr' ? $baseUrl : $data['alternate_url'];
+        } else {
+            $nlUrl = $baseUrl;
+            $frUrl = '/fr' . ($baseUrl === '/' ? '' : $baseUrl);
+        }
+
         $data = array_merge($data, [
             'site' => $this->site,
             'layout' => $layout,
@@ -89,10 +106,103 @@ abstract class Controller
             'flash' => Session::getFlash(),
             'current_user' => Auth::user(),
             'current_url' => $_SERVER['REQUEST_URI'] ?? '/',
-            'base_url' => preg_replace('#^/fr(/|$)#', '/', $_SERVER['REQUEST_URI'] ?? '/'),
+            'base_url' => $baseUrl,
+            'nl_url' => $nlUrl,
+            'fr_url' => $frUrl,
         ]);
 
         echo $this->twig->render($template, $data);
+    }
+
+    /**
+     * Try to find the alternate language URL for a given base URL.
+     */
+    private function resolveAlternateUrl(string $baseUrl, string $currentLang): ?string
+    {
+        $targetLang = $currentLang === 'nl' ? 'fr' : 'nl';
+        $prefix = $targetLang === 'nl' ? '' : '/fr';
+        $db = Database::getInstance();
+
+        // Parse path: /slug or /cat-slug/page-slug
+        $path = trim($baseUrl, '/');
+        if (empty($path)) return null;
+
+        $parts = explode('/', $path);
+
+        if (count($parts) === 1) {
+            $slug = $parts[0];
+
+            // Try page_categories
+            $cat = $db->prepare("SELECT id FROM page_categories WHERE slug = :slug AND lang = :lang LIMIT 1");
+            $cat->execute(['slug' => $slug, 'lang' => $currentLang]);
+            $catRow = $cat->fetch();
+            if ($catRow) {
+                $trans = $db->prepare(
+                    $currentLang === 'nl'
+                        ? "SELECT slug FROM page_categories WHERE translation_of = :id AND lang = :target LIMIT 1"
+                        : "SELECT slug FROM page_categories WHERE id = (SELECT translation_of FROM page_categories WHERE id = :id) LIMIT 1"
+                );
+                $trans->execute(['id' => $catRow['id']]);
+                $row = $trans->fetch();
+                if ($row) return $prefix . '/' . $row['slug'];
+            }
+
+            // Try pages
+            $page = $db->prepare("SELECT id FROM pages WHERE slug = :slug AND lang = :lang LIMIT 1");
+            $page->execute(['slug' => $slug, 'lang' => $currentLang]);
+            $pageRow = $page->fetch();
+            if ($pageRow) {
+                $trans = $db->prepare(
+                    $currentLang === 'nl'
+                        ? "SELECT slug FROM pages WHERE translation_of = :id AND lang = :target LIMIT 1"
+                        : "SELECT slug FROM pages WHERE id = (SELECT translation_of FROM pages WHERE id = :id) LIMIT 1"
+                );
+                $trans->execute(['id' => $pageRow['id'], 'target' => $targetLang]);
+                $row = $trans->fetch();
+                if ($row) return $prefix . '/' . $row['slug'];
+            }
+        } elseif (count($parts) === 2) {
+            $catSlug = $parts[0];
+            $pageSlug = $parts[1];
+            $newCat = $catSlug;
+            $newPage = $pageSlug;
+
+            // Translate category
+            $cat = $db->prepare("SELECT id FROM page_categories WHERE slug = :slug AND lang = :lang LIMIT 1");
+            $cat->execute(['slug' => $catSlug, 'lang' => $currentLang]);
+            $catRow = $cat->fetch();
+            if ($catRow) {
+                $trans = $db->prepare(
+                    $currentLang === 'nl'
+                        ? "SELECT slug FROM page_categories WHERE translation_of = :id AND lang = :target LIMIT 1"
+                        : "SELECT slug FROM page_categories WHERE id = (SELECT translation_of FROM page_categories WHERE id = :id) LIMIT 1"
+                );
+                $trans->execute(['id' => $catRow['id'], 'target' => $targetLang]);
+                $row = $trans->fetch();
+                if ($row) $newCat = $row['slug'];
+            }
+
+            // Translate page
+            $page = $db->prepare("SELECT id FROM pages WHERE slug = :slug AND lang = :lang LIMIT 1");
+            $page->execute(['slug' => $pageSlug, 'lang' => $currentLang]);
+            $pageRow = $page->fetch();
+            if ($pageRow) {
+                $trans = $db->prepare(
+                    $currentLang === 'nl'
+                        ? "SELECT slug FROM pages WHERE translation_of = :id AND lang = :target LIMIT 1"
+                        : "SELECT slug FROM pages WHERE id = (SELECT translation_of FROM pages WHERE id = :id) LIMIT 1"
+                );
+                $trans->execute(['id' => $pageRow['id'], 'target' => $targetLang]);
+                $row = $trans->fetch();
+                if ($row) $newPage = $row['slug'];
+            }
+
+            if ($newCat !== $catSlug || $newPage !== $pageSlug) {
+                return $prefix . '/' . $newCat . '/' . $newPage;
+            }
+        }
+
+        return null;
     }
 
     protected function json(array $data, int $status = 200): void
