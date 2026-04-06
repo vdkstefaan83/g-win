@@ -11,10 +11,13 @@ use App\Models\Menu;
 
 class ShopController extends Controller
 {
+    private ?array $resolvedDbSite = null;
+
     private function getSiteMenus(): array
     {
         $siteModel = new Site();
         $site = $siteModel->findBySlug($this->site['slug']);
+        $this->resolvedDbSite = $site;
         $menuModel = new Menu();
         $lang = App::getLang();
 
@@ -25,14 +28,27 @@ class ShopController extends Controller
         ];
     }
 
+    /**
+     * Get site ID for product filtering. G-Win (slug 'gwin') shows all products.
+     */
+    private function getProductSiteFilter(): ?int
+    {
+        if ($this->resolvedDbSite && $this->resolvedDbSite['slug'] !== 'gwin') {
+            return (int) $this->resolvedDbSite['id'];
+        }
+        return null; // null = show all products
+    }
+
     public function index(): void
     {
         $lang = App::getLang();
         $productModel = new Product();
         $categoryModel = new Category();
+        $menus = $this->getSiteMenus();
+        $siteFilter = $this->getProductSiteFilter();
 
-        $this->render('front/shop/index.twig', array_merge($this->getSiteMenus(), [
-            'products' => $productModel->getActive($lang, 'name', 'ASC'),
+        $this->render('front/shop/index.twig', array_merge($menus, [
+            'products' => $productModel->getActive($lang, 'name', 'ASC', $siteFilter),
             'categories' => $categoryModel->getActive($lang),
         ]));
     }
@@ -50,10 +66,12 @@ class ShopController extends Controller
         }
 
         $productModel = new Product();
+        $menus = $this->getSiteMenus();
+        $siteFilter = $this->getProductSiteFilter();
 
-        $this->render('front/shop/category.twig', array_merge($this->getSiteMenus(), [
+        $this->render('front/shop/category.twig', array_merge($menus, [
             'category' => $category,
-            'products' => $productModel->getByCategory($category['id'], $lang),
+            'products' => $productModel->getByCategory($category['id'], $lang, $siteFilter),
             'categories' => $categoryModel->getActive($lang),
         ]));
     }

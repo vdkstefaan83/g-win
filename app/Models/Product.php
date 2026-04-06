@@ -44,41 +44,70 @@ class Product extends Model
         return $product;
     }
 
-    public function getActive(string $lang = 'nl', string $orderBy = 'created_at', string $direction = 'DESC'): array
+    public function getActive(string $lang = 'nl', string $orderBy = 'name', string $direction = 'ASC', ?int $siteId = null): array
     {
-        return $this->query(
-            "SELECT p.*, pi.filename as primary_image
-             FROM products p
-             LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-             WHERE p.is_active = 1 AND p.lang = :lang
-             ORDER BY p.{$orderBy} {$direction}",
-            ['lang' => $lang]
-        )->fetchAll();
+        $sql = "SELECT p.*, pi.filename as primary_image
+                FROM products p
+                LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1";
+        $params = ['lang' => $lang];
+
+        if ($siteId) {
+            $sql .= " INNER JOIN product_sites ps ON ps.product_id = p.id AND ps.site_id = :site_id";
+            $params['site_id'] = $siteId;
+        }
+
+        $sql .= " WHERE p.is_active = 1 AND p.lang = :lang ORDER BY p.{$orderBy} {$direction}";
+        return $this->query($sql, $params)->fetchAll();
     }
 
-    public function getByCategory(int $categoryId, string $lang = 'nl'): array
+    public function getByCategory(int $categoryId, string $lang = 'nl', ?int $siteId = null): array
     {
-        return $this->query(
-            "SELECT p.*, pi.filename as primary_image
-             FROM products p
-             LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-             WHERE p.category_id = :category_id AND p.is_active = 1 AND p.lang = :lang
-             ORDER BY p.name ASC",
-            ['category_id' => $categoryId, 'lang' => $lang]
-        )->fetchAll();
+        $sql = "SELECT p.*, pi.filename as primary_image
+                FROM products p
+                LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1";
+        $params = ['category_id' => $categoryId, 'lang' => $lang];
+
+        if ($siteId) {
+            $sql .= " INNER JOIN product_sites ps ON ps.product_id = p.id AND ps.site_id = :site_id";
+            $params['site_id'] = $siteId;
+        }
+
+        $sql .= " WHERE p.category_id = :category_id AND p.is_active = 1 AND p.lang = :lang ORDER BY p.name ASC";
+        return $this->query($sql, $params)->fetchAll();
     }
 
-    public function getFeatured(int $limit = 8, string $lang = 'nl'): array
+    public function getFeatured(int $limit = 8, string $lang = 'nl', ?int $siteId = null): array
     {
-        return $this->query(
-            "SELECT p.*, pi.filename as primary_image
-             FROM products p
-             LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-             WHERE p.is_active = 1 AND p.is_featured = 1 AND p.lang = :lang
-             ORDER BY p.created_at DESC
-             LIMIT {$limit}",
-            ['lang' => $lang]
-        )->fetchAll();
+        $sql = "SELECT p.*, pi.filename as primary_image
+                FROM products p
+                LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1";
+        $params = ['lang' => $lang];
+
+        if ($siteId) {
+            $sql .= " INNER JOIN product_sites ps ON ps.product_id = p.id AND ps.site_id = :site_id";
+            $params['site_id'] = $siteId;
+        }
+
+        $sql .= " WHERE p.is_active = 1 AND p.is_featured = 1 AND p.lang = :lang ORDER BY p.created_at DESC LIMIT {$limit}";
+        return $this->query($sql, $params)->fetchAll();
+    }
+
+    public function getSiteIds(int $productId): array
+    {
+        return array_column(
+            $this->query("SELECT site_id FROM product_sites WHERE product_id = :id", ['id' => $productId])->fetchAll(),
+            'site_id'
+        );
+    }
+
+    public function syncSites(int $productId, array $siteIds): void
+    {
+        $this->query("DELETE FROM product_sites WHERE product_id = :id", ['id' => $productId]);
+        foreach ($siteIds as $siteId) {
+            $this->query("INSERT INTO product_sites (product_id, site_id) VALUES (:product_id, :site_id)", [
+                'product_id' => $productId, 'site_id' => (int) $siteId,
+            ]);
+        }
     }
 
     public function findLinkedTranslation(int $productId): array|false

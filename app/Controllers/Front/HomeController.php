@@ -50,7 +50,8 @@ class HomeController extends Controller
             $footerMenu = $menuModel->getByLocationAndSite('footer', $site['id'], $lang);
 
             $productModel = new Product();
-            $featuredProducts = $productModel->getFeatured(4, $lang);
+            $productSiteFilter = ($site['slug'] ?? '') !== 'gwin' ? (int)$site['id'] : null;
+            $featuredProducts = $productModel->getFeatured(4, $lang, $productSiteFilter);
         }
 
         $layout = $this->site['layout'] ?? 'gwin';

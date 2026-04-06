@@ -89,11 +89,15 @@ class ProductController extends Controller
             $nl = $translation ?: [];
         }
 
+        $product['site_ids'] = $this->productModel->getSiteIds($product['id']);
+        $siteModel = new \App\Models\Site();
+
         $this->render('admin/products/edit.twig', [
             'product' => $product,
             'nl' => $nl,
             'fr' => $fr,
             'categories' => $this->categoryModel->findAll('name', 'ASC'),
+            'sites' => $siteModel->findAll('name', 'ASC'),
         ]);
     }
 
@@ -187,6 +191,12 @@ class ProductController extends Controller
         // Handle new image uploads (on the record being edited)
         if (!empty($_FILES['images']['name'][0])) {
             $this->handleImageUploads($id);
+        }
+
+        // Sync sites
+        $siteIds = $_POST['site_ids'] ?? [];
+        if (!empty($siteIds)) {
+            $this->productModel->syncSites($id, $siteIds);
         }
 
         Session::flash('success', 'Product bijgewerkt.');
