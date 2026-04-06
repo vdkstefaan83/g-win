@@ -64,74 +64,96 @@ class Block extends Model
 
     public function getActiveByPage(int $pageId, string $lang = 'nl'): array
     {
-        // Collect all related page IDs (current, NL master, FR translation)
+        // Collect related page IDs (current + NL master)
         $pageIds = [$pageId];
-        // Check if this is a FR page → add NL master
         $master = $this->query("SELECT translation_of FROM pages WHERE id = :id AND translation_of IS NOT NULL LIMIT 1", ['id' => $pageId])->fetch();
         if ($master) {
             $pageIds[] = (int)$master['translation_of'];
         }
-        // Check if this is a NL page → add FR translation
-        $frPage = $this->query("SELECT id FROM pages WHERE translation_of = :id LIMIT 1", ['id' => $pageId])->fetch();
-        if ($frPage) {
-            $pageIds[] = (int)$frPage['id'];
-        }
 
         $placeholders = implode(',', array_map('intval', array_unique($pageIds)));
-        // Get all blocks for any of these page IDs, prefer matching lang
-        $results = $this->query(
+
+        // Get NL blocks for these pages
+        $nlBlocks = $this->query(
             "SELECT b.* FROM blocks b
-             WHERE b.page_id IN ({$placeholders}) AND b.is_active = 1
-             ORDER BY FIELD(b.lang, :lang, 'nl', 'fr'), b.sort_order ASC",
-            ['lang' => $lang]
+             WHERE b.page_id IN ({$placeholders}) AND b.lang = 'nl' AND b.translation_of IS NULL AND b.is_active = 1
+             ORDER BY b.sort_order ASC"
         )->fetchAll();
 
-        // Deduplicate by sort_order (keep first = preferred lang)
-        $seen = [];
-        $filtered = [];
-        foreach ($results as $block) {
-            $key = $block['sort_order'] . '_' . $block['type'];
-            if (!isset($seen[$key])) {
-                $seen[$key] = true;
-                $filtered[] = $block;
+        if ($lang === 'nl') {
+            return $this->decodeOptions($nlBlocks);
+        }
+
+        // For FR: try to find FR translation of each NL block, fallback to NL block with image
+        $results = [];
+        foreach ($nlBlocks as $nlBlock) {
+            $frBlock = $this->query(
+                "SELECT * FROM blocks WHERE translation_of = :id AND lang = :lang LIMIT 1",
+                ['id' => $nlBlock['id'], 'lang' => $lang]
+            )->fetch();
+
+            if ($frBlock) {
+                // Use FR block but inherit image from NL if FR has none
+                if (empty($frBlock['image']) && !empty($nlBlock['image'])) {
+                    $frBlock['image'] = $nlBlock['image'];
+                }
+                if (empty($frBlock['link_url']) && !empty($nlBlock['link_url'])) {
+                    $frBlock['link_url'] = $nlBlock['link_url'];
+                }
+                $results[] = $frBlock;
+            } else {
+                // No FR translation — use NL block (images/embeds still useful)
+                $results[] = $nlBlock;
             }
         }
 
-        return $this->decodeOptions($filtered);
+        return $this->decodeOptions($results);
     }
 
     public function getActiveByCategory(int $categoryId, string $lang = 'nl'): array
     {
-        // Collect all related category IDs
+        // Collect related category IDs (current + NL master)
         $catIds = [$categoryId];
         $master = $this->query("SELECT translation_of FROM page_categories WHERE id = :id AND translation_of IS NOT NULL LIMIT 1", ['id' => $categoryId])->fetch();
         if ($master) {
             $catIds[] = (int)$master['translation_of'];
         }
-        $frCat = $this->query("SELECT id FROM page_categories WHERE translation_of = :id LIMIT 1", ['id' => $categoryId])->fetch();
-        if ($frCat) {
-            $catIds[] = (int)$frCat['id'];
-        }
 
         $placeholders = implode(',', array_map('intval', array_unique($catIds)));
-        $results = $this->query(
+
+        // Get NL blocks
+        $nlBlocks = $this->query(
             "SELECT b.* FROM blocks b
-             WHERE b.page_category_id IN ({$placeholders}) AND b.is_active = 1
-             ORDER BY FIELD(b.lang, :lang, 'nl', 'fr'), b.sort_order ASC",
-            ['lang' => $lang]
+             WHERE b.page_category_id IN ({$placeholders}) AND b.lang = 'nl' AND b.translation_of IS NULL AND b.is_active = 1
+             ORDER BY b.sort_order ASC"
         )->fetchAll();
 
-        $seen = [];
-        $filtered = [];
-        foreach ($results as $block) {
-            $key = $block['sort_order'] . '_' . $block['type'];
-            if (!isset($seen[$key])) {
-                $seen[$key] = true;
-                $filtered[] = $block;
+        if ($lang === 'nl') {
+            return $this->decodeOptions($nlBlocks);
+        }
+
+        // For FR: find FR translation or fallback to NL
+        $results = [];
+        foreach ($nlBlocks as $nlBlock) {
+            $frBlock = $this->query(
+                "SELECT * FROM blocks WHERE translation_of = :id AND lang = :lang LIMIT 1",
+                ['id' => $nlBlock['id'], 'lang' => $lang]
+            )->fetch();
+
+            if ($frBlock) {
+                if (empty($frBlock['image']) && !empty($nlBlock['image'])) {
+                    $frBlock['image'] = $nlBlock['image'];
+                }
+                if (empty($frBlock['link_url']) && !empty($nlBlock['link_url'])) {
+                    $frBlock['link_url'] = $nlBlock['link_url'];
+                }
+                $results[] = $frBlock;
+            } else {
+                $results[] = $nlBlock;
             }
         }
 
-        return $this->decodeOptions($filtered);
+        return $this->decodeOptions($results);
     }
 
     public function getSiteIds(int $blockId): array
