@@ -48,6 +48,7 @@ class Setting extends Model
         'contact_phone' => ['label' => 'Telefoon', 'group' => 'Contact', 'description' => 'Telefoonnummer in de footer.'],
         'contact_email' => ['label' => 'E-mail', 'group' => 'Contact', 'description' => 'E-mailadres in de footer.'],
         'appointment_max_months' => ['label' => 'Max maanden vooruit boeken', 'group' => 'Afspraken', 'description' => 'Hoeveel maanden op voorhand klanten een afspraak kunnen boeken (standaard 24).'],
+        'sketchfab_premium' => ['label' => 'Sketchfab Premium', 'group' => 'Integraties', 'type' => 'boolean', 'description' => 'Vink aan als je een Sketchfab Premium account hebt. Dit activeert autoplay voor 3D embeds.'],
         'appointment_proposals_start_hour' => ['label' => 'Afhalen - beginuur', 'group' => 'Afspraken', 'description' => 'Vroegste uur dat klanten kunnen voorstellen (standaard 10).'],
         'appointment_proposals_end_hour' => ['label' => 'Afhalen - einduur', 'group' => 'Afspraken', 'description' => 'Laatste uur dat klanten kunnen voorstellen (standaard 22).'],
         'appointment_deposit_amount' => ['label' => 'Voorschotbedrag (€)', 'group' => 'Afspraken - Betaling', 'description' => 'Bedrag dat de klant moet betalen als voorschot (bijv. 50.00).'],
@@ -99,7 +100,7 @@ class Setting extends Model
 
         // Sort by group then label
         usort($rows, function($a, $b) {
-            $groupOrder = ['Site' => 0, 'Contact' => 1, 'Afspraken' => 2, 'Afspraken - Betaling' => 3, 'Overig' => 9];
+            $groupOrder = ['Site' => 0, 'Contact' => 1, 'Integraties' => 2, 'Afspraken' => 3, 'Afspraken - Betaling' => 4, 'Overig' => 9];
             $ga = $groupOrder[$a['group']] ?? 9;
             $gb = $groupOrder[$b['group']] ?? 9;
             return $ga === $gb ? strcmp($a['label'], $b['label']) : $ga - $gb;

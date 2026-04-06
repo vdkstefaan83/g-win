@@ -61,6 +61,7 @@ abstract class Controller
                 $data['contact_phone'] = $settingModel->get('contact_phone', null, '');
                 $data['contact_email'] = $settingModel->get('contact_email', null, '');
                 $data['site_description'] = $settingModel->get('site_description', null, '');
+                $data['sketchfab_premium'] = (bool) $settingModel->get('sketchfab_premium', null, '');
             }
         }
 
