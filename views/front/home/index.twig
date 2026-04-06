@@ -199,7 +199,7 @@
     </section>
 
     {# ========== VIDEO ========== #}
-    {% elseif section.type == 'youtube' or section.type == 'vimeo' %}
+    {% elseif section.type == 'youtube' or section.type == 'vimeo' or section.type == 'sketchfab' %}
     {% for block in section.blocks %}
         {% include 'components/block-video.twig' with { 'block': block } %}
     {% endfor %}

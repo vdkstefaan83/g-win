@@ -149,7 +149,7 @@
             </div>
         </div>
     </section>
-    {% elseif block.type == 'youtube' or block.type == 'vimeo' %}
+    {% elseif block.type == 'youtube' or block.type == 'vimeo' or block.type == 'sketchfab' %}
     {% include 'components/block-video.twig' with { 'block': block } %}
     {% elseif block.type == 'gallery' %}
     <section class="py-16 bg-krijgers-50">

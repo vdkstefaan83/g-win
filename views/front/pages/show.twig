@@ -133,7 +133,7 @@
             {% endif %}
         </div>
     </section>
-    {% elseif block.type == 'youtube' or block.type == 'vimeo' %}
+    {% elseif block.type == 'youtube' or block.type == 'vimeo' or block.type == 'sketchfab' %}
     {% include 'components/block-video.twig' with { 'block': block } %}
     {% elseif block.type == 'text' and block != heroBlock %}
     <section class="py-16 bg-white">

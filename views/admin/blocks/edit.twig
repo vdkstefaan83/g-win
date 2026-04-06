@@ -27,6 +27,7 @@
                         <option value="cta" {{ block.type == 'cta' ? 'selected' : '' }}>CTA (call-to-action)</option>
                         <option value="youtube" {{ block.type == 'youtube' ? 'selected' : '' }}>YouTube video</option>
                         <option value="vimeo" {{ block.type == 'vimeo' ? 'selected' : '' }}>Vimeo video</option>
+                        <option value="sketchfab" {{ block.type == 'sketchfab' ? 'selected' : '' }}>Sketchfab 3D</option>
                     </select>
                 </div>
                 <div>
@@ -68,12 +69,12 @@
                     <input type="number" name="sort_order" id="sort_order" value="{{ block.sort_order }}"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
-                <div x-show="blockType !== 'youtube' && blockType !== 'vimeo'">
+                <div x-show="blockType !== 'youtube' && blockType !== 'vimeo' && blockType !== 'sketchfab'">
                     <label for="link_url" class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
                     <input type="text" name="link_url" id="link_url_regular"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                            value="{{ block.link_url }}" placeholder="/pagina-slug of https://..."
-                           :disabled="blockType === 'youtube' || blockType === 'vimeo'">
+                           :disabled="blockType === 'youtube' || blockType === 'vimeo' || blockType === 'sketchfab'">
                 </div>
                 <div class="flex items-end pb-1">
                     <label class="inline-flex items-center gap-2">
@@ -84,34 +85,40 @@
                 </div>
             </div>
 
-            <div x-show="blockType === 'youtube' || blockType === 'vimeo'" class="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+            <div x-show="blockType === 'youtube' || blockType === 'vimeo' || blockType === 'sketchfab'" class="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1"
-                           x-text="blockType === 'youtube' ? 'YouTube URL *' : 'Vimeo URL *'"></label>
+                           x-text="blockType === 'youtube' ? 'YouTube URL *' : blockType === 'vimeo' ? 'Vimeo URL *' : 'Sketchfab URL *'"></label>
                     <input type="text" name="link_url" id="link_url"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                            value="{{ block.link_url }}"
-                           :placeholder="blockType === 'youtube' ? 'https://www.youtube.com/watch?v=...' : 'https://vimeo.com/...'">
-                    <p class="text-xs text-gray-500 mt-1" x-text="blockType === 'youtube' ? 'Plak de volledige YouTube URL (bijv. https://www.youtube.com/watch?v=abc123)' : 'Plak de volledige Vimeo URL (bijv. https://vimeo.com/123456)'"></p>
+                           :placeholder="blockType === 'youtube' ? 'https://www.youtube.com/watch?v=...' : blockType === 'vimeo' ? 'https://vimeo.com/...' : 'https://sketchfab.com/models/.../embed'">
+                    <p class="text-xs text-gray-500 mt-1" x-text="blockType === 'youtube' ? 'Plak de volledige YouTube URL (bijv. https://www.youtube.com/watch?v=abc123)' : blockType === 'vimeo' ? 'Plak de volledige Vimeo URL (bijv. https://vimeo.com/123456)' : 'Plak de Sketchfab embed URL (bijv. https://sketchfab.com/models/abc123/embed)'"></p>
                 </div>
-                <div class="flex gap-6">
+                <div class="flex gap-6 flex-wrap">
                     <label class="inline-flex items-center gap-2 text-sm text-gray-700">
                         <input type="checkbox" name="opt_autoplay" value="1"
                                {{ (block.options.autoplay is defined and block.options.autoplay) ? 'checked' : '' }}
                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         Automatisch afspelen
                     </label>
-                    <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700" x-show="blockType !== 'sketchfab'">
                         <input type="checkbox" name="opt_muted" value="1"
                                {{ (block.options.muted is defined and block.options.muted) ? 'checked' : '' }}
                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         Geluid uit (muted)
                     </label>
-                    <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700" x-show="blockType !== 'sketchfab'">
                         <input type="checkbox" name="opt_loop" value="1"
                                {{ (block.options.loop is defined and block.options.loop) ? 'checked' : '' }}
                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         Herhalen (loop)
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700" x-show="blockType === 'sketchfab'">
+                        <input type="checkbox" name="opt_autospin" value="1"
+                               {{ (block.options.autospin is defined and block.options.autospin) ? 'checked' : '' }}
+                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        Automatisch draaien
                     </label>
                 </div>
             </div>
@@ -135,7 +142,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-show="blockType !== 'youtube' && blockType !== 'vimeo'">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-show="blockType !== 'youtube' && blockType !== 'vimeo' && blockType !== 'sketchfab'">
                 <div>
                     <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Afbeelding uploaden</label>
                     {% if block.image %}
@@ -189,12 +196,12 @@
                                value="{{ nl.subtitle }}" placeholder="Optionele ondertitel of label">
                     </div>
                 </div>
-                <div x-show="blockType !== 'youtube' && blockType !== 'vimeo'">
+                <div x-show="blockType !== 'youtube' && blockType !== 'vimeo' && blockType !== 'sketchfab'">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Inhoud</label>
                     <div id="nl_editor" class="bg-white" style="min-height: 250px;">{{ nl.content|raw }}</div>
                     <textarea name="nl_content" id="nl_content" class="hidden">{{ nl.content }}</textarea>
                 </div>
-                <div x-show="blockType === 'youtube' || blockType === 'vimeo'">
+                <div x-show="blockType === 'youtube' || blockType === 'vimeo' || blockType === 'sketchfab'">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Beschrijving (optioneel, onder video)</label>
                     <textarea name="nl_content_plain" rows="2"
                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ nl.content|striptags }}</textarea>
@@ -217,12 +224,12 @@
                                value="{{ fr.subtitle }}" placeholder="Sous-titre optionnel">
                     </div>
                 </div>
-                <div x-show="blockType !== 'youtube' && blockType !== 'vimeo'">
+                <div x-show="blockType !== 'youtube' && blockType !== 'vimeo' && blockType !== 'sketchfab'">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Contenu</label>
                     <div id="fr_editor" class="bg-white" style="min-height: 250px;">{{ fr.content|raw }}</div>
                     <textarea name="fr_content" id="fr_content" class="hidden">{{ fr.content }}</textarea>
                 </div>
-                <div x-show="blockType === 'youtube' || blockType === 'vimeo'">
+                <div x-show="blockType === 'youtube' || blockType === 'vimeo' || blockType === 'sketchfab'">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Description (optionnel, sous la vidéo)</label>
                     <textarea name="fr_content_plain" rows="2"
                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ fr.content|striptags }}</textarea>

@@ -211,6 +211,11 @@ class BlockController extends Controller
                 'muted' => (bool) $this->input('opt_muted'),
                 'loop' => (bool) $this->input('opt_loop'),
             ]);
+        } elseif ($type === 'sketchfab') {
+            $shared['options'] = json_encode([
+                'autoplay' => (bool) $this->input('opt_autoplay'),
+                'autospin' => (bool) $this->input('opt_autospin'),
+            ]);
         }
 
         // Handle image (shared) — file upload takes priority over URL

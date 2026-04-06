@@ -53,4 +53,33 @@
             {% endif %}
         </div>
     </section>
+{% elseif block.type == 'sketchfab' and block.link_url %}
+    {% set embedUrl = block.link_url %}
+    {% if '/embed' not in embedUrl %}
+        {% set modelId = embedUrl|replace({'https://sketchfab.com/models/': '', 'https://sketchfab.com/3d-models/': ''}) %}
+        {% set modelId = modelId|split('/')|first %}
+        {% set modelId = modelId|split('?')|first %}
+        {% set modelId = modelId|split('-')|last %}
+        {% set embedUrl = 'https://sketchfab.com/models/' ~ modelId ~ '/embed' %}
+    {% endif %}
+    {% set params = [] %}
+    {% if opts.autoplay is defined and opts.autoplay %}{% set params = params|merge(['autoplay=1']) %}{% endif %}
+    {% if opts.autospin is defined and opts.autospin %}{% set params = params|merge(['autospin=0.2']) %}{% endif %}
+    {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
+    <section class="py-16 bg-krijgers-50">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            {% if block.title %}
+                <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6 text-center">{{ block.title }}</h2>
+            {% endif %}
+            <div class="aspect-video rounded-2xl overflow-hidden shadow-lg">
+                <iframe src="{{ embedUrl }}{{ paramStr }}"
+                        class="w-full h-full" frameborder="0"
+                        allow="autoplay; fullscreen; xr-spatial-tracking"
+                        allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+            </div>
+            {% if block.content %}
+                <div class="mt-4 text-center text-gray-600 text-sm">{{ block.content|striptags }}</div>
+            {% endif %}
+        </div>
+    </section>
 {% endif %}

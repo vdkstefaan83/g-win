@@ -49,6 +49,7 @@
                         <option value="cta">CTA (call-to-action)</option>
                         <option value="youtube">YouTube video</option>
                         <option value="vimeo">Vimeo video</option>
+                        <option value="sketchfab">Sketchfab 3D</option>
                     </select>
                 </div>
                 <div>
@@ -63,7 +64,7 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div x-show="blockType !== 'youtube' && blockType !== 'vimeo'">
+                <div x-show="blockType !== 'youtube' && blockType !== 'vimeo' && blockType !== 'sketchfab'">
                     <label for="link_url" class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
                     <input type="text" name="link_url" id="link_url_regular"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -71,7 +72,7 @@
                 </div>
             </div>
 
-            <div x-show="blockType === 'youtube' || blockType === 'vimeo'" class="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+            <div x-show="blockType === 'youtube' || blockType === 'vimeo' || blockType === 'sketchfab'" class="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1"
                            x-text="blockType === 'youtube' ? 'YouTube URL *' : 'Vimeo URL *'"></label>
@@ -116,7 +117,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-show="blockType !== 'youtube' && blockType !== 'vimeo'">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-show="blockType !== 'youtube' && blockType !== 'vimeo' && blockType !== 'sketchfab'">
                 <div>
                     <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Afbeelding uploaden</label>
                     <input type="file" name="image" id="image" accept="image/*"
@@ -132,12 +133,12 @@
                 </div>
             </div>
 
-            <div x-show="blockType !== 'youtube' && blockType !== 'vimeo'">
+            <div x-show="blockType !== 'youtube' && blockType !== 'vimeo' && blockType !== 'sketchfab'">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Inhoud</label>
                 <div id="editor" class="bg-white" style="min-height: 250px;">{{ old.content|raw }}</div>
                 <textarea name="content" id="content" class="hidden">{{ old.content }}</textarea>
             </div>
-            <div x-show="blockType === 'youtube' || blockType === 'vimeo'">
+            <div x-show="blockType === 'youtube' || blockType === 'vimeo' || blockType === 'sketchfab'">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Beschrijving (optioneel, onder video)</label>
                 <textarea name="content_plain" rows="2"
                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
