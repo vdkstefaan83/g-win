@@ -134,7 +134,7 @@ class Product extends Model
              FROM products p
              LEFT JOIN categories c ON p.category_id = c.id
              WHERE p.translation_of IS NULL
-             ORDER BY p.name ASC"
+             ORDER BY p.sort_order ASC, p.name ASC"
         )->fetchAll();
     }
 

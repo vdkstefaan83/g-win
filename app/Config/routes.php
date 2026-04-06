@@ -421,6 +421,9 @@ $router->get('/admin/products/create', function () {
 $router->post('/admin/products/store', function () {
     (new ProductController())->store();
 });
+$router->post('/admin/products/reorder', function () {
+    (new ProductController())->reorder();
+});
 $router->get('/admin/products/{id}/edit', function ($id) {
     (new ProductController())->edit((int)$id);
 });

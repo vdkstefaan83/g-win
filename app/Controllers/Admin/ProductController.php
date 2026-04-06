@@ -31,6 +31,17 @@ class ProductController extends Controller
         ]);
     }
 
+    public function reorder(): void
+    {
+        $items = json_decode(file_get_contents('php://input'), true);
+        if (is_array($items)) {
+            foreach ($items as $index => $productId) {
+                $this->productModel->update((int)$productId, ['sort_order' => $index]);
+            }
+        }
+        $this->json(['success' => true]);
+    }
+
     public function create(): void
     {
         $this->render('admin/products/create.twig', [
