@@ -215,6 +215,8 @@
                     <div>
                         <label class="block text-sm font-medium text-krijgers-700 mb-1.5">{{ t('phone') }} *</label>
                         <input type="tel" id="phoneInput" required
+                               @input="form.phone = $event.target.value"
+                               @countrychange="form.phone = $event.target.value"
                                class="w-full border border-krijgers-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-krijgers-gold-500 focus:border-krijgers-gold-500">
                     </div>
                     <div>
@@ -396,9 +398,7 @@ function appointmentFlow() {
         },
 
         detailsValid() {
-            var phoneEl = document.getElementById('phoneInput');
-            var hasPhone = phoneEl && phoneEl.value.trim().length > 0;
-            return this.form.first_name && this.form.last_name && this.form.email && hasPhone;
+            return this.form.first_name && this.form.last_name && this.form.email && this.form.phone;
         },
 
         submitAppointment() {
