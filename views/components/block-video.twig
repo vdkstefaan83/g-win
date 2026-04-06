@@ -63,8 +63,9 @@
         {% set embedUrl = 'https://sketchfab.com/models/' ~ modelId ~ '/embed' %}
     {% endif %}
     {% set params = [] %}
-    {% if opts.autoplay ?? false %}{% set params = params|merge(['autoplay=1']) %}{% endif %}
+    {% if opts.autoplay ?? false %}{% set params = params|merge(['autoplay=1', 'ui_stop=0']) %}{% endif %}
     {% if opts.autospin ?? false %}{% set params = params|merge(['autospin=0.2']) %}{% endif %}
+    {% set params = params|merge(['ui_infos=0', 'ui_watermark=0']) %}
     {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
     <section class="py-16 bg-krijgers-50">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
