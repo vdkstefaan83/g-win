@@ -8,14 +8,24 @@ class Block extends Model
 {
     protected string $table = 'blocks';
 
+    private function decodeOptions(array $blocks): array
+    {
+        foreach ($blocks as &$block) {
+            if (!empty($block['options']) && is_string($block['options'])) {
+                $block['options'] = json_decode($block['options'], true) ?: [];
+            }
+        }
+        return $blocks;
+    }
+
     public function getActiveBySite(int $siteId, string $lang = 'nl'): array
     {
-        return $this->query(
+        return $this->decodeOptions($this->query(
             "SELECT b.* FROM blocks b
              INNER JOIN block_sites bs ON bs.block_id = b.id
              WHERE bs.site_id = :site_id AND b.lang = :lang AND b.is_active = 1 AND b.page_id IS NULL ORDER BY b.sort_order ASC",
             ['site_id' => $siteId, 'lang' => $lang]
-        )->fetchAll();
+        )->fetchAll());
     }
 
     public function getAllWithSite(): array
@@ -54,22 +64,22 @@ class Block extends Model
 
     public function getActiveByPage(int $pageId, string $lang = 'nl'): array
     {
-        return $this->query(
+        return $this->decodeOptions($this->query(
             "SELECT b.* FROM blocks b
              WHERE b.page_id = :page_id AND b.lang = :lang AND b.is_active = 1
              ORDER BY b.sort_order ASC",
             ['page_id' => $pageId, 'lang' => $lang]
-        )->fetchAll();
+        )->fetchAll());
     }
 
     public function getActiveByCategory(int $categoryId, string $lang = 'nl'): array
     {
-        return $this->query(
+        return $this->decodeOptions($this->query(
             "SELECT b.* FROM blocks b
              WHERE b.page_category_id = :cat_id AND b.lang = :lang AND b.is_active = 1
              ORDER BY b.sort_order ASC",
             ['cat_id' => $categoryId, 'lang' => $lang]
-        )->fetchAll();
+        )->fetchAll());
     }
 
     public function getSiteIds(int $blockId): array

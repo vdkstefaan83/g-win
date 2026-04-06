@@ -1,16 +1,16 @@
 {# Render a YouTube, Vimeo or Sketchfab block #}
-{% set opts = block.options ?? {} %}
-{% if opts is not iterable %}
-    {% set opts = {} %}
+{% set opts = {} %}
+{% if block.options is iterable %}
+    {% set opts = block.options %}
 {% endif %}
 
 {% if block.type == 'youtube' and block.link_url %}
     {% set videoId = block.link_url|replace({'https://www.youtube.com/watch?v=': '', 'https://youtube.com/watch?v=': '', 'https://youtu.be/': '', 'https://www.youtube.com/embed/': ''}) %}
     {% set videoId = videoId|split('&')|first %}
     {% set params = [] %}
-    {% if opts.autoplay is defined and opts.autoplay %}{% set params = params|merge(['autoplay=1']) %}{% endif %}
-    {% if opts.muted is defined and opts.muted %}{% set params = params|merge(['mute=1']) %}{% endif %}
-    {% if opts.loop is defined and opts.loop %}{% set params = params|merge(['loop=1', 'playlist=' ~ videoId]) %}{% endif %}
+    {% if opts.autoplay ?? false %}{% set params = params|merge(['autoplay=1']) %}{% endif %}
+    {% if opts.muted ?? false %}{% set params = params|merge(['mute=1']) %}{% endif %}
+    {% if opts.loop ?? false %}{% set params = params|merge(['loop=1', 'playlist=' ~ videoId]) %}{% endif %}
     {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
     <section class="py-16 bg-krijgers-50">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,7 +24,7 @@
                         allowfullscreen></iframe>
             </div>
             {% if block.content %}
-                <div class="mt-4 text-center text-krijgers-600 text-sm">{{ block.content|striptags }}</div>
+                <div class="mt-4 text-center text-gray-600 text-sm">{{ block.content|striptags }}</div>
             {% endif %}
         </div>
     </section>
@@ -33,9 +33,9 @@
     {% set videoId = videoId|split('/')|first %}
     {% set videoId = videoId|split('?')|first %}
     {% set params = [] %}
-    {% if opts.autoplay is defined and opts.autoplay %}{% set params = params|merge(['autoplay=1']) %}{% endif %}
-    {% if opts.muted is defined and opts.muted %}{% set params = params|merge(['muted=1']) %}{% endif %}
-    {% if opts.loop is defined and opts.loop %}{% set params = params|merge(['loop=1']) %}{% endif %}
+    {% if opts.autoplay ?? false %}{% set params = params|merge(['autoplay=1']) %}{% endif %}
+    {% if opts.muted ?? false %}{% set params = params|merge(['muted=1']) %}{% endif %}
+    {% if opts.loop ?? false %}{% set params = params|merge(['loop=1']) %}{% endif %}
     {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
     <section class="py-16 bg-krijgers-50">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,7 +49,7 @@
                         allowfullscreen></iframe>
             </div>
             {% if block.content %}
-                <div class="mt-4 text-center text-krijgers-600 text-sm">{{ block.content|striptags }}</div>
+                <div class="mt-4 text-center text-gray-600 text-sm">{{ block.content|striptags }}</div>
             {% endif %}
         </div>
     </section>
@@ -63,8 +63,8 @@
         {% set embedUrl = 'https://sketchfab.com/models/' ~ modelId ~ '/embed' %}
     {% endif %}
     {% set params = [] %}
-    {% if opts.autoplay is defined and opts.autoplay %}{% set params = params|merge(['autoplay=1']) %}{% endif %}
-    {% if opts.autospin is defined and opts.autospin %}{% set params = params|merge(['autospin=0.2']) %}{% endif %}
+    {% if opts.autoplay ?? false %}{% set params = params|merge(['autoplay=1']) %}{% endif %}
+    {% if opts.autospin ?? false %}{% set params = params|merge(['autospin=0.2']) %}{% endif %}
     {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
     <section class="py-16 bg-krijgers-50">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
