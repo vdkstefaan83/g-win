@@ -1,9 +1,11 @@
 /* G-Win Frontend Styles */
 
-/* Prevent G-Win from being split across lines */
-.prose, h1, h2, h3, h4, p, span, a, li, td, th, label, button {
-    -webkit-hyphens: none;
-    hyphens: none;
+/* Prevent words with hyphens (like G-Win) from splitting across lines */
+.prose, .prose * {
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+    -webkit-hyphens: none !important;
+    hyphens: none !important;
 }
 
 /* Smooth scrolling */
