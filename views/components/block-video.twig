@@ -1,7 +1,7 @@
-{# Render a YouTube or Vimeo video block #}
-{% set opts = block.options is defined and block.options is iterable ? block.options : {} %}
-{% if block.options is defined and block.options is not iterable and block.options %}
-    {% set opts = block.options|json_encode is defined ? {} : {} %}
+{# Render a YouTube, Vimeo or Sketchfab block #}
+{% set opts = block.options ?? {} %}
+{% if opts is not iterable %}
+    {% set opts = {} %}
 {% endif %}
 
 {% if block.type == 'youtube' and block.link_url %}
