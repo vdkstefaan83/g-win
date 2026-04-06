@@ -83,7 +83,14 @@
                     <p class="text-xs text-gray-500 mt-1" x-text="blockType === 'youtube' ? 'Plak de volledige YouTube URL' : blockType === 'vimeo' ? 'Plak de volledige Vimeo URL' : 'Plak de Sketchfab embed URL'"></p>
                 </div>
                 <div class="flex gap-6 flex-wrap">
-                    <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                    {% if sketchfab_premium %}
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700" x-show="blockType === 'sketchfab'">
+                        <input type="checkbox" name="opt_autoplay" value="1"
+                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        Automatisch afspelen
+                    </label>
+                    {% endif %}
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700" x-show="blockType !== 'sketchfab'">
                         <input type="checkbox" name="opt_autoplay" value="1"
                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         Automatisch afspelen
@@ -103,6 +110,9 @@
                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         Automatisch draaien
                     </label>
+                    {% if not sketchfab_premium %}
+                    <p class="text-xs text-amber-600 w-full" x-show="blockType === 'sketchfab'">Autoplay vereist een Sketchfab Premium account. Schakel dit in via Instellingen &rarr; Integraties.</p>
+                    {% endif %}
                 </div>
             </div>
 

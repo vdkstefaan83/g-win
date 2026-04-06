@@ -96,30 +96,35 @@
                     <p class="text-xs text-gray-500 mt-1" x-text="blockType === 'youtube' ? 'Plak de volledige YouTube URL (bijv. https://www.youtube.com/watch?v=abc123)' : blockType === 'vimeo' ? 'Plak de volledige Vimeo URL (bijv. https://vimeo.com/123456)' : 'Plak de Sketchfab embed URL (bijv. https://sketchfab.com/models/abc123/embed)'"></p>
                 </div>
                 <div class="flex gap-6 flex-wrap">
+                    {% if sketchfab_premium or block.type != 'sketchfab' %}
                     <label class="inline-flex items-center gap-2 text-sm text-gray-700">
                         <input type="checkbox" name="opt_autoplay" value="1"
-                               {{ (block.options.autoplay is defined and block.options.autoplay) ? 'checked' : '' }}
+                               {{ (block.options.autoplay ?? false) ? 'checked' : '' }}
                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         Automatisch afspelen
                     </label>
+                    {% endif %}
                     <label class="inline-flex items-center gap-2 text-sm text-gray-700" x-show="blockType !== 'sketchfab'">
                         <input type="checkbox" name="opt_muted" value="1"
-                               {{ (block.options.muted is defined and block.options.muted) ? 'checked' : '' }}
+                               {{ (block.options.muted ?? false) ? 'checked' : '' }}
                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         Geluid uit (muted)
                     </label>
                     <label class="inline-flex items-center gap-2 text-sm text-gray-700" x-show="blockType !== 'sketchfab'">
                         <input type="checkbox" name="opt_loop" value="1"
-                               {{ (block.options.loop is defined and block.options.loop) ? 'checked' : '' }}
+                               {{ (block.options.loop ?? false) ? 'checked' : '' }}
                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         Herhalen (loop)
                     </label>
                     <label class="inline-flex items-center gap-2 text-sm text-gray-700" x-show="blockType === 'sketchfab'">
                         <input type="checkbox" name="opt_autospin" value="1"
-                               {{ (block.options.autospin is defined and block.options.autospin) ? 'checked' : '' }}
+                               {{ (block.options.autospin ?? false) ? 'checked' : '' }}
                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         Automatisch draaien
                     </label>
+                    {% if not sketchfab_premium and block.type == 'sketchfab' %}
+                    <p class="text-xs text-amber-600 w-full">Autoplay vereist een Sketchfab Premium account. Schakel dit in via Instellingen &rarr; Integraties.</p>
+                    {% endif %}
                 </div>
             </div>
 

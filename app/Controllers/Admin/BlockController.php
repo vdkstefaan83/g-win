@@ -63,8 +63,10 @@ class BlockController extends Controller
 
     public function create(): void
     {
+        $settingModel = new \App\Models\Setting();
         $this->render('admin/blocks/create.twig', [
             'sites' => $this->siteModel->findAll('name', 'ASC'),
+            'sketchfab_premium' => (bool) $settingModel->get('sketchfab_premium', null, ''),
         ]);
     }
 
@@ -153,6 +155,7 @@ class BlockController extends Controller
 
         $pageModel = new Page();
         $catModel = new PageCategory();
+        $settingModel = new \App\Models\Setting();
 
         $this->render('admin/blocks/edit.twig', [
             'block' => $block,
@@ -161,6 +164,7 @@ class BlockController extends Controller
             'sites' => $this->siteModel->findAll('name', 'ASC'),
             'pages' => $pageModel->getAllWithSite(),
             'page_categories' => $catModel->getAllWithSite(),
+            'sketchfab_premium' => (bool) $settingModel->get('sketchfab_premium', null, ''),
         ]);
     }
 
