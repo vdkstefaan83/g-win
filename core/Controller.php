@@ -67,13 +67,14 @@ abstract class Controller
 
         // Check if shop is enabled (any menu item links to shop-related URLs)
         $data['shop_enabled'] = false;
-        $shopSlugs = ['/shop', '/winkelwagen', '/boutique', '/panier'];
+        $shopKeywords = ['shop', 'winkelwagen', 'boutique', 'panier'];
         if (!empty($data['header_menu']['items'])) {
             foreach ($data['header_menu']['items'] as $item) {
-                $url = $item['url'] ?? '';
+                $url = trim($item['url'] ?? '', '/');
                 $slug = $item['page_slug'] ?? '';
-                foreach ($shopSlugs as $s) {
-                    if (str_starts_with($url, $s) || str_starts_with('/' . $slug, $s)) {
+                $label = strtolower($item['label'] ?? '');
+                foreach ($shopKeywords as $kw) {
+                    if ($url === $kw || str_starts_with($url, $kw . '/') || $slug === $kw || str_contains($label, $kw)) {
                         $data['shop_enabled'] = true;
                         break 2;
                     }
