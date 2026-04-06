@@ -89,7 +89,12 @@
         <!-- Step: time_picker -->
         <template x-if="steps[currentStep] && steps[currentStep].step_type === 'time_picker'">
             <div>
-                <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6" x-text="steps[currentStep].label"></h2>
+                <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-4" x-text="steps[currentStep].label"></h2>
+                {% if slot_info %}
+                <div class="bg-krijgers-50 rounded-xl p-4 mb-6 text-sm text-gray-700 leading-relaxed">
+                    {{ slot_info|nl2br }}
+                </div>
+                {% endif %}
 
                 <div x-show="loadingSlots" class="text-center py-8 text-krijgers-500">Laden...</div>
                 <div x-show="!loadingSlots && availableSlots.length === 0" class="text-center py-8 text-krijgers-500">Geen beschikbare tijdsloten.</div>

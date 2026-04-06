@@ -49,6 +49,8 @@ class Setting extends Model
         'contact_email' => ['label' => 'E-mail', 'group' => 'Contact', 'description' => 'E-mailadres in de footer.'],
         'appointment_max_months' => ['label' => 'Max maanden vooruit boeken', 'group' => 'Afspraken', 'description' => 'Hoeveel maanden op voorhand klanten een afspraak kunnen boeken (standaard 24).'],
         'sketchfab_premium' => ['label' => 'Sketchfab Premium', 'group' => 'Integraties', 'type' => 'boolean', 'description' => 'Vink aan als je een Sketchfab Premium account hebt. Dit activeert autoplay voor 3D embeds.'],
+        'appointment_slot_info_nl' => ['label' => 'Tijdslot info (NL)', 'group' => 'Afspraken', 'type' => 'textarea', 'description' => 'Tekst boven de tijdsloten bij het boeken (NL).'],
+        'appointment_slot_info_fr' => ['label' => 'Tijdslot info (FR)', 'group' => 'Afspraken', 'type' => 'textarea', 'description' => 'Tekst boven de tijdsloten bij het boeken (FR).'],
         'appointment_proposals_start_hour' => ['label' => 'Afhalen - beginuur', 'group' => 'Afspraken', 'description' => 'Vroegste uur dat klanten kunnen voorstellen (standaard 10).'],
         'appointment_proposals_end_hour' => ['label' => 'Afhalen - einduur', 'group' => 'Afspraken', 'description' => 'Laatste uur dat klanten kunnen voorstellen (standaard 22).'],
         'appointment_deposit_amount' => ['label' => 'Voorschotbedrag (€)', 'group' => 'Afspraken - Betaling', 'description' => 'Bedrag dat de klant moet betalen als voorschot (bijv. 50.00).'],

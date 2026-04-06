@@ -24,6 +24,7 @@ use App\Controllers\Admin\GoogleCalendarController;
 use App\Controllers\Admin\PageCategoryController;
 use App\Controllers\Admin\AuthController as AdminAuthController;
 use App\Controllers\Admin\MailTemplateController;
+use App\Controllers\Admin\AppointmentSlotController;
 use App\Controllers\Admin\AppointmentTypeController;
 
 /** @var \Bramus\Router\Router $router */
@@ -304,6 +305,20 @@ $router->post('/admin/blocks/{id}/update', function ($id) {
 });
 $router->post('/admin/blocks/{id}/delete', function ($id) {
     (new BlockController())->destroy((int)$id);
+});
+
+// Appointment Slots
+$router->get('/admin/appointment-slots', function () {
+    (new AppointmentSlotController())->index();
+});
+$router->post('/admin/appointment-slots/store', function () {
+    (new AppointmentSlotController())->store();
+});
+$router->post('/admin/appointment-slots/{id}/update', function ($id) {
+    (new AppointmentSlotController())->update((int)$id);
+});
+$router->post('/admin/appointment-slots/{id}/delete', function ($id) {
+    (new AppointmentSlotController())->destroy((int)$id);
 });
 
 // Appointment Types

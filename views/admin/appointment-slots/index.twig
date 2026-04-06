@@ -1,0 +1,154 @@
+{% extends 'layouts/admin/base.twig' %}
+
+{% block title %}Tijdsloten{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Tijdsloten</h2>
+</div>
+
+<!-- Filter -->
+<div class="bg-white rounded-lg shadow p-4 mb-6">
+    <form method="GET" action="/admin/appointment-slots" class="flex items-center gap-4">
+        <label class="text-sm font-medium text-gray-700">Filter op type:</label>
+        <select name="type_id" onchange="this.form.submit()"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="">Alle types</option>
+            {% for t in types %}
+                <option value="{{ t.id }}" {{ selected_type_id == t.id ? 'selected' : '' }}>{{ t.name_nl }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<!-- Add new slot -->
+<div class="bg-white rounded-lg shadow p-4 mb-6" x-data="{ showForm: false }">
+    <div class="flex justify-between items-center">
+        <h3 class="font-semibold text-gray-800">Nieuw tijdslot</h3>
+        <button @click="showForm = !showForm" class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                x-text="showForm ? 'Sluiten' : '+ Toevoegen'"></button>
+    </div>
+    <div x-show="showForm" x-cloak class="mt-4">
+        <form action="/admin/appointment-slots/store" method="POST" class="flex items-end gap-3 flex-wrap">
+            {{ csrf_field|raw }}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <select name="appointment_type_id" required
+                        class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    {% for t in types %}
+                        <option value="{{ t.id }}" {{ selected_type_id == t.id ? 'selected' : '' }}>{{ t.name_nl }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Dag</label>
+                <select name="day_of_week" required
+                        class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="0">Zondag</option>
+                    <option value="1">Maandag</option>
+                    <option value="2">Dinsdag</option>
+                    <option value="3">Woensdag</option>
+                    <option value="4">Donderdag</option>
+                    <option value="5">Vrijdag</option>
+                    <option value="6" selected>Zaterdag</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Start</label>
+                <input type="time" name="start_time" required
+                       class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Einde</label>
+                <input type="time" name="end_time" required
+                       class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Max boekingen</label>
+                <input type="number" name="max_bookings" value="1" min="1"
+                       class="w-20 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                Toevoegen
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Slots table -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dag</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Einde</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Max</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% set days = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'] %}
+            {% for slot in slots %}
+            <tr class="hover:bg-gray-50" x-data="{ editing: false }">
+                <td class="px-4 py-3 text-sm text-gray-900">{{ slot.type_name ?? slot.type }}</td>
+                <td class="px-4 py-3 text-sm text-gray-900">{{ days[slot.day_of_week] }}</td>
+                <td class="px-4 py-3 text-sm">
+                    <span x-show="!editing">{{ slot.start_time[:5] }}</span>
+                    <form x-show="editing" action="/admin/appointment-slots/{{ slot.id }}/update" method="POST" class="flex items-center gap-2">
+                        {{ csrf_field|raw }}
+                        <input type="hidden" name="day_of_week" value="{{ slot.day_of_week }}">
+                        <input type="time" name="start_time" value="{{ slot.start_time[:5] }}"
+                               class="border border-gray-300 rounded px-2 py-1 text-sm w-24">
+                </td>
+                <td class="px-4 py-3 text-sm">
+                    <span x-show="!editing">{{ slot.end_time[:5] }}</span>
+                    <span x-show="editing">
+                        <input type="time" name="end_time" value="{{ slot.end_time[:5] }}"
+                               class="border border-gray-300 rounded px-2 py-1 text-sm w-24">
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-sm">
+                    <span x-show="!editing">{{ slot.max_bookings }}</span>
+                    <span x-show="editing">
+                        <input type="number" name="max_bookings" value="{{ slot.max_bookings }}" min="1"
+                               class="border border-gray-300 rounded px-2 py-1 text-sm w-16">
+                    </span>
+                </td>
+                <td class="px-4 py-3">
+                    <span x-show="!editing" class="px-2 py-1 text-xs rounded-full {{ slot.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600' }}">
+                        {{ slot.is_active ? 'Actief' : 'Inactief' }}
+                    </span>
+                    <span x-show="editing">
+                        <input type="hidden" name="is_active" value="0">
+                        <label class="inline-flex items-center gap-1">
+                            <input type="checkbox" name="is_active" value="1" {{ slot.is_active ? 'checked' : '' }}
+                                   class="rounded border-gray-300 text-blue-600">
+                            <span class="text-xs">Actief</span>
+                        </label>
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-right text-sm space-x-2">
+                    <button x-show="!editing" @click="editing = true" class="text-blue-600 hover:text-blue-800 font-medium">Bewerken</button>
+                    <button x-show="editing" type="submit" class="text-green-600 hover:text-green-800 font-medium">Opslaan</button>
+                    </form>
+                    <button x-show="editing" @click="editing = false" class="text-gray-500 hover:text-gray-700 font-medium">Annuleren</button>
+                    <form action="/admin/appointment-slots/{{ slot.id }}/delete" method="POST" class="inline" onsubmit="return confirm('Tijdslot verwijderen?')">
+                        {{ csrf_field|raw }}
+                        <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Verwijderen</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="px-6 py-8 text-center text-gray-500">Geen tijdsloten gevonden.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<p class="text-sm text-gray-500 mt-4">De tijdslot info tekst (boven de tijdsloten voor klanten) kan aangepast worden via <a href="/admin/settings" class="text-blue-600 hover:text-blue-800">Instellingen</a> → Afspraken.</p>
+{% endblock %}

@@ -78,6 +78,9 @@ class AppointmentController extends Controller
         $proposalsStartHour = (int) $settingModel->get('appointment_proposals_start_hour', null, '10');
         $proposalsEndHour = (int) $settingModel->get('appointment_proposals_end_hour', null, '22');
 
+        $slotInfoKey = $lang === 'fr' ? 'appointment_slot_info_fr' : 'appointment_slot_info_nl';
+        $slotInfo = $settingModel->get($slotInfoKey, null, '');
+
         $this->render('front/appointments/flow.twig', [
             'appointment_type' => $type,
             'flow_steps' => $flowSteps,
@@ -85,6 +88,7 @@ class AppointmentController extends Controller
             'max_booking_months' => $maxBookingMonths,
             'proposals_start_hour' => $proposalsStartHour,
             'proposals_end_hour' => $proposalsEndHour,
+            'slot_info' => $slotInfo,
             'layout' => $this->site['layout'] ?? 'gwin',
         ]);
     }
