@@ -1,5 +1,15 @@
 // G-Win Frontend JavaScript
 
+// Replace G-Win with non-breaking hyphen to prevent line splitting
+document.addEventListener('DOMContentLoaded', function() {
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+        if (walker.currentNode.textContent.includes('G-Win')) {
+            walker.currentNode.textContent = walker.currentNode.textContent.replace(/G-Win/g, 'G\u2011Win');
+        }
+    }
+});
+
 // Add to cart function (used across shop pages)
 async function addToCart(productId, quantity = 1) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
