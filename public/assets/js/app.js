@@ -1,20 +1,5 @@
 // G-Win Frontend JavaScript
 
-// Prevent G-Win from splitting across lines
-document.addEventListener('DOMContentLoaded', function() {
-    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    var nodes = [];
-    while (walker.nextNode()) {
-        if (walker.currentNode.textContent.includes('G-Win')) {
-            nodes.push(walker.currentNode);
-        }
-    }
-    nodes.forEach(function(node) {
-        var span = document.createElement('span');
-        span.innerHTML = node.textContent.replace(/G-Win/g, '<span style="white-space:nowrap">G&#8209;Win</span>');
-        node.parentNode.replaceChild(span, node);
-    });
-});
 
 // Add to cart function (used across shop pages)
 async function addToCart(productId, quantity = 1) {

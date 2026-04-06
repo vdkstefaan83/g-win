@@ -117,7 +117,21 @@ abstract class Controller
             'fr_url' => $frUrl,
         ]);
 
-        echo $this->twig->render($template, $data);
+        $html = $this->twig->render($template, $data);
+
+        // Replace G-Win with non-breaking hyphen in visible text (not in HTML tags/attributes)
+        $html = preg_replace_callback(
+            '/(<[^>]*>)|G-Win/',
+            function ($m) {
+                // If it's an HTML tag, leave it untouched
+                if (!empty($m[1])) return $m[0];
+                // Replace the hyphen with non-breaking hyphen
+                return "G\u{2011}Win";
+            },
+            $html
+        );
+
+        echo $html;
     }
 
     /**
