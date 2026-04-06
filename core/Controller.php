@@ -65,14 +65,18 @@ abstract class Controller
             }
         }
 
-        // Check if shop is enabled (any menu item links to /shop or /winkelwagen or /boutique)
+        // Check if shop is enabled (any menu item links to shop-related URLs)
         $data['shop_enabled'] = false;
+        $shopSlugs = ['/shop', '/winkelwagen', '/boutique', '/panier'];
         if (!empty($data['header_menu']['items'])) {
             foreach ($data['header_menu']['items'] as $item) {
                 $url = $item['url'] ?? '';
-                if (str_starts_with($url, '/shop') || str_starts_with($url, '/winkelwagen') || str_starts_with($url, '/boutique') || str_starts_with($url, '/panier')) {
-                    $data['shop_enabled'] = true;
-                    break;
+                $slug = $item['page_slug'] ?? '';
+                foreach ($shopSlugs as $s) {
+                    if (str_starts_with($url, $s) || str_starts_with('/' . $slug, $s)) {
+                        $data['shop_enabled'] = true;
+                        break 2;
+                    }
                 }
             }
         }

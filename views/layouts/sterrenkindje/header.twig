@@ -44,7 +44,7 @@
                 {% endif %}
 
                 {% if shop_enabled %}
-                <a href="{{ lang_url('/winkelwagen') }}" class="ml-2 text-white/90 hover:text-sk-300 transition-colors relative p-2 rounded-lg hover:bg-white/10">
+                <a href="{{ lang == 'fr' ? '/fr/panier' : '/winkelwagen' }}" class="ml-2 text-white/90 hover:text-sk-300 transition-colors relative p-2 rounded-lg hover:bg-white/10">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     <span id="cart-count" class="absolute -top-1 -right-1 bg-sk-300 text-sk-900 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                 </a>
@@ -77,7 +77,7 @@
                 <a href="/" class="block py-3 px-4 text-white/90 hover:text-sk-300 hover:bg-white/5 rounded-lg transition-colors">Home</a>
             {% endif %}
             {% if shop_enabled %}
-            <a href="{{ lang_url('/winkelwagen') }}" class="block py-3 px-4 text-white/90 hover:text-sk-300 hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2">
+            <a href="{{ lang == 'fr' ? '/fr/panier' : '/winkelwagen' }}" class="block py-3 px-4 text-white/90 hover:text-sk-300 hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                 {{ t('cart') }}
             </a>
