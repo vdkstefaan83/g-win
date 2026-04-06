@@ -20,12 +20,46 @@ class Block extends Model
 
     public function getActiveBySite(int $siteId, string $lang = 'nl'): array
     {
-        return $this->decodeOptions($this->query(
+        // Always start from NL master blocks for consistent sort_order
+        $nlBlocks = $this->query(
             "SELECT b.* FROM blocks b
              INNER JOIN block_sites bs ON bs.block_id = b.id
-             WHERE bs.site_id = :site_id AND b.lang = :lang AND b.is_active = 1 AND b.page_id IS NULL ORDER BY b.sort_order ASC",
-            ['site_id' => $siteId, 'lang' => $lang]
-        )->fetchAll());
+             WHERE bs.site_id = :site_id AND b.lang = 'nl' AND b.translation_of IS NULL AND b.is_active = 1 AND b.page_id IS NULL
+             ORDER BY b.sort_order ASC",
+            ['site_id' => $siteId]
+        )->fetchAll();
+
+        if ($lang === 'nl') {
+            return $this->decodeOptions($nlBlocks);
+        }
+
+        // For FR: find translations, inherit image/link_url from NL
+        $results = [];
+        foreach ($nlBlocks as $nlBlock) {
+            $frBlock = $this->query(
+                "SELECT * FROM blocks WHERE translation_of = :id AND lang = :lang LIMIT 1",
+                ['id' => $nlBlock['id'], 'lang' => $lang]
+            )->fetch();
+
+            if ($frBlock) {
+                if (empty($frBlock['image']) && !empty($nlBlock['image'])) {
+                    $frBlock['image'] = $nlBlock['image'];
+                }
+                if (empty($frBlock['link_url']) && !empty($nlBlock['link_url'])) {
+                    $frBlock['link_url'] = $nlBlock['link_url'];
+                }
+                if (empty($frBlock['options']) && !empty($nlBlock['options'])) {
+                    $frBlock['options'] = $nlBlock['options'];
+                }
+                // Use NL sort_order for consistent ordering
+                $frBlock['sort_order'] = $nlBlock['sort_order'];
+                $results[] = $frBlock;
+            } else {
+                $results[] = $nlBlock;
+            }
+        }
+
+        return $this->decodeOptions($results);
     }
 
     public function getAllWithSite(): array
