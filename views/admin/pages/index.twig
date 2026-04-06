@@ -27,7 +27,8 @@
     <table class="w-full">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titel</th>
+                <th class="px-2 py-3 w-8"></th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titel</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taal</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categorie</th>
@@ -36,27 +37,30 @@
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200">
+        <tbody class="divide-y divide-gray-200" id="pagesSortable">
             {% set currentCategory = null %}
             {% for page in pages %}
             {% if page.category_name and page.category_name != currentCategory %}
                 {% set currentCategory = page.category_name %}
-                <tr class="bg-purple-50">
-                    <td colspan="7" class="px-6 py-2">
+                <tr class="bg-purple-50" data-nonsortable="true">
+                    <td colspan="8" class="px-6 py-2">
                         <span class="text-sm font-semibold text-purple-800">{{ currentCategory }}</span>
                     </td>
                 </tr>
             {% endif %}
             {% if not page.category_name and currentCategory is not null %}
                 {% set currentCategory = null %}
-                <tr class="bg-gray-50">
-                    <td colspan="7" class="px-6 py-2">
+                <tr class="bg-gray-50" data-nonsortable="true">
+                    <td colspan="8" class="px-6 py-2">
                         <span class="text-sm font-semibold text-gray-500">Zonder categorie</span>
                     </td>
                 </tr>
             {% endif %}
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+            <tr class="hover:bg-gray-50 cursor-move" data-id="{{ page.id }}">
+                <td class="px-2 py-4 text-center text-gray-300">
+                    <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap font-medium text-gray-900">
                     {% if page.category_name %}
                         <span class="pl-6 inline-flex items-center">
                             <span class="text-gray-300 mr-2">└</span> {{ page.title }}
@@ -95,10 +99,33 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="7" class="px-6 py-8 text-center text-gray-500">Geen pagina's gevonden.</td>
+                <td colspan="8" class="px-6 py-8 text-center text-gray-500">Geen pagina's gevonden.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+    new Sortable(document.getElementById('pagesSortable'), {
+        animation: 150,
+        ghostClass: 'bg-blue-50',
+        filter: '[data-nonsortable]',
+        onEnd: function() {
+            var rows = document.querySelectorAll('#pagesSortable tr[data-id]');
+            var order = [];
+            rows.forEach(function(row) { order.push(parseInt(row.dataset.id)); });
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/admin/pages/reorder', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token }}');
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.send(JSON.stringify(order));
+        }
+    });
+</script>
 {% endblock %}

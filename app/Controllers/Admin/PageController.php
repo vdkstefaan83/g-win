@@ -41,6 +41,17 @@ class PageController extends Controller
         ]);
     }
 
+    public function reorder(): void
+    {
+        $items = json_decode(file_get_contents('php://input'), true);
+        if (is_array($items)) {
+            foreach ($items as $index => $pageId) {
+                $this->pageModel->update((int)$pageId, ['sort_order' => $index]);
+            }
+        }
+        $this->json(['success' => true]);
+    }
+
     public function create(): void
     {
         $this->render('admin/pages/create.twig', [

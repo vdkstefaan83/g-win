@@ -247,6 +247,9 @@ $router->post('/admin/pages/images/delete', function () {
 $router->post('/admin/pages/images/reorder', function () {
     (new AdminPageController())->reorderImages();
 });
+$router->post('/admin/pages/reorder', function () {
+    (new AdminPageController())->reorder();
+});
 $router->get('/admin/pages/{id}/edit', function ($id) {
     (new AdminPageController())->edit((int)$id);
 });
