@@ -1,13 +1,19 @@
 // G-Win Frontend JavaScript
 
-// Replace G-Win with non-breaking hyphen to prevent line splitting
+// Prevent G-Win from splitting across lines
 document.addEventListener('DOMContentLoaded', function() {
     var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    var nodes = [];
     while (walker.nextNode()) {
         if (walker.currentNode.textContent.includes('G-Win')) {
-            walker.currentNode.textContent = walker.currentNode.textContent.replace(/G-Win/g, 'G\u2011Win');
+            nodes.push(walker.currentNode);
         }
     }
+    nodes.forEach(function(node) {
+        var span = document.createElement('span');
+        span.innerHTML = node.textContent.replace(/G-Win/g, '<span style="white-space:nowrap">G&#8209;Win</span>');
+        node.parentNode.replaceChild(span, node);
+    });
 });
 
 // Add to cart function (used across shop pages)
