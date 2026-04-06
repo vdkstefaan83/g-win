@@ -64,22 +64,59 @@ class Block extends Model
 
     public function getActiveByPage(int $pageId, string $lang = 'nl'): array
     {
-        return $this->decodeOptions($this->query(
+        // Also check NL master page_id if this is a FR page
+        $pageIds = [$pageId];
+        $master = $this->query("SELECT translation_of FROM pages WHERE id = :id AND translation_of IS NOT NULL LIMIT 1", ['id' => $pageId])->fetch();
+        if ($master) {
+            $pageIds[] = (int)$master['translation_of'];
+        }
+
+        $placeholders = implode(',', array_map('intval', $pageIds));
+        // Try requested lang first, fallback to any lang
+        $results = $this->query(
             "SELECT b.* FROM blocks b
-             WHERE b.page_id = :page_id AND b.lang = :lang AND b.is_active = 1
+             WHERE b.page_id IN ({$placeholders}) AND b.lang = :lang AND b.is_active = 1
              ORDER BY b.sort_order ASC",
-            ['page_id' => $pageId, 'lang' => $lang]
-        )->fetchAll());
+            ['lang' => $lang]
+        )->fetchAll();
+
+        if (empty($results)) {
+            $results = $this->query(
+                "SELECT b.* FROM blocks b
+                 WHERE b.page_id IN ({$placeholders}) AND b.is_active = 1
+                 ORDER BY b.sort_order ASC"
+            )->fetchAll();
+        }
+
+        return $this->decodeOptions($results);
     }
 
     public function getActiveByCategory(int $categoryId, string $lang = 'nl'): array
     {
-        return $this->decodeOptions($this->query(
+        // Also check NL master category_id
+        $catIds = [$categoryId];
+        $master = $this->query("SELECT translation_of FROM page_categories WHERE id = :id AND translation_of IS NOT NULL LIMIT 1", ['id' => $categoryId])->fetch();
+        if ($master) {
+            $catIds[] = (int)$master['translation_of'];
+        }
+
+        $placeholders = implode(',', array_map('intval', $catIds));
+        $results = $this->query(
             "SELECT b.* FROM blocks b
-             WHERE b.page_category_id = :cat_id AND b.lang = :lang AND b.is_active = 1
+             WHERE b.page_category_id IN ({$placeholders}) AND b.lang = :lang AND b.is_active = 1
              ORDER BY b.sort_order ASC",
-            ['cat_id' => $categoryId, 'lang' => $lang]
-        )->fetchAll());
+            ['lang' => $lang]
+        )->fetchAll();
+
+        if (empty($results)) {
+            $results = $this->query(
+                "SELECT b.* FROM blocks b
+                 WHERE b.page_category_id IN ({$placeholders}) AND b.is_active = 1
+                 ORDER BY b.sort_order ASC"
+            )->fetchAll();
+        }
+
+        return $this->decodeOptions($results);
     }
 
     public function getSiteIds(int $blockId): array
