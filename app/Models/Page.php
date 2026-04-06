@@ -11,8 +11,9 @@ class Page extends Model
     public function findBySlugAndSite(string $slug, int $siteId, string $lang = 'nl'): array|false
     {
         return $this->query(
-            "SELECT p.* FROM pages p
+            "SELECT p.*, COALESCE(p.intro_image, master.intro_image) AS intro_image FROM pages p
              INNER JOIN page_sites ps ON ps.page_id = p.id
+             LEFT JOIN pages master ON p.translation_of = master.id
              WHERE p.slug = :slug AND ps.site_id = :site_id AND p.lang = :lang AND p.is_published = 1 LIMIT 1",
             ['slug' => $slug, 'site_id' => $siteId, 'lang' => $lang]
         )->fetch();
@@ -116,10 +117,14 @@ class Page extends Model
         }
 
         $placeholders = implode(',', array_map('intval', $catIds));
-        return $this->query(
-            "SELECT * FROM pages WHERE slug = :slug AND page_category_id IN ({$placeholders}) AND is_published = 1 LIMIT 1",
+        $page = $this->query(
+            "SELECT p.*, COALESCE(p.intro_image, master.intro_image) AS intro_image
+             FROM pages p
+             LEFT JOIN pages master ON p.translation_of = master.id
+             WHERE p.slug = :slug AND p.page_category_id IN ({$placeholders}) AND p.is_published = 1 LIMIT 1",
             ['slug' => $slug]
         )->fetch();
+        return $page;
     }
 
     public function findTranslation(int $pageId, string $lang): array|false
