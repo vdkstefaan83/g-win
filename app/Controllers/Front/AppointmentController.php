@@ -34,7 +34,12 @@ class AppointmentController extends Controller
     {
         $lang = App::getLang();
         $typeModel = new AppointmentType();
-        $types = $typeModel->getAllActive($lang);
+
+        // Filter by site (gwin shows all)
+        $siteModel = new Site();
+        $dbSite = $siteModel->findBySlug($this->site['slug']);
+        $siteFilter = ($dbSite && $dbSite['slug'] !== 'gwin') ? (int)$dbSite['id'] : null;
+        $types = $typeModel->getAllActive($lang, $siteFilter);
 
         $settingModel = new Setting();
         $maxBookingMonths = (int) $settingModel->get('appointment_max_months', null, '24');

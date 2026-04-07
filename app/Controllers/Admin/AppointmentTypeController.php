@@ -6,6 +6,7 @@ use Core\Controller;
 use Core\Session;
 use App\Models\AppointmentType;
 use App\Models\MailTemplate;
+use App\Models\Site;
 
 class AppointmentTypeController extends Controller
 {
@@ -66,10 +67,12 @@ class AppointmentTypeController extends Controller
         }
 
         $templateModel = new MailTemplate();
+        $siteModel = new Site();
 
         $this->render('admin/appointment-types/edit.twig', [
             'type' => $type,
             'mail_templates' => $templateModel->findAll('name', 'ASC'),
+            'sites' => $siteModel->findAll('name', 'ASC'),
         ]);
     }
 
@@ -93,6 +96,12 @@ class AppointmentTypeController extends Controller
         ];
 
         $this->typeModel->update($id, $data);
+
+        // Sync sites
+        $siteIds = $_POST['site_ids'] ?? [];
+        if (!empty($siteIds)) {
+            $this->typeModel->syncSites($id, $siteIds);
+        }
 
         // Handle flow steps if submitted
         $flowSteps = $this->input('flow_steps');
