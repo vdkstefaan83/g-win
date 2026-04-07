@@ -72,7 +72,7 @@ class Product extends Model
             $params['site_id'] = $siteId;
         }
 
-        $sql .= " WHERE p.category_id = :category_id AND p.is_active = 1 AND p.lang = :lang ORDER BY p.name ASC";
+        $sql .= " WHERE p.category_id = :category_id AND p.is_active = 1 AND p.lang = :lang ORDER BY p.sort_order ASC, p.name ASC";
         return $this->query($sql, $params)->fetchAll();
     }
 

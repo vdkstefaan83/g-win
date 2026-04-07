@@ -48,7 +48,7 @@ class ShopController extends Controller
         $siteFilter = $this->getProductSiteFilter();
 
         $this->render('front/shop/index.twig', array_merge($menus, [
-            'products' => $productModel->getActive($lang, 'name', 'ASC', $siteFilter),
+            'products' => $productModel->getActive($lang, 'sort_order', 'ASC', $siteFilter),
             'categories' => $categoryModel->getActive($lang),
         ]));
     }
