@@ -1,0 +1,55 @@
+{# JSON-LD Structured Data #}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "G‑Win",
+    "description": "{{ site_description|e('js') }}",
+    "url": "{{ site_url }}",
+    "telephone": "{{ contact_phone }}",
+    "email": "{{ contact_email }}",
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Duivenstuk 4",
+        "addressLocality": "Bavikhove",
+        "postalCode": "8531",
+        "addressCountry": "BE"
+    },
+    "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "50.8566",
+        "longitude": "3.2977"
+    },
+    "image": "{{ site_og_image }}",
+    "sameAs": [
+        "https://www.facebook.com/gwin.be/",
+        "https://www.linkedin.com/company/6596642"
+    ]
+}
+</script>
+
+{# BreadcrumbList #}
+{% if breadcrumbs is defined and breadcrumbs|length > 0 %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "{{ site_url }}"
+        }
+        {% for crumb in breadcrumbs %},
+        {
+            "@type": "ListItem",
+            "position": {{ loop.index + 1 }},
+            "name": "{{ crumb.name|e('js') }}",
+            "item": "{{ site_url }}{{ crumb.url }}"
+        }
+        {% endfor %}
+    ]
+}
+</script>
+{% endif %}

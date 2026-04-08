@@ -1,6 +1,12 @@
 {% extends 'layouts/' ~ (layout ?? 'gwin') ~ '/base.twig' %}
 
-{% block title %}{{ site.name }}{% endblock %}
+{% block title %}{{ site.name }}{% if site_tagline %} - {{ site_tagline }}{% endif %}{% endblock %}
+
+{% block meta %}
+{% if site_description %}
+    <meta name="description" content="{{ site_description }}">
+{% endif %}
+{% endblock %}
 
 {% block content %}
 {# Helper macro for image src #}

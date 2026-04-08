@@ -43,7 +43,9 @@ class Setting extends Model
     }
 
     private static array $settingMeta = [
-        'site_description' => ['label' => 'Site beschrijving', 'group' => 'Site', 'description' => 'Korte beschrijving voor in de footer.'],
+        'site_description' => ['label' => 'Site beschrijving', 'group' => 'Site', 'description' => 'Korte beschrijving voor in de footer en als standaard meta description.'],
+        'site_tagline' => ['label' => 'Tagline', 'group' => 'Site', 'description' => 'Korte slogan, gebruikt in titels (bijv. "3D Scanning & Sculpting").'],
+        'site_og_image' => ['label' => 'Social sharing afbeelding URL', 'group' => 'Site', 'description' => 'Volledige URL naar standaard afbeelding voor social media (bijv. https://gwin.vanderkerken.com/assets/images/gwin_liggend.png).'],
         'contact_address' => ['label' => 'Adres', 'group' => 'Contact', 'type' => 'textarea', 'description' => 'Adres in de footer. Gebruik een nieuwe lijn voor postcode/stad.'],
         'contact_phone' => ['label' => 'Telefoon', 'group' => 'Contact', 'description' => 'Telefoonnummer in de footer.'],
         'contact_email' => ['label' => 'E-mail', 'group' => 'Contact', 'description' => 'E-mailadres in de footer.'],

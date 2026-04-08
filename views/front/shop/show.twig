@@ -2,6 +2,16 @@
 
 {% block title %}{{ product.name }} - {{ site.name }}{% endblock %}
 
+{% block meta %}
+{% if product.description %}
+    <meta name="description" content="{{ product.description|striptags|slice(0, 160) }}">
+{% endif %}
+<meta property="og:type" content="product">
+{% if product.images|length > 0 %}
+    <meta property="og:image" content="{{ site_url }}/uploads/products/{{ product.images[0].filename }}">
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <nav class="mb-8">
@@ -101,4 +111,26 @@
         </div>
     </div>
 </div>
+
+{# Product structured data #}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{{ product.name|e('js') }}",
+    "description": "{{ product.description|striptags|slice(0, 300)|e('js') }}",
+    {% if product.images|length > 0 %}"image": "{{ site_url }}/uploads/products/{{ product.images[0].filename }}",{% endif %}
+    "offers": {
+        "@type": "Offer",
+        "price": "{{ product.price }}",
+        "priceCurrency": "EUR",
+        "availability": "{{ product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
+        "url": "{{ canonical_url }}"
+    },
+    "brand": {
+        "@type": "Brand",
+        "name": "G‑Win"
+    }
+}
+</script>
 {% endblock %}

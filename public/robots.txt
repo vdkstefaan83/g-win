@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /api/
+Disallow: /webhook/
+
+Sitemap: https://gwin.vanderkerken.com/sitemap.xml

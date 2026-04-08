@@ -61,6 +61,8 @@ abstract class Controller
                 $data['contact_phone'] = $settingModel->get('contact_phone', null, '');
                 $data['contact_email'] = $settingModel->get('contact_email', null, '');
                 $data['site_description'] = $settingModel->get('site_description', null, '');
+                $data['site_tagline'] = $settingModel->get('site_tagline', null, '');
+                $data['site_og_image'] = $settingModel->get('site_og_image', null, '');
                 $data['sketchfab_premium'] = (bool) $settingModel->get('sketchfab_premium', null, '');
             }
         }
@@ -103,6 +105,13 @@ abstract class Controller
             $frUrl = '/fr' . ($baseUrl === '/' ? '' : $baseUrl);
         }
 
+        // Build full URLs for SEO
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $siteUrl = $scheme . '://' . $host;
+        $canonicalUrl = $siteUrl . ($_SERVER['REQUEST_URI'] ?? '/');
+        $canonicalUrl = strtok($canonicalUrl, '?'); // Strip query string
+
         $data = array_merge($data, [
             'site' => $this->site,
             'layout' => $layout,
@@ -115,6 +124,10 @@ abstract class Controller
             'base_url' => $baseUrl,
             'nl_url' => $nlUrl,
             'fr_url' => $frUrl,
+            'site_url' => $siteUrl,
+            'canonical_url' => $canonicalUrl,
+            'full_nl_url' => $siteUrl . $nlUrl,
+            'full_fr_url' => $siteUrl . $frUrl,
         ]);
 
         $html = $this->twig->render($template, $data);

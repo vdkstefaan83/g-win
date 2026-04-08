@@ -8,6 +8,7 @@ use App\Controllers\Front\CartController;
 use App\Controllers\Front\CheckoutController;
 use App\Controllers\Front\PaymentController;
 use App\Controllers\Front\AuthController as FrontAuthController;
+use App\Controllers\Front\SitemapController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\SiteController;
 use App\Controllers\Admin\PageController as AdminPageController;
@@ -28,6 +29,11 @@ use App\Controllers\Admin\AppointmentSlotController;
 use App\Controllers\Admin\AppointmentTypeController;
 
 /** @var \Bramus\Router\Router $router */
+
+// Sitemap
+$router->get('/sitemap\.xml', function () {
+    (new SitemapController())->index();
+});
 
 // ============================================================
 // Front-end routes

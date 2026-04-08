@@ -2,6 +2,10 @@
 
 {% block title %}{{ t('shop') }} - {{ site.name }}{% endblock %}
 
+{% block meta %}
+<meta name="description" content="{{ lang == 'fr' ? 'Découvrez notre boutique en ligne. Sculptures 3D, bijoux personnalisés et cadeaux uniques.' : 'Ontdek onze webshop. 3D-beeldjes, gepersonaliseerde juwelen en unieke cadeaus.' }}">
+{% endblock %}
+
 {% block content %}
 <!-- Shop hero -->
 <section class="relative bg-krijgers-800 py-20 -mt-20 pt-32 overflow-hidden">
