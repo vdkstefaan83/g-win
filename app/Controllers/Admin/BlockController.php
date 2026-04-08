@@ -91,7 +91,7 @@ class BlockController extends Controller
         $data = $validation['data'];
         $data['site_id'] = (int) $siteIds[0];
         $data['lang'] = $this->input('lang', 'nl');
-        $data['content'] = in_array($data['type'], ['youtube', 'vimeo'])
+        $data['content'] = in_array($data['type'], ['youtube', 'vimeo', 'sketchfab'])
             ? $this->input('content_plain', '')
             : $this->input('content', '');
         $data['sort_order'] = (int) $this->input('sort_order', 0);
@@ -209,7 +209,7 @@ class BlockController extends Controller
                 'show_appointment_btn' => (bool) $this->input('opt_appointment_btn'),
                 'show_shop_btn' => (bool) $this->input('opt_shop_btn'),
             ]);
-        } elseif (in_array($type, ['youtube', 'vimeo'])) {
+        } elseif (in_array($type, ['youtube', 'vimeo', 'sketchfab'])) {
             $shared['options'] = json_encode([
                 'autoplay' => (bool) $this->input('opt_autoplay'),
                 'muted' => (bool) $this->input('opt_muted'),
@@ -251,7 +251,7 @@ class BlockController extends Controller
         }
 
         // For video types, use plain text content field
-        $nlContent = in_array($type, ['youtube', 'vimeo'])
+        $nlContent = in_array($type, ['youtube', 'vimeo', 'sketchfab'])
             ? $this->input('nl_content_plain', '')
             : $this->input('nl_content', '');
 
@@ -275,7 +275,7 @@ class BlockController extends Controller
         // Update FR (only if title filled)
         $frTitle = trim($this->input('fr_title', ''));
         if (!empty($frTitle)) {
-            $frContent = in_array($type, ['youtube', 'vimeo'])
+            $frContent = in_array($type, ['youtube', 'vimeo', 'sketchfab'])
                 ? $this->input('fr_content_plain', '')
                 : $this->input('fr_content', '');
 
