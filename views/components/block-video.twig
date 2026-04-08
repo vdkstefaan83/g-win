@@ -12,7 +12,7 @@
     {% if opts.muted ?? false %}{% set params = params|merge(['mute=1']) %}{% endif %}
     {% if opts.loop ?? false %}{% set params = params|merge(['loop=1', 'playlist=' ~ videoId]) %}{% endif %}
     {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
-    <section class="py-16">
+    <section class="py-6">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12">
                 {% if block.title %}
@@ -41,7 +41,7 @@
     {% if opts.muted ?? false %}{% set params = params|merge(['muted=1']) %}{% endif %}
     {% if opts.loop ?? false %}{% set params = params|merge(['loop=1']) %}{% endif %}
     {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
-    <section class="py-16">
+    <section class="py-6">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12">
                 {% if block.title %}
@@ -75,7 +75,7 @@
     {% if opts.autospin ?? false %}{% set params = params|merge(['autospin=0.2']) %}{% endif %}
     {% set params = params|merge(['ui_infos=0', 'ui_watermark=0']) %}
     {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
-    <section class="py-16">
+    <section class="py-6">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12">
                 {% if block.title %}

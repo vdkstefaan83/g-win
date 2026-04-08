@@ -127,7 +127,7 @@
         </div>
     </section>
     {% elseif block.type == 'feature' %}
-    <section class="py-16 bg-krijgers-50">
+    <section class="py-6 bg-krijgers-50">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="group relative bg-white rounded-2xl overflow-hidden shadow-sm">
                 {% if block.image %}
@@ -149,7 +149,7 @@
         </div>
     </section>
     {% elseif block.type == 'text' %}
-    <section class="py-16 bg-white">
+    <section class="py-6 bg-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-krijgers-800">
                 {% if block.title %}<h2>{{ block.title }}</h2>{% endif %}
@@ -160,7 +160,7 @@
     {% elseif block.type == 'youtube' or block.type == 'vimeo' or block.type == 'sketchfab' %}
     {% include 'components/block-video.twig' with { 'block': block } %}
     {% elseif block.type == 'gallery' %}
-    <section class="py-16 bg-krijgers-50">
+    <section class="py-6 bg-krijgers-50">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             {% if block.title %}
             <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6 text-center">{{ block.title }}</h2>
