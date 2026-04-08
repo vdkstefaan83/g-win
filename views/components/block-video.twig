@@ -12,24 +12,24 @@
     {% if opts.muted ?? false %}{% set params = params|merge(['mute=1']) %}{% endif %}
     {% if opts.loop ?? false %}{% set params = params|merge(['loop=1', 'playlist=' ~ videoId]) %}{% endif %}
     {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
-    <section class="py-16 bg-krijgers-50">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            {% if block.title %}
-                <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6 text-center">{{ block.title }}</h2>
-            {% endif %}
-            <div class="aspect-video rounded-2xl overflow-hidden shadow-lg">
-                <iframe src="https://www.youtube.com/embed/{{ videoId }}{{ paramStr }}"
-                        class="w-full h-full" frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen></iframe>
-            </div>
-            {% if block.content and block.content|striptags|trim %}
-                <div class="mt-8 bg-white rounded-2xl shadow-sm p-8">
-                    <div class="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-krijgers-800">
+    <section class="py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12">
+                {% if block.title %}
+                    <h2 class="text-2xl font-display font-bold text-krijgers-800 italic mb-6">{{ block.title }}</h2>
+                {% endif %}
+                <div class="aspect-video rounded-xl overflow-hidden">
+                    <iframe src="https://www.youtube.com/embed/{{ videoId }}{{ paramStr }}"
+                            class="w-full h-full" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen></iframe>
+                </div>
+                {% if block.content and block.content|striptags|trim %}
+                    <div class="mt-6 prose max-w-none text-gray-600">
                         {{ block.content|raw }}
                     </div>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
     </section>
 {% elseif block.type == 'vimeo' and block.link_url %}
@@ -41,24 +41,24 @@
     {% if opts.muted ?? false %}{% set params = params|merge(['muted=1']) %}{% endif %}
     {% if opts.loop ?? false %}{% set params = params|merge(['loop=1']) %}{% endif %}
     {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
-    <section class="py-16 bg-krijgers-50">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            {% if block.title %}
-                <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6 text-center">{{ block.title }}</h2>
-            {% endif %}
-            <div class="aspect-video rounded-2xl overflow-hidden shadow-lg">
-                <iframe src="https://player.vimeo.com/video/{{ videoId }}{{ paramStr }}"
-                        class="w-full h-full" frameborder="0"
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        allowfullscreen></iframe>
-            </div>
-            {% if block.content and block.content|striptags|trim %}
-                <div class="mt-8 bg-white rounded-2xl shadow-sm p-8">
-                    <div class="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-krijgers-800">
+    <section class="py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12">
+                {% if block.title %}
+                    <h2 class="text-2xl font-display font-bold text-krijgers-800 italic mb-6">{{ block.title }}</h2>
+                {% endif %}
+                <div class="aspect-video rounded-xl overflow-hidden">
+                    <iframe src="https://player.vimeo.com/video/{{ videoId }}{{ paramStr }}"
+                            class="w-full h-full" frameborder="0"
+                            allow="autoplay; fullscreen; picture-in-picture"
+                            allowfullscreen></iframe>
+                </div>
+                {% if block.content and block.content|striptags|trim %}
+                    <div class="mt-6 prose max-w-none text-gray-600">
                         {{ block.content|raw }}
                     </div>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
     </section>
 {% elseif block.type == 'sketchfab' and block.link_url %}
@@ -76,23 +76,23 @@
     {% set params = params|merge(['ui_infos=0', 'ui_watermark=0']) %}
     {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
     <section class="py-16">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            {% if block.title %}
-                <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6 text-center">{{ block.title }}</h2>
-            {% endif %}
-            <div class="aspect-video rounded-2xl overflow-hidden shadow-lg">
-                <iframe src="{{ embedUrl }}{{ paramStr }}"
-                        class="w-full h-full" frameborder="0"
-                        allow="autoplay; fullscreen; xr-spatial-tracking"
-                        allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
-            </div>
-            {% if block.content and block.content|striptags|trim %}
-                <div class="mt-8 bg-white rounded-2xl shadow-sm p-8">
-                    <div class="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-krijgers-800">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl shadow-sm p-8 md:p-12">
+                {% if block.title %}
+                    <h2 class="text-2xl font-display font-bold text-krijgers-800 italic mb-6">{{ block.title }}</h2>
+                {% endif %}
+                <div class="aspect-video rounded-xl overflow-hidden">
+                    <iframe src="{{ embedUrl }}{{ paramStr }}"
+                            class="w-full h-full" frameborder="0"
+                            allow="autoplay; fullscreen; xr-spatial-tracking"
+                            allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+                </div>
+                {% if block.content and block.content|striptags|trim %}
+                    <div class="mt-6 prose max-w-none text-gray-600">
                         {{ block.content|raw }}
                     </div>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
     </section>
 {% endif %}
