@@ -1,0 +1,22 @@
+{# GDPR Cookie Banner - only functional cookies, so simple notice #}
+<div x-data="{ show: !localStorage.getItem('cookie_consent') }" x-show="show" x-transition
+     class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg p-4 md:p-6"
+     x-cloak>
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="text-sm text-gray-600">
+            {% if lang == 'fr' %}
+                Ce site utilise uniquement des cookies fonctionnels nécessaires au bon fonctionnement (panier, session).
+                Aucun cookie de suivi n'est utilisé.
+                <a href="{{ lang_url('/politique-de-confidentialite') }}" class="text-blue-600 hover:underline">Politique de confidentialité</a>
+            {% else %}
+                Deze website gebruikt alleen functionele cookies die noodzakelijk zijn voor de werking (winkelwagen, sessie).
+                Er worden geen tracking cookies gebruikt.
+                <a href="/privacybeleid" class="text-blue-600 hover:underline">Privacybeleid</a>
+            {% endif %}
+        </div>
+        <button @click="localStorage.setItem('cookie_consent', '1'); show = false"
+                class="bg-krijgers-800 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-krijgers-700 transition whitespace-nowrap">
+            {% if lang == 'fr' %}J'accepte{% else %}Begrepen{% endif %}
+        </button>
+    </div>
+</div>

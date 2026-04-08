@@ -123,6 +123,7 @@
 
     <script src="/assets/js/app.js"></script>
     {% block scripts %}{% endblock %}
+    {% include 'components/cookie-banner.twig' ignore missing %}
     {% include 'components/seo-jsonld.twig' ignore missing %}
 </body>
 </html>
