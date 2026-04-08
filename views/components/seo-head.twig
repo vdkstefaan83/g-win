@@ -1,6 +1,9 @@
 {# SEO Meta Tags - included in all base layouts #}
+{# Favicon always active #}
+<link rel="icon" type="image/png" href="/assets/images/logogwin.png">
+<link rel="apple-touch-icon" href="/assets/images/logogwin.png">
 
-{# Meta description: page-specific or site default #}
+{% if seo_enabled ?? false %}
 {% set seo_description = meta_description ?? site_description ?? '' %}
 {% set seo_title = block('title') ?? site.name %}
 {% set seo_image = og_image ?? site_og_image ?? '' %}
@@ -40,7 +43,7 @@
 {% if seo_image %}
     <meta name="twitter:image" content="{{ seo_image }}">
 {% endif %}
-
-{# Favicon #}
-<link rel="icon" type="image/png" href="/assets/images/logogwin.png">
-<link rel="apple-touch-icon" href="/assets/images/logogwin.png">
+{% else %}
+{# SEO disabled: tell crawlers not to index #}
+<meta name="robots" content="noindex, nofollow">
+{% endif %}

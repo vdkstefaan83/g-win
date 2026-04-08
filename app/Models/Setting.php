@@ -43,6 +43,7 @@ class Setting extends Model
     }
 
     private static array $settingMeta = [
+        'seo_enabled' => ['label' => 'SEO activeren', 'group' => 'Site', 'type' => 'boolean', 'description' => 'Vink aan om SEO meta tags, Open Graph, sitemap en JSON-LD te activeren. Uitzetten op ontwikkeldomeinen.'],
         'site_description' => ['label' => 'Site beschrijving', 'group' => 'Site', 'description' => 'Korte beschrijving voor in de footer en als standaard meta description.'],
         'site_tagline' => ['label' => 'Tagline', 'group' => 'Site', 'description' => 'Korte slogan, gebruikt in titels (bijv. "3D Scanning & Sculpting").'],
         'site_og_image' => ['label' => 'Social sharing afbeelding URL', 'group' => 'Site', 'description' => 'Volledige URL naar standaard afbeelding voor social media (bijv. https://gwin.vanderkerken.com/assets/images/gwin_liggend.png).'],

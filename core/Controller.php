@@ -64,6 +64,7 @@ abstract class Controller
                 $data['site_tagline'] = $settingModel->get('site_tagline', null, '');
                 $data['site_og_image'] = $settingModel->get('site_og_image', null, '');
                 $data['sketchfab_premium'] = (bool) $settingModel->get('sketchfab_premium', null, '');
+                $data['seo_enabled'] = (bool) $settingModel->get('seo_enabled', null, '');
             }
         }
 

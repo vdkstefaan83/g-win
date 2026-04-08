@@ -9,6 +9,14 @@ class SitemapController extends Controller
 {
     public function index(): void
     {
+        // Only serve sitemap if SEO is enabled
+        $settingModel = new \App\Models\Setting();
+        if (!(bool) $settingModel->get('seo_enabled', null, '')) {
+            http_response_code(404);
+            echo '<!-- SEO not enabled -->';
+            exit;
+        }
+
         $db = Database::getInstance();
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'] ?? 'gwin.vanderkerken.com';
