@@ -23,8 +23,12 @@
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen></iframe>
             </div>
-            {% if block.content %}
-                <div class="mt-4 text-center text-gray-600 text-sm">{{ block.content|striptags }}</div>
+            {% if block.content and block.content|striptags|trim %}
+                <div class="mt-8 bg-white rounded-2xl shadow-sm p-8">
+                    <div class="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-krijgers-800">
+                        {{ block.content|raw }}
+                    </div>
+                </div>
             {% endif %}
         </div>
     </section>
@@ -48,8 +52,12 @@
                         allow="autoplay; fullscreen; picture-in-picture"
                         allowfullscreen></iframe>
             </div>
-            {% if block.content %}
-                <div class="mt-4 text-center text-gray-600 text-sm">{{ block.content|striptags }}</div>
+            {% if block.content and block.content|striptags|trim %}
+                <div class="mt-8 bg-white rounded-2xl shadow-sm p-8">
+                    <div class="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-krijgers-800">
+                        {{ block.content|raw }}
+                    </div>
+                </div>
             {% endif %}
         </div>
     </section>
@@ -67,7 +75,7 @@
     {% if opts.autospin ?? false %}{% set params = params|merge(['autospin=0.2']) %}{% endif %}
     {% set params = params|merge(['ui_infos=0', 'ui_watermark=0']) %}
     {% set paramStr = params|length > 0 ? '?' ~ params|join('&') : '' %}
-    <section class="py-16 bg-krijgers-50">
+    <section class="py-16">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             {% if block.title %}
                 <h2 class="text-2xl font-display font-bold text-krijgers-800 mb-6 text-center">{{ block.title }}</h2>
@@ -78,8 +86,12 @@
                         allow="autoplay; fullscreen; xr-spatial-tracking"
                         allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
             </div>
-            {% if block.content %}
-                <div class="mt-4 text-center text-gray-600 text-sm">{{ block.content|striptags }}</div>
+            {% if block.content and block.content|striptags|trim %}
+                <div class="mt-8 bg-white rounded-2xl shadow-sm p-8">
+                    <div class="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-krijgers-800">
+                        {{ block.content|raw }}
+                    </div>
+                </div>
             {% endif %}
         </div>
     </section>
