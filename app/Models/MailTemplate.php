@@ -58,6 +58,12 @@ class MailTemplate extends Model
         }
         $sms = preg_replace('/\{[a-z_]+\}/', '', $sms);
 
+        // Strip HTML tags from SMS (variables like {tijdstip_zin} may contain
+        // <strong> for the e-mail body — SMS is plain text).
+        $sms = html_entity_decode(strip_tags($sms), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        // Collapse whitespace introduced by stripped tags.
+        $sms = trim(preg_replace('/[ \t]+/', ' ', $sms));
+
         return ['subject' => $subject, 'body' => $body, 'sms' => $sms];
     }
 }
