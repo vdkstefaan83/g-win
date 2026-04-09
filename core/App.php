@@ -60,6 +60,42 @@ class App
             return self::langUrl($path);
         }));
 
+        // Admin helper: list all active sites with their domains (primary first).
+        // Used by admin header "Bekijk site" dropdown.
+        self::$twig->addFunction(new TwigFunction('admin_sites', function () {
+            $db = Database::getInstance();
+            $stmt = $db->prepare(
+                "SELECT s.id, s.name, s.slug, sd.domain, sd.default_lang, sd.is_primary
+                 FROM sites s
+                 LEFT JOIN site_domains sd ON sd.site_id = s.id
+                 WHERE s.is_active = 1
+                 ORDER BY s.name ASC, sd.is_primary DESC, sd.domain ASC"
+            );
+            $stmt->execute();
+            $rows = $stmt->fetchAll();
+
+            $sites = [];
+            foreach ($rows as $row) {
+                $sid = (int)$row['id'];
+                if (!isset($sites[$sid])) {
+                    $sites[$sid] = [
+                        'id' => $sid,
+                        'name' => $row['name'],
+                        'slug' => $row['slug'],
+                        'domains' => [],
+                    ];
+                }
+                if (!empty($row['domain'])) {
+                    $sites[$sid]['domains'][] = [
+                        'domain' => $row['domain'],
+                        'default_lang' => $row['default_lang'] ?? 'nl',
+                        'is_primary' => (int)($row['is_primary'] ?? 0),
+                    ];
+                }
+            }
+            return array_values($sites);
+        }));
+
         // Site logo function: {{ site_logo('liggend') }} or {{ site_logo() }}
         $publicDir = dirname(__DIR__) . '/public';
         self::$twig->addFunction(new TwigFunction('site_logo', function (string $variant = '') use ($publicDir) {
