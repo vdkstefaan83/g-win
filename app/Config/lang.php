@@ -91,7 +91,7 @@ return [
         'apt_title' => 'Maak een afspraak',
         'apt_subtitle' => 'Plan uw persoonlijke 3D-scan sessie in ons atelier.',
         'apt_choose_type' => 'Kies het type afspraak',
-        'apt_choose_type_sub' => 'Selecteer welk type 3D-scan u wenst.',
+        'apt_choose_type_sub' => 'Selecteer welk type afspraak u wenst.',
         'apt_pregnancy' => 'Zwangerschapsscan',
         'apt_pregnancy_desc' => 'Zaterdagen, vaste tijdsloten van 60-90 min',
         'apt_child' => 'Kinderscan',
