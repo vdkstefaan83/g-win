@@ -97,14 +97,13 @@
                 {% endif %}
 
                 <div x-show="loadingSlots" class="text-center py-8 text-krijgers-500">Laden...</div>
-                <div x-show="!loadingSlots && availableSlots.length === 0" class="text-center py-8 text-krijgers-500">Geen beschikbare tijdsloten.</div>
+                <div x-show="!loadingSlots && availableSlots.filter(s => s.status === 'available').length === 0" class="text-center py-8 text-krijgers-500">Geen beschikbare tijdsloten.</div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3" x-show="!loadingSlots && availableSlots.length > 0">
-                    <template x-for="slot in availableSlots" :key="slot.id">
-                        <button type="button" @click="slot.status === 'available' && (form.slot_id = slot.id, form.start_time = slot.start_time, form.end_time = slot.end_time)"
-                                :disabled="slot.status !== 'available'"
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3" x-show="!loadingSlots && availableSlots.filter(s => s.status === 'available').length > 0">
+                    <template x-for="slot in availableSlots.filter(s => s.status === 'available')" :key="slot.id">
+                        <button type="button" @click="form.slot_id = slot.id, form.start_time = slot.start_time, form.end_time = slot.end_time"
                                 class="p-4 rounded-xl border-2 text-center transition-all"
-                                :class="form.slot_id === slot.id ? 'border-krijgers-gold-500 bg-krijgers-gold-500/5' : slot.status === 'available' ? 'border-krijgers-100 hover:border-krijgers-gold-500' : 'border-krijgers-100 opacity-40'">
+                                :class="form.slot_id === slot.id ? 'border-krijgers-gold-500 bg-krijgers-gold-500/5' : 'border-krijgers-100 hover:border-krijgers-gold-500'">
                             <span class="block text-lg font-semibold text-krijgers-800" x-text="slot.start_time.substring(0,5) + ' - ' + slot.end_time.substring(0,5)"></span>
                         </button>
                     </template>
