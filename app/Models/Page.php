@@ -63,7 +63,7 @@ class Page extends Model
         )->fetchAll();
     }
 
-    public function getByCategory(int $categoryId, ?string $lang = null): array
+    public function getByCategory(int $categoryId, ?string $lang = null, ?int $siteId = null): array
     {
         // Also include the NL master category if this is a FR translation
         $catIds = [$categoryId];
@@ -86,9 +86,13 @@ class Page extends Model
         $placeholders = implode(',', array_map('intval', $catIds));
         $sql = "SELECT p.*, COALESCE(p.intro_image, master.intro_image) AS intro_image
                 FROM pages p
-                LEFT JOIN pages master ON p.translation_of = master.id
-                WHERE p.page_category_id IN ({$placeholders}) AND p.is_published = 1";
+                LEFT JOIN pages master ON p.translation_of = master.id";
         $params = [];
+        if ($siteId) {
+            $sql .= " INNER JOIN page_sites ps ON ps.page_id = p.id AND ps.site_id = :site_id";
+            $params['site_id'] = $siteId;
+        }
+        $sql .= " WHERE p.page_category_id IN ({$placeholders}) AND p.is_published = 1";
         if ($lang) {
             $sql .= " AND p.lang = :lang";
             $params['lang'] = $lang;
@@ -97,7 +101,7 @@ class Page extends Model
         return $this->query($sql, $params)->fetchAll();
     }
 
-    public function findBySlugAndCategory(string $slug, int $categoryId): array|false
+    public function findBySlugAndCategory(string $slug, int $categoryId, ?int $siteId = null): array|false
     {
         // Include linked NL/FR category IDs
         $catIds = [$categoryId];
@@ -117,14 +121,16 @@ class Page extends Model
         }
 
         $placeholders = implode(',', array_map('intval', $catIds));
-        $page = $this->query(
-            "SELECT p.*, COALESCE(p.intro_image, master.intro_image) AS intro_image
-             FROM pages p
-             LEFT JOIN pages master ON p.translation_of = master.id
-             WHERE p.slug = :slug AND p.page_category_id IN ({$placeholders}) AND p.is_published = 1 LIMIT 1",
-            ['slug' => $slug]
-        )->fetch();
-        return $page;
+        $sql = "SELECT p.*, COALESCE(p.intro_image, master.intro_image) AS intro_image
+                FROM pages p
+                LEFT JOIN pages master ON p.translation_of = master.id";
+        $params = ['slug' => $slug];
+        if ($siteId) {
+            $sql .= " INNER JOIN page_sites ps ON ps.page_id = p.id AND ps.site_id = :site_id";
+            $params['site_id'] = $siteId;
+        }
+        $sql .= " WHERE p.slug = :slug AND p.page_category_id IN ({$placeholders}) AND p.is_published = 1 LIMIT 1";
+        return $this->query($sql, $params)->fetch();
     }
 
     public function findTranslation(int $pageId, string $lang): array|false

@@ -65,7 +65,7 @@ class PageController extends Controller
 
         if ($category) {
             $pageModel = new Page();
-            $pages = $pageModel->getByCategory($category['id'], $lang);
+            $pages = $pageModel->getByCategory($category['id'], $lang, $site['id']);
 
             // Build alternate URL for language switcher
             $alternateLang = $lang === 'nl' ? 'fr' : 'nl';
@@ -165,7 +165,7 @@ class PageController extends Controller
         }
 
         $pageModel = new Page();
-        $page = $pageModel->findBySlugAndCategory($pageSlug, $category['id']);
+        $page = $pageModel->findBySlugAndCategory($pageSlug, $category['id'], $site['id']);
 
         if (!$page) {
             http_response_code(404);
