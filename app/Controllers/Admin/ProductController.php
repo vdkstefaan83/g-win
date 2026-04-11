@@ -44,38 +44,66 @@ class ProductController extends Controller
 
     public function create(): void
     {
+        $siteModel = new \App\Models\Site();
         $this->render('admin/products/create.twig', [
             'categories' => $this->categoryModel->findAll('name', 'ASC'),
+            'sites' => $siteModel->findAll('name', 'ASC'),
         ]);
     }
 
     public function store(): void
     {
-        $validation = $this->validate([
-            'name' => 'required|max:255',
-            'slug' => 'required|max:255',
-            'price' => 'required|numeric',
-        ]);
+        $nlName = trim($this->input('nl_name', ''));
+        $nlSlug = trim($this->input('nl_slug', ''));
+        $price = $this->input('price', '');
 
-        if (!empty($validation['errors'])) {
-            Session::flash('error', implode(' ', $validation['errors']));
+        if (empty($nlName) || empty($nlSlug) || $price === '') {
+            Session::flash('error', 'NL naam, slug en prijs zijn verplicht.');
             $this->redirect('/admin/products/create');
+            return;
         }
 
-        $data = $validation['data'];
-        $data['category_id'] = $this->input('category_id') ?: null;
-        $data['description'] = $this->input('description', '');
-        $data['stock'] = (int) $this->input('stock', 0);
-        $data['is_active'] = $this->input('is_active') ? 1 : 0;
-        $data['is_featured'] = $this->input('is_featured') ? 1 : 0;
-        $data['lang'] = $this->input('lang', 'nl');
-        $data['translation_of'] = $this->input('translation_of') ?: null;
+        $shared = [
+            'category_id' => $this->input('category_id') ?: null,
+            'price' => (float) $price,
+            'stock' => (int) $this->input('stock', 0),
+            'is_active' => $this->input('is_active') ? 1 : 0,
+            'is_featured' => $this->input('is_featured') ? 1 : 0,
+        ];
 
-        $productId = $this->productModel->create($data);
+        // Create NL record
+        $nlData = array_merge($shared, [
+            'name' => $nlName,
+            'slug' => $nlSlug,
+            'description' => $this->input('nl_description', ''),
+            'lang' => 'nl',
+            'translation_of' => null,
+        ]);
+
+        $nlId = $this->productModel->create($nlData);
+
+        // Create FR record (only if name filled)
+        $frName = trim($this->input('fr_name', ''));
+        if (!empty($frName) && $nlId) {
+            $frData = array_merge($shared, [
+                'name' => $frName,
+                'slug' => trim($this->input('fr_slug', '')),
+                'description' => $this->input('fr_description', ''),
+                'lang' => 'fr',
+                'translation_of' => $nlId,
+            ]);
+            $this->productModel->create($frData);
+        }
 
         // Handle image uploads
-        if ($productId && !empty($_FILES['images']['name'][0])) {
-            $this->handleImageUploads($productId);
+        if ($nlId && !empty($_FILES['images']['name'][0])) {
+            $this->handleImageUploads($nlId);
+        }
+
+        // Sync sites
+        $siteIds = $_POST['site_ids'] ?? [];
+        if (!empty($siteIds) && $nlId) {
+            $this->productModel->syncSites($nlId, $siteIds);
         }
 
         Session::flash('success', 'Product aangemaakt.');
