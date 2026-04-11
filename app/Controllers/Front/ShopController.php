@@ -49,7 +49,7 @@ class ShopController extends Controller
 
         $this->render('front/shop/index.twig', array_merge($menus, [
             'products' => $productModel->getActive($lang, 'sort_order', 'ASC', $siteFilter),
-            'categories' => $categoryModel->getActive($lang),
+            'categories' => $categoryModel->getActive($lang, $siteFilter),
         ]));
     }
 
@@ -72,7 +72,7 @@ class ShopController extends Controller
         $this->render('front/shop/category.twig', array_merge($menus, [
             'category' => $category,
             'products' => $productModel->getByCategory($category['id'], $lang, $siteFilter),
-            'categories' => $categoryModel->getActive($lang),
+            'categories' => $categoryModel->getActive($lang, $siteFilter),
         ]));
     }
 

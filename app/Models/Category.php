@@ -13,17 +13,23 @@ class Category extends Model
         return $this->findBy('slug', $slug);
     }
 
-    public function getActive(string $lang = 'nl'): array
+    public function getActive(string $lang = 'nl', ?int $siteId = null): array
     {
-        return $this->query(
-            "SELECT c.*, COUNT(p.id) as product_count
-             FROM categories c
-             LEFT JOIN products p ON c.id = p.category_id AND p.is_active = 1 AND p.lang = :lang
-             WHERE c.is_active = 1 AND c.lang = :lang2
-             GROUP BY c.id
-             ORDER BY c.sort_order ASC",
-            ['lang' => $lang, 'lang2' => $lang]
-        )->fetchAll();
+        $params = ['lang' => $lang, 'lang2' => $lang];
+
+        $sql = "SELECT c.*, COUNT(p.id) as product_count
+                FROM categories c
+                LEFT JOIN products p ON c.id = p.category_id AND p.is_active = 1 AND p.lang = :lang";
+        if ($siteId) {
+            $sql .= " INNER JOIN product_sites ps ON ps.product_id = p.id AND ps.site_id = :site_id";
+            $params['site_id'] = $siteId;
+        }
+        $sql .= " WHERE c.is_active = 1 AND c.lang = :lang2
+                   GROUP BY c.id
+                   HAVING product_count > 0
+                   ORDER BY c.sort_order ASC";
+
+        return $this->query($sql, $params)->fetchAll();
     }
 
     public function getAllForAdmin(): array
