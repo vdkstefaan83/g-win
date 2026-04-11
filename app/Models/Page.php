@@ -89,10 +89,15 @@ class Page extends Model
                 LEFT JOIN pages master ON p.translation_of = master.id";
         $params = [];
         if ($siteId) {
-            $sql .= " INNER JOIN page_sites ps ON ps.page_id = p.id AND ps.site_id = :site_id";
+            // Only exclude pages that are explicitly assigned to OTHER sites (not this one).
+            // Pages with no page_sites entries at all still show (they inherit from category).
+            $sql .= " LEFT JOIN page_sites ps ON ps.page_id = p.id";
             $params['site_id'] = $siteId;
         }
         $sql .= " WHERE p.page_category_id IN ({$placeholders}) AND p.is_published = 1";
+        if ($siteId) {
+            $sql .= " AND (ps.site_id = :site_id OR NOT EXISTS (SELECT 1 FROM page_sites ps2 WHERE ps2.page_id = p.id))";
+        }
         if ($lang) {
             $sql .= " AND p.lang = :lang";
             $params['lang'] = $lang;
@@ -126,10 +131,14 @@ class Page extends Model
                 LEFT JOIN pages master ON p.translation_of = master.id";
         $params = ['slug' => $slug];
         if ($siteId) {
-            $sql .= " INNER JOIN page_sites ps ON ps.page_id = p.id AND ps.site_id = :site_id";
+            $sql .= " LEFT JOIN page_sites ps ON ps.page_id = p.id";
             $params['site_id'] = $siteId;
         }
-        $sql .= " WHERE p.slug = :slug AND p.page_category_id IN ({$placeholders}) AND p.is_published = 1 LIMIT 1";
+        $sql .= " WHERE p.slug = :slug AND p.page_category_id IN ({$placeholders}) AND p.is_published = 1";
+        if ($siteId) {
+            $sql .= " AND (ps.site_id = :site_id OR NOT EXISTS (SELECT 1 FROM page_sites ps2 WHERE ps2.page_id = p.id))";
+        }
+        $sql .= " LIMIT 1";
         return $this->query($sql, $params)->fetch();
     }
 
