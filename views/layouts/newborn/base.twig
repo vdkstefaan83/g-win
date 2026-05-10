@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="{{ lang|default('nl') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}{{ site.name }}{% endblock %}</title>
+    {% block meta %}{% endblock %}
+    {% include 'components/seo-head.twig' ignore missing %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Playfair Display', 'Georgia', 'serif'],
+                    },
+                    colors: {
+                        'nb': {
+                            50: '#F7F3EF',
+                            100: '#F0EBE5',
+                            200: '#E8DED2',
+                            300: '#D4C9BB',
+                            400: '#A89A8E',
+                            500: '#8A7A6A',
+                            600: '#5F5650',
+                            700: '#5A514A',
+                            800: '#3D3530',
+                            900: '#2A2320',
+                        },
+                        'nb-accent': {
+                            50: '#FCF8F0',
+                            100: '#F5ECD8',
+                            200: '#E8D5A8',
+                            300: '#D4BA7A',
+                            400: '#C6A769',
+                            500: '#B8975A',
+                            600: '#9A7D48',
+                            700: '#7C6439',
+                            800: '#5E4B2B',
+                            900: '#40331D',
+                        },
+                        // Aliases for content templates using krijgers classes
+                        'krijgers': {
+                            50: '#F7F3EF',
+                            100: '#F0EBE5',
+                            200: '#E8DED2',
+                            300: '#D4C9BB',
+                            400: '#A89A8E',
+                            500: '#8A7A6A',
+                            600: '#5F5650',
+                            700: '#5A514A',
+                            800: '#3D3530',
+                            900: '#2A2320',
+                        },
+                        'krijgers-gold': {
+                            50: '#FCF8F0',
+                            100: '#F5ECD8',
+                            200: '#E8D5A8',
+                            300: '#D4BA7A',
+                            400: '#C6A769',
+                            500: '#B8975A',
+                            600: '#9A7D48',
+                            700: '#7C6439',
+                            800: '#5E4B2B',
+                            900: '#40331D',
+                        },
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out',
+                        'slide-in': 'slideIn 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideIn: {
+                            '0%': { opacity: '0', transform: 'translateX(-20px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body class="bg-[#F7F3EF] min-h-screen flex flex-col font-sans antialiased text-[#5A514A]">
+    {% include 'layouts/newborn/header.twig' %}
+
+    {% include 'components/flash-messages.twig' %}
+
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'layouts/newborn/footer.twig' %}
+
+    <script src="/assets/js/app.js"></script>
+    {% block scripts %}{% endblock %}
+    {% include 'components/cookie-banner.twig' ignore missing %}
+    {% include 'components/seo-jsonld.twig' ignore missing %}
+</body>
+</html>
