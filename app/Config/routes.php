@@ -386,9 +386,6 @@ $router->post('/admin/appointments/{id}/confirm', function ($id) {
 $router->post('/admin/appointments/{id}/cancel', function ($id) {
     (new AdminAppointmentController())->cancelAppointment((int)$id);
 });
-$router->post('/admin/appointments/{id}/mark-paid', function ($id) {
-    (new AdminAppointmentController())->markPaid((int)$id);
-});
 $router->post('/admin/appointments/block-date', function () {
     (new AdminAppointmentController())->blockDate();
 });

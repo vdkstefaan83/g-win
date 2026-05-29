@@ -5,7 +5,6 @@
     "require": {
         "php": ">=8.1",
         "bramus/router": "^1.6",
-        "chillerlan/php-qrcode": "^6.0",
         "google/apiclient": "^2.15",
         "mollie/mollie-api-php": "^2.65",
         "phpmailer/phpmailer": "^7.0",

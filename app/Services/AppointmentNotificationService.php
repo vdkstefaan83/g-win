@@ -207,49 +207,6 @@ class AppointmentNotificationService
         }
     }
 
-    /**
-     * Send booking confirmation email with EPC QR code for bank transfer payment.
-     */
-    public function sendEpcQrPaymentEmail(array $appointment, string $qrPngData, string $reference, float $amount, string $iban): void
-    {
-        $lang = $appointment['lang'] ?? 'nl';
-        $vars = $this->buildVariables($appointment);
-        $amountFormatted = number_format($amount, 2, ',', '.');
-
-        if ($lang === 'fr') {
-            $subject = "Confirmation de rendez-vous - G-Win";
-            $body = "<h2>Confirmation de votre rendez-vous</h2>";
-            $body .= "<p>Cher(e) {$vars['voornaam']},</p>";
-            $body .= "<p>Merci pour votre rendez-vous pour <strong>{$vars['type']}</strong> le <strong>{$vars['datum']}</strong>{$vars['tijdstip_zin']}.</p>";
-            $body .= "<p>Pour confirmer votre rendez-vous, veuillez payer <strong>&euro;{$amountFormatted}</strong> par virement bancaire.</p>";
-            $body .= "<p style='text-align:center;margin:20px 0;'><img src='cid:epcqr' alt='QR code de paiement' style='width:200px;height:200px;'></p>";
-            $body .= "<p><strong>Scannez ce code QR avec votre application bancaire</strong>, ou utilisez les coordonnées suivantes :</p>";
-            $body .= "<div style='background:#f5f5f5;padding:15px;margin:15px 0;border-left:4px solid #C6A769;'>";
-            $body .= "<strong>IBAN :</strong> {$iban}<br>";
-            $body .= "<strong>Montant :</strong> &euro;{$amountFormatted}<br>";
-            $body .= "<strong>Référence :</strong> {$reference}";
-            $body .= "</div>";
-            $body .= "<p>Cordialement,<br>G-Win</p>";
-        } else {
-            $subject = "Bevestiging afspraak - G-Win";
-            $body = "<h2>Bevestiging van je afspraak</h2>";
-            $body .= "<p>Beste {$vars['voornaam']},</p>";
-            $body .= "<p>Bedankt voor je afspraak voor <strong>{$vars['type']}</strong> op <strong>{$vars['datum']}</strong>{$vars['tijdstip_zin']}.</p>";
-            $body .= "<p>Om je afspraak te bevestigen, gelieve <strong>&euro;{$amountFormatted}</strong> over te schrijven.</p>";
-            $body .= "<p style='text-align:center;margin:20px 0;'><img src='cid:epcqr' alt='QR code betaling' style='width:200px;height:200px;'></p>";
-            $body .= "<p><strong>Scan deze QR-code met je bank-app</strong>, of gebruik onderstaande gegevens:</p>";
-            $body .= "<div style='background:#f5f5f5;padding:15px;margin:15px 0;border-left:4px solid #C6A769;'>";
-            $body .= "<strong>IBAN:</strong> {$iban}<br>";
-            $body .= "<strong>Bedrag:</strong> &euro;{$amountFormatted}<br>";
-            $body .= "<strong>Referentie:</strong> {$reference}";
-            $body .= "</div>";
-            $body .= "<p>Met vriendelijke groet,<br>G-Win</p>";
-        }
-
-        $emailSent = MailService::sendWithInlineImage($appointment['email'], $subject, $body, $qrPngData, 'epcqr');
-        $this->logNotification($appointment['id'], 'epc_qr_payment', 'email', $emailSent);
-    }
-
     private function logNotification(int $appointmentId, string $type, string $channel, bool $success): void
     {
         try {

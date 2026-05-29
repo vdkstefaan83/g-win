@@ -190,27 +190,6 @@ class AppointmentController extends Controller
             }
         }
 
-        // Send EPC QR payment email if IBAN is configured
-        $settingModel = new Setting();
-        $bankIban = trim($settingModel->get('bank_iban', null, ''));
-        $bankName = trim($settingModel->get('bank_account_name', null, ''));
-        $depositAmount = (float) $settingModel->get('appointment_deposit_amount', null, '0');
-
-        if ($bankIban && $bankName && $depositAmount > 0) {
-            $typeName = ($lang === 'fr' && !empty($type['name_fr'])) ? $type['name_fr'] : $type['name_nl'];
-            $epcReference = $firstName . ' ' . $lastName . ' - ' . $typeName;
-            $bankBic = trim($settingModel->get('bank_bic', null, ''));
-
-            $qrPngData = \App\Services\EpcQrService::generatePng($bankIban, $bankName, $depositAmount, $epcReference, $bankBic);
-
-            $appointmentModel2 = new Appointment();
-            $appointment = $appointmentModel2->getWithCustomer($appointmentId);
-            if ($appointment) {
-                $notificationService = new \App\Services\AppointmentNotificationService();
-                $notificationService->sendEpcQrPaymentEmail($appointment, $qrPngData, $epcReference, $depositAmount, $bankIban);
-            }
-        }
-
         $confirmUrl = $lang === 'fr' ? "/fr/rendez-vous/confirmation/{$appointmentId}" : "/afspraken/bevestiging/{$appointmentId}";
         $this->redirect($confirmUrl);
     }
@@ -438,32 +417,9 @@ class AppointmentController extends Controller
                 : "/afspraken/betalen/{$appointment['payment_token']}";
         }
 
-        // Generate EPC QR code if IBAN is configured
-        $epcQrImage = null;
-        $epcReference = null;
-        $settingModel = new Setting();
-        $bankIban = trim($settingModel->get('bank_iban', null, ''));
-        $bankName = trim($settingModel->get('bank_account_name', null, ''));
-        $depositAmount = (float) $settingModel->get('appointment_deposit_amount', null, '0');
-
-        if ($appointment && $bankIban && $bankName && $depositAmount > 0) {
-            $typeModel = new AppointmentType();
-            $type = $typeModel->findById($appointment['appointment_type_id'] ?? 0);
-            $typeName = $type ? (($lang === 'fr' && !empty($type['name_fr'])) ? $type['name_fr'] : $type['name_nl']) : $appointment['type'];
-
-            $epcReference = ($appointment['first_name'] ?? '') . ' ' . ($appointment['last_name'] ?? '') . ' - ' . $typeName;
-            $bankBic = trim($settingModel->get('bank_bic', null, ''));
-
-            $epcQrImage = \App\Services\EpcQrService::generate($bankIban, $bankName, $depositAmount, $epcReference, $bankBic);
-        }
-
         $this->render('front/appointments/confirm.twig', [
             'appointment' => $appointment,
             'payment_url' => $paymentUrl,
-            'epc_qr_image' => $epcQrImage,
-            'epc_reference' => $epcReference,
-            'epc_amount' => $depositAmount,
-            'epc_iban' => $bankIban,
             'header_menu' => $headerMenu,
             'footer_menu' => $footerMenu,
             'layout' => $this->site['layout'] ?? 'gwin',

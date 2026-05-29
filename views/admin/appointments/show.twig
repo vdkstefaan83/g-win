@@ -115,18 +115,6 @@
         {% endif %}
 
         {% if appointment.status == 'pending' %}
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Betaling ontvangen</h3>
-            <p class="text-sm text-gray-500 mb-4">Klik hier als je de betaling (via overschrijving/QR-code) manueel hebt ontvangen. Dit bevestigt de afspraak en stuurt een bevestigingsmail naar de klant.</p>
-            <form action="/admin/appointments/{{ appointment.id }}/mark-paid" method="POST" onsubmit="return confirm('Betaling als ontvangen markeren en afspraak bevestigen?')">
-                {{ csrf_field|raw }}
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    Betaling ontvangen — bevestig afspraak
-                </button>
-            </form>
-        </div>
-
         <div class="bg-white rounded-lg shadow p-6" x-data="confirmHandler()">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Bevestigen</h3>
 
