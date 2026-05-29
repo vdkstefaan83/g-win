@@ -156,6 +156,32 @@ class AppointmentController extends Controller
         $this->redirect('/admin/appointments');
     }
 
+    /**
+     * Manually mark an appointment as paid (for EPC QR / bank transfer payments).
+     */
+    public function markPaid(int $id): void
+    {
+        $appointment = $this->appointmentModel->getWithCustomer($id);
+        if (!$appointment) {
+            Session::flash('error', 'Afspraak niet gevonden.');
+            $this->redirect('/admin/appointments');
+            return;
+        }
+
+        $this->appointmentModel->update($id, [
+            'status' => 'confirmed',
+            'payment_status' => 'paid',
+        ]);
+
+        // Send confirmation notification
+        $appointment = $this->appointmentModel->getWithCustomer($id);
+        $notificationService = new AppointmentNotificationService();
+        $notificationService->sendPaymentConfirmation($appointment);
+
+        Session::flash('success', 'Betaling gemarkeerd als ontvangen. Bevestigingsmail verstuurd naar ' . $appointment['email']);
+        $this->redirect('/admin/appointments/' . $id);
+    }
+
     public function blockDate(): void
     {
         $dateStart = $this->input('blocked_date');

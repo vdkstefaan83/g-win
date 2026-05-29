@@ -81,6 +81,52 @@ class MailService
     }
 
     /**
+     * Send email with an inline embedded image (e.g. QR code) and optional string attachment.
+     * Use <img src="cid:$imageCid"> in $body to reference the inline image.
+     */
+    public static function sendWithInlineImage(string $to, string $subject, string $body, string $imageData, string $imageCid = 'qrcode', ?string $attachmentContent = null, ?string $attachmentName = null, string $attachmentType = 'text/calendar'): bool
+    {
+        $mail = new PHPMailer(true);
+
+        try {
+            $mail->isSMTP();
+            $mail->Host = $_ENV['MAIL_HOST'] ?? 'localhost';
+            $mail->Port = (int) ($_ENV['MAIL_PORT'] ?? 587);
+            $mail->SMTPSecure = $mail->Port === 465 ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+
+            $username = $_ENV['MAIL_USER'] ?? '';
+            if (!empty($username)) {
+                $mail->SMTPAuth = true;
+                $mail->Username = $username;
+                $mail->Password = $_ENV['MAIL_PASS'] ?? '';
+            }
+
+            $from = $_ENV['MAIL_FROM'] ?? 'noreply@g-win.be';
+            $mail->setFrom($from, 'G-Win');
+            $mail->addAddress($to);
+
+            $mail->isHTML(true);
+            $mail->CharSet = 'UTF-8';
+            $mail->Subject = $subject;
+            $mail->Body = $body;
+
+            // Add inline image
+            $mail->addStringEmbeddedImage($imageData, $imageCid, 'qrcode.png', 'base64', 'image/png');
+
+            // Optional attachment
+            if ($attachmentContent && $attachmentName) {
+                $mail->addStringAttachment($attachmentContent, $attachmentName, 'base64', $attachmentType);
+            }
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log('Mail send failed: ' . $mail->ErrorInfo);
+            return false;
+        }
+    }
+
+    /**
      * Generate an ICS calendar event.
      */
     public static function generateIcs(array $appointment): string
