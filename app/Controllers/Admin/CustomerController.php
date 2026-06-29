@@ -75,6 +75,20 @@ class CustomerController extends Controller
         $this->redirect("/admin/customers/{$id}");
     }
 
+    public function destroy(int $id): void
+    {
+        $customer = $this->customerModel->findById($id);
+        if (!$customer) {
+            Session::flash('error', 'Klant niet gevonden.');
+            $this->redirect('/admin/customers');
+            return;
+        }
+
+        $this->customerModel->delete($id);
+        Session::flash('success', 'Klant ' . $customer['first_name'] . ' ' . $customer['last_name'] . ' verwijderd.');
+        $this->redirect('/admin/customers');
+    }
+
     public function filter(): void
     {
         $search = $this->input('search', '');

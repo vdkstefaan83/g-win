@@ -408,6 +408,9 @@ $router->get('/admin/customers/{id}', function ($id) {
 $router->get('/admin/customers/{id}/edit', function ($id) {
     (new CustomerController())->edit((int)$id);
 });
+$router->post('/admin/customers/{id}/delete', function ($id) {
+    (new CustomerController())->destroy((int)$id);
+});
 $router->post('/admin/customers/{id}/update', function ($id) {
     (new CustomerController())->update((int)$id);
 });

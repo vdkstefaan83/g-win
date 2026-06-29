@@ -39,6 +39,10 @@
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
                         <a href="/admin/customers/{{ customer.id }}" class="text-blue-600 hover:text-blue-800 font-medium">Bekijken</a>
                         <a href="/admin/customers/{{ customer.id }}/edit" class="text-gray-600 hover:text-gray-800 font-medium">Bewerken</a>
+                        <form action="/admin/customers/{{ customer.id }}/delete" method="POST" class="inline" onsubmit="return confirm('Klant {{ customer.first_name }} {{ customer.last_name }} verwijderen? Bijhorende bestellingen en afspraken worden ook verwijderd.')">
+                            {{ csrf_field|raw }}
+                            <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Verwijderen</button>
+                        </form>
                     </td>
                 </tr>
                 {% else %}
