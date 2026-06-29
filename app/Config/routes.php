@@ -386,6 +386,9 @@ $router->post('/admin/appointments/{id}/confirm', function ($id) {
 $router->post('/admin/appointments/{id}/cancel', function ($id) {
     (new AdminAppointmentController())->cancelAppointment((int)$id);
 });
+$router->post('/admin/appointments/{id}/delete', function ($id) {
+    (new AdminAppointmentController())->destroy((int)$id);
+});
 $router->post('/admin/appointments/block-date', function () {
     (new AdminAppointmentController())->blockDate();
 });

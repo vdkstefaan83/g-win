@@ -149,6 +149,20 @@ class AppointmentController extends Controller
         $this->redirect('/admin/appointments');
     }
 
+    public function destroy(int $id): void
+    {
+        $appointment = $this->appointmentModel->findById($id);
+        if (!$appointment) {
+            Session::flash('error', 'Afspraak niet gevonden.');
+            $this->redirect('/admin/appointments');
+            return;
+        }
+
+        $this->appointmentModel->delete($id);
+        Session::flash('success', 'Afspraak #' . $id . ' verwijderd.');
+        $this->redirect('/admin/appointments');
+    }
+
     public function cancelAppointment(int $id): void
     {
         $this->appointmentModel->update($id, ['status' => 'cancelled']);
