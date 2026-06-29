@@ -15,6 +15,13 @@ class AppointmentPaymentService
     private Payment $paymentModel;
     private Setting $settingModel;
 
+    private static function currentBaseUrl(): string
+    {
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        return $scheme . '://' . $host;
+    }
+
     public function __construct()
     {
         $this->mollie = new MollieApiClient();
@@ -50,7 +57,7 @@ class AppointmentPaymentService
 
         // Build the payment URL based on language
         $lang = $appointment['lang'] ?? 'nl';
-        $baseUrl = $_ENV['APP_URL'] ?? '';
+        $baseUrl = self::currentBaseUrl();
         $payUrl = $lang === 'fr'
             ? "{$baseUrl}/fr/rendez-vous/betalen/{$token}"
             : "{$baseUrl}/afspraken/betalen/{$token}";
@@ -65,7 +72,7 @@ class AppointmentPaymentService
     {
         $token = $appointment['payment_token'];
         $lang = $appointment['lang'] ?? 'nl';
-        $baseUrl = $_ENV['APP_URL'] ?? '';
+        $baseUrl = self::currentBaseUrl();
 
         $redirectUrl = $lang === 'fr'
             ? "{$baseUrl}/fr/rendez-vous/betaling/succes/{$appointment['id']}"
@@ -88,7 +95,7 @@ class AppointmentPaymentService
                 'description' => $description,
                 'redirectUrl' => $redirectUrl,
                 'cancelUrl' => $cancelUrl,
-                'webhookUrl' => $_ENV['MOLLIE_WEBHOOK_URL'] ?? ($baseUrl . '/webhook/mollie'),
+                'webhookUrl' => $baseUrl . '/webhook/mollie',
                 'metadata' => [
                     'appointment_id' => $appointment['id'],
                     'payment_token' => $token,

@@ -21,6 +21,13 @@ class PaymentService
         $this->orderModel = new Order();
     }
 
+    private static function currentBaseUrl(): string
+    {
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        return $scheme . '://' . $host;
+    }
+
     public function createPayment(array $order, string $method = 'bancontact'): ?string
     {
         try {
@@ -30,9 +37,9 @@ class PaymentService
                     'value' => number_format((float)$order['total'], 2, '.', ''),
                 ],
                 'description' => 'Bestelling ' . $order['order_number'],
-                'redirectUrl' => ($_ENV['APP_URL'] ?? '') . '/betaling/succes?order=' . $order['id'],
-                'cancelUrl' => ($_ENV['APP_URL'] ?? '') . '/betaling/annulatie?order=' . $order['id'],
-                'webhookUrl' => $_ENV['MOLLIE_WEBHOOK_URL'] ?? (($_ENV['APP_URL'] ?? '') . '/webhook/mollie'),
+                'redirectUrl' => self::currentBaseUrl() . '/betaling/succes?order=' . $order['id'],
+                'cancelUrl' => self::currentBaseUrl() . '/betaling/annulatie?order=' . $order['id'],
+                'webhookUrl' => self::currentBaseUrl() . '/webhook/mollie',
                 'method' => $method === 'paypal' ? 'paypal' : 'bancontact',
                 'metadata' => [
                     'order_id' => $order['id'],
