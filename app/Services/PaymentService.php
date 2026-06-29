@@ -58,6 +58,9 @@ class PaymentService
             return $payment->getCheckoutUrl();
         } catch (\Exception $e) {
             error_log('Payment creation failed: ' . $e->getMessage());
+            if (($_ENV['APP_DEBUG'] ?? 'false') === 'true') {
+                \Core\Session::flash('error', 'Mollie fout: ' . $e->getMessage());
+            }
             return null;
         }
     }
