@@ -473,6 +473,9 @@ $router->get('/admin/orders', function () {
 $router->get('/admin/orders/{id}', function ($id) {
     (new OrderController())->show((int)$id);
 });
+$router->post('/admin/orders/{id}/delete', function ($id) {
+    (new OrderController())->destroy((int)$id);
+});
 $router->post('/admin/orders/{id}/update-status', function ($id) {
     (new OrderController())->updateStatus((int)$id);
 });

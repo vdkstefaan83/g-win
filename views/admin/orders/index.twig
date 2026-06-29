@@ -72,6 +72,10 @@
                     <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ order.created_at|date('d/m/Y H:i') }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
                         <a href="/admin/orders/{{ order.id }}" class="text-blue-600 hover:text-blue-800 font-medium">Bekijken</a>
+                        <form action="/admin/orders/{{ order.id }}/delete" method="POST" class="inline ml-2" onsubmit="return confirm('Bestelling #{{ order.order_number }} definitief verwijderen?')">
+                            {{ csrf_field|raw }}
+                            <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Verwijderen</button>
+                        </form>
                     </td>
                 </tr>
                 {% else %}

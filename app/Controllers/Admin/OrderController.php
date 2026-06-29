@@ -49,6 +49,20 @@ class OrderController extends Controller
         $this->redirect("/admin/orders/{$id}");
     }
 
+    public function destroy(int $id): void
+    {
+        $order = $this->orderModel->findById($id);
+        if (!$order) {
+            Session::flash('error', 'Bestelling niet gevonden.');
+            $this->redirect('/admin/orders');
+            return;
+        }
+
+        $this->orderModel->delete($id);
+        Session::flash('success', 'Bestelling #' . $order['order_number'] . ' verwijderd.');
+        $this->redirect('/admin/orders');
+    }
+
     public function filter(): void
     {
         $orders = $this->orderModel->filterByStatus(
