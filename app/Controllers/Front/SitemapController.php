@@ -9,7 +9,6 @@ class SitemapController extends Controller
 {
     public function index(): void
     {
-        // Only serve sitemap if SEO is enabled
         $settingModel = new \App\Models\Setting();
         if (!(bool) $settingModel->get('seo_enabled', null, '')) {
             http_response_code(404);
@@ -22,6 +21,15 @@ class SitemapController extends Controller
         $host = $_SERVER['HTTP_HOST'] ?? 'gwin.vanderkerken.com';
         $baseUrl = $scheme . '://' . $host;
 
+        // Resolve current site
+        $siteModel = new \App\Models\Site();
+        $dbSite = $siteModel->findByLinkedDomain($host);
+        if (!$dbSite) {
+            $dbSite = $siteModel->findByDomain($host);
+        }
+        $siteId = $dbSite ? (int)$dbSite['id'] : null;
+        $showAll = $dbSite && $dbSite['slug'] === 'gwin'; // Gwin shows everything
+
         header('Content-Type: application/xml; charset=utf-8');
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -31,10 +39,19 @@ class SitemapController extends Controller
         // Homepage
         $xml .= $this->url($baseUrl . '/', '1.0', 'weekly');
 
-        // Page categories (NL)
-        $categories = $db->query("SELECT pc.slug, pc.id, pc.updated_at FROM page_categories pc WHERE pc.lang = 'nl' AND pc.is_active = 1 ORDER BY pc.sort_order")->fetchAll(\PDO::FETCH_ASSOC);
+        // Page categories (NL) — filtered by site
+        $catSql = "SELECT pc.slug, pc.id, pc.updated_at FROM page_categories pc WHERE pc.lang = 'nl' AND pc.is_active = 1";
+        $catParams = [];
+        if ($siteId && !$showAll) {
+            $catSql .= " AND pc.site_id = :site_id";
+            $catParams['site_id'] = $siteId;
+        }
+        $catSql .= " ORDER BY pc.sort_order";
+        $stmt = $db->prepare($catSql);
+        $stmt->execute($catParams);
+        $categories = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
         foreach ($categories as $cat) {
-            // Find FR translation
             $frCat = $db->prepare("SELECT slug FROM page_categories WHERE translation_of = :id AND lang = 'fr' LIMIT 1");
             $frCat->execute(['id' => $cat['id']]);
             $fr = $frCat->fetch(\PDO::FETCH_ASSOC);
@@ -45,18 +62,24 @@ class SitemapController extends Controller
             $xml .= $this->url($nlUrl, '0.8', 'weekly', $cat['updated_at'], $nlUrl, $frUrl);
         }
 
-        // Pages (NL)
-        $pages = $db->query("SELECT p.id, p.slug, p.page_category_id, p.updated_at, pc.slug as cat_slug
+        // Pages (NL) — filtered by site via page_sites pivot
+        $pageSql = "SELECT p.id, p.slug, p.page_category_id, p.updated_at, pc.slug as cat_slug
             FROM pages p
-            LEFT JOIN page_categories pc ON p.page_category_id = pc.id
-            WHERE p.lang = 'nl' AND p.translation_of IS NULL AND p.is_published = 1
-            ORDER BY p.sort_order")->fetchAll(\PDO::FETCH_ASSOC);
+            LEFT JOIN page_categories pc ON p.page_category_id = pc.id";
+        $pageParams = [];
+        if ($siteId && !$showAll) {
+            $pageSql .= " INNER JOIN page_sites ps ON ps.page_id = p.id AND ps.site_id = :site_id";
+            $pageParams['site_id'] = $siteId;
+        }
+        $pageSql .= " WHERE p.lang = 'nl' AND p.translation_of IS NULL AND p.is_published = 1 ORDER BY p.sort_order";
+        $stmt = $db->prepare($pageSql);
+        $stmt->execute($pageParams);
+        $pages = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach ($pages as $page) {
             $path = $page['cat_slug'] ? '/' . $page['cat_slug'] . '/' . $page['slug'] : '/' . $page['slug'];
             $nlUrl = $baseUrl . $path;
 
-            // Find FR translation
             $frPage = $db->prepare("SELECT p2.slug, pc2.slug as cat_slug FROM pages p2
                 LEFT JOIN page_categories pc2 ON p2.page_category_id = pc2.id
                 WHERE p2.translation_of = :id AND p2.lang = 'fr' LIMIT 1");
@@ -65,7 +88,6 @@ class SitemapController extends Controller
 
             if ($fr) {
                 $frCatSlug = $fr['cat_slug'] ?? $page['cat_slug'];
-                // Try FR category slug
                 if ($page['page_category_id']) {
                     $frCat = $db->prepare("SELECT slug FROM page_categories WHERE translation_of = :id AND lang = 'fr' LIMIT 1");
                     $frCat->execute(['id' => $page['page_category_id']]);
@@ -81,13 +103,25 @@ class SitemapController extends Controller
             $xml .= $this->url($nlUrl, '0.7', 'monthly', $page['updated_at'], $nlUrl, $frUrl);
         }
 
-        // Shop
-        $xml .= $this->url($baseUrl . '/shop', '0.7', 'weekly');
+        // Shop — filtered by site via product_sites
+        $productSql = "SELECT id, slug, updated_at FROM products WHERE lang = 'nl' AND translation_of IS NULL AND is_active = 1";
+        $productParams = [];
+        if ($siteId && !$showAll) {
+            $productSql = "SELECT p.id, p.slug, p.updated_at FROM products p
+                INNER JOIN product_sites ps ON ps.product_id = p.id AND ps.site_id = :site_id
+                WHERE p.lang = 'nl' AND p.translation_of IS NULL AND p.is_active = 1";
+            $productParams['site_id'] = $siteId;
+        }
+        $productSql .= " ORDER BY sort_order";
+        $stmt = $db->prepare($productSql);
+        $stmt->execute($productParams);
+        $products = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        // Products (NL)
-        $products = $db->query("SELECT id, slug, updated_at FROM products WHERE lang = 'nl' AND translation_of IS NULL AND is_active = 1 ORDER BY sort_order")->fetchAll(\PDO::FETCH_ASSOC);
-        foreach ($products as $product) {
-            $xml .= $this->url($baseUrl . '/shop/product/' . rawurlencode($product['slug']), '0.6', 'monthly', $product['updated_at']);
+        if (!empty($products) || $showAll) {
+            $xml .= $this->url($baseUrl . '/shop', '0.7', 'weekly');
+            foreach ($products as $product) {
+                $xml .= $this->url($baseUrl . '/shop/product/' . rawurlencode($product['slug']), '0.6', 'monthly', $product['updated_at']);
+            }
         }
 
         // Appointments
